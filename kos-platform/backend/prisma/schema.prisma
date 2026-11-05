@@ -1,0 +1,1107 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// ENUM
+// ════════════════════════════════════════════════════════════════════════════
+
+enum Role {
+  TENANT
+  OWNER
+  ADMIN
+}
+
+enum AccountStatus {
+  ACTIVE
+  SUSPENDED
+  BANNED
+  PENDING_VERIFICATION
+}
+
+enum PropertyType {
+  KOS_PUTRA
+  KOS_PUTRI
+  KOS_CAMPUR
+}
+
+enum PropertyVerificationStatus {
+  PENDING
+  UNDER_REVIEW
+  VERIFIED
+  REJECTED
+  SUSPENDED
+}
+
+enum PublicationStatus {
+  DRAFT
+  PUBLISHED
+  UNPUBLISHED
+  ARCHIVED
+}
+
+enum RoomAvailabilityStatus {
+  AVAILABLE
+  RESERVED
+  OCCUPIED
+  MAINTENANCE
+  INACTIVE
+}
+
+enum FacilityCategory {
+  PROPERTY
+  ROOM
+}
+
+enum BillingType {
+  FIXED
+  VARIABLE
+  ONE_TIME
+  MONTHLY
+}
+
+enum BookingStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  AWAITING_PAYMENT
+  CONFIRMED
+  CANCELLED
+  EXPIRED
+  COMPLETED
+}
+
+enum ContractStatus {
+  DRAFT
+  PENDING_SIGNATURE
+  ACTIVE
+  COMPLETED
+  TERMINATED
+  CANCELLED
+}
+
+enum InvoiceStatus {
+  DRAFT
+  UNPAID
+  PARTIALLY_PAID
+  PAID
+  OVERDUE
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  EXPIRED
+  REFUNDED
+  PARTIALLY_REFUNDED
+}
+
+enum MaintenancePriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum MaintenanceStatus {
+  OPEN
+  REVIEWING
+  IN_PROGRESS
+  WAITING_FOR_PARTS
+  RESOLVED
+  REJECTED
+  CLOSED
+}
+
+enum ReportType {
+  CHECK_IN
+  PERIODIC_INSPECTION
+  CHECK_OUT
+}
+
+enum ReportStatus {
+  DRAFT
+  SUBMITTED
+  ACKNOWLEDGED
+  DISPUTED
+  COMPLETED
+}
+
+enum AcknowledgementType {
+  TENANT
+  OWNER
+}
+
+enum VisitStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+enum ReviewStatus {
+  PENDING_MODERATION
+  APPROVED
+  REJECTED
+  HIDDEN
+}
+
+enum ReportCategory {
+  PROPERTY_INACCURATE
+  PRICE_NOT_TRANSPARENT
+  PROPERTY_NOT_AVAILABLE
+  SUSPECTED_FRAUD
+  INAPPROPRIATE_BEHAVIOR
+  PAYMENT_ISSUE
+  SERVICE_ISSUE
+}
+
+enum ReportStatusAdmin {
+  OPEN
+  UNDER_REVIEW
+  RESOLVED
+  REJECTED
+  CLOSED
+}
+
+enum NotificationType {
+  BOOKING_CREATED
+  BOOKING_APPROVED
+  BOOKING_REJECTED
+  PAYMENT_SUCCESS
+  NEW_INVOICE
+  INVOICE_DUE_SOON
+  MAINTENANCE_UPDATED
+  CONTRACT_EXPIRING
+  NEW_BOOKING
+  PAYMENT_RECEIVED
+  NEW_MAINTENANCE_REPORT
+  CONTRACT_EXPIRING_OWNER
+  AVAILABILITY_REMINDER
+  PROPERTY_VERIFIED
+  OWNER_VERIFICATION_SUBMITTED
+  PROPERTY_WAITING_REVIEW
+  NEW_REPORT
+  NEW_COMPLAINT
+}
+
+enum CostConfidence {
+  COMPLETE
+  PARTIAL
+  NEEDS_CONFIRMATION
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// MODULE 1: USER MANAGEMENT
+// ════════════════════════════════════════════════════════════════════════════
+
+model users {
+  id                 String           @id @default(uuid()) @db.Uuid
+  full_name          String
+  email              String           @unique
+  phone_number       String?
+  avatar_url         String?
+  role               Role             @default(TENANT)
+  account_status     AccountStatus    @default(PENDING_VERIFICATION)
+  email_verified_at  DateTime?
+  phone_verified_at  DateTime?
+  last_login_at      DateTime?
+  password_hash      String?
+  created_at         DateTime         @default(now())
+  updated_at         DateTime         @updatedAt
+  deleted_at         DateTime?
+
+  // Relations
+  owner_profile      owner_profiles?
+  tenant_profile     tenant_profiles?
+  properties         properties[]     @relation("PropertyOwner")
+  bookings_as_tenant bookings[]       @relation("BookingTenant")
+  bookings_as_owner  bookings[]       @relation("BookingOwner")
+  contracts_as_tenant contracts[]     @relation("ContractTenant")
+  contracts_as_owner contracts[]      @relation("ContractOwner")
+  invoices_as_tenant invoices[]       @relation("InvoiceTenant")
+  invoices_as_owner  invoices[]       @relation("InvoiceOwner")
+  payments           payments[]       @relation("PaymentTenant")
+  maintenance_requests maintenance_requests[] @relation("MaintenanceTenant")
+  maintenance_as_owner maintenance_requests[] @relation("MaintenanceOwner")
+  room_condition_reports room_condition_reports[] @relation("RoomConditionTenant")
+  room_condition_as_owner room_condition_reports[] @relation("RoomConditionOwner")
+  visits             visits[]         @relation("VisitTenant")
+  favorites          favorites[]      @relation("FavoriteTenant")
+  property_views     property_views[] @relation("PropertyViewUser")
+  reviews            reviews[]        @relation("ReviewTenant")
+  user_preferences   user_preferences[]
+  content_articles   content_articles[]
+  room_condition_acknowledgements room_condition_acknowledgements[]
+  room_condition_images room_condition_images[]
+  maintenance_images maintenance_images[]
+  booking_visitors booking_visitors[]
+  contract_documents contract_documents[]
+  owner_verification_docs owner_verification_documents[] @relation("OwnerVerificationDocOwner")
+  owner_verification_docs_reviewed owner_verification_documents[] @relation("OwnerVerificationDocReviewer")
+  property_verifications property_verification_histories[] @relation("PropertyVerificationAdmin")
+  reported_reports   reports[]        @relation("ReportReporter")
+  reviewed_reports   reports[]        @relation("ReportReviewer")
+  audit_logs         audit_logs[]     @relation("AuditLogActor")
+  notifications      notifications[]  @relation("NotificationUser")
+  refresh_sessions   refresh_sessions[]
+  password_reset_tokens password_reset_tokens[]
+
+  @@map("users")
+}
+
+model owner_profiles {
+  id                      String   @id @default(uuid()) @db.Uuid
+  user_id                 String   @unique @db.Uuid
+  identity_verification_status String @default("NOT_SUBMITTED")
+  identity_document_status String @default("NOT_SUBMITTED")
+  business_name           String?
+  description             String?
+  verified_at             DateTime?
+  created_at              DateTime @default(now())
+  updated_at              DateTime @updatedAt
+
+  user   users @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@map("owner_profiles")
+}
+
+model tenant_profiles {
+  id                     String  @id @default(uuid()) @db.Uuid
+  user_id                String  @unique @db.Uuid
+  occupation             String?
+  institution_name       String?
+  emergency_contact_name String?
+  emergency_contact_phone String?
+  created_at             DateTime @default(now())
+  updated_at             DateTime @updatedAt
+
+  user users @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@map("tenant_profiles")
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// MODULE 2: PROPERTY MANAGEMENT
+// ════════════════════════════════════════════════════════════════════════════
+
+model properties {
+  id                            String                   @id @default(uuid()) @db.Uuid
+  owner_id                      String                 @db.Uuid
+  name                          String
+  slug                          String                 @unique
+  description                   String?
+  address                       String
+  province                      String
+  city                          String
+  district                      String
+  subdistrict                   String?
+  postal_code                   String?
+  latitude                      Decimal?
+  longitude                     Decimal?
+  property_type                 PropertyType           @default(KOS_CAMPUR)
+  gender_policy                 String                 @default("campur")
+  total_rooms                   Int                    @default(0)
+  verification_status           PropertyVerificationStatus @default(PENDING)
+  publication_status            PublicationStatus      @default(DRAFT)
+  last_availability_confirmation_at DateTime?
+  published_at                  DateTime?
+  cost_confidence               CostConfidence         @default(NEEDS_CONFIRMATION)
+  created_at                    DateTime               @default(now())
+  updated_at                    DateTime               @updatedAt
+  deleted_at                    DateTime?
+
+  owner    users                         @relation("PropertyOwner", fields: [owner_id], references: [id])
+  rooms    rooms[]
+  images   property_images[]
+  facilities property_facilities[]
+  rules    property_rules[]
+  cost_components cost_components[]
+  bookings bookings[]
+  contracts contracts[]
+  maintenance_requests maintenance_requests[]
+  visits visits[]
+  favorites favorites[]
+  property_views property_views[]
+  reviews reviews[]
+  expenses expenses[]
+  verification_histories property_verification_histories[]
+
+  @@map("properties")
+}
+
+model rooms {
+  id                   String              @id @default(uuid()) @db.Uuid
+  property_id          String              @db.Uuid
+  room_number          String
+  room_name            String?
+  description          String?
+  room_type            String              @default("reguler")
+  area_width           Decimal?
+  area_length          Decimal?
+  monthly_price        Decimal             @db.Decimal(14, 2)
+  maximum_occupants    Int                 @default(1)
+  bathroom_type        String              @default("shared")
+  floor_number         Int?
+  availability_status  RoomAvailabilityStatus @default(AVAILABLE)
+  created_at           DateTime            @default(now())
+  updated_at           DateTime            @updatedAt
+
+  property   properties @relation(fields: [property_id], references: [id], onDelete: Cascade)
+  images     room_images[]
+  facilities room_facilities[]
+  bookings   bookings[]
+  contracts  contracts[]
+  condition_reports room_condition_reports[]
+  visits visits[]
+  maintenance_requests maintenance_requests[]
+  cost_components cost_components[]
+
+  @@map("rooms")
+  @@unique([property_id, room_number])
+}
+
+model property_images {
+  id           String   @id @default(uuid()) @db.Uuid
+  property_id  String   @db.Uuid
+  storage_path String
+  image_url    String?
+  alt_text     String?
+  display_order Int     @default(0)
+  is_primary   Boolean  @default(false)
+  created_at   DateTime @default(now())
+
+  property properties @relation(fields: [property_id], references: [id], onDelete: Cascade)
+
+  @@map("property_images")
+}
+
+model room_images {
+  id          String   @id @default(uuid()) @db.Uuid
+  room_id     String   @db.Uuid
+  storage_path String
+  alt_text    String?
+  display_order Int    @default(0)
+  created_at  DateTime @default(now())
+
+  room rooms @relation(fields: [room_id], references: [id], onDelete: Cascade)
+
+  @@map("room_images")
+}
+
+model facilities {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String   @unique
+  slug        String   @unique
+  category    FacilityCategory @default(PROPERTY)
+  icon        String?
+  created_at  DateTime @default(now())
+
+  property_facilities property_facilities[]
+  room_facilities room_facilities[]
+
+  @@map("facilities")
+}
+
+model property_facilities {
+  id           String   @id @default(uuid()) @db.Uuid
+  property_id  String   @db.Uuid
+  facility_id  String   @db.Uuid
+
+  property  properties   @relation(fields: [property_id], references: [id], onDelete: Cascade)
+  facility  facilities   @relation(fields: [facility_id], references: [id], onDelete: Cascade)
+
+  @@map("property_facilities")
+  @@unique([property_id, facility_id])
+}
+
+model room_facilities {
+  id         String   @id @default(uuid()) @db.Uuid
+  room_id    String   @db.Uuid
+  facility_id String  @db.Uuid
+
+  room    rooms      @relation(fields: [room_id], references: [id], onDelete: Cascade)
+  facility facilities @relation(fields: [facility_id], references: [id], onDelete: Cascade)
+
+  @@map("room_facilities")
+  @@unique([room_id, facility_id])
+}
+
+model property_rules {
+  id             String   @id @default(uuid()) @db.Uuid
+  property_id    String   @db.Uuid
+  rule_title     String
+  rule_description String?
+  is_mandatory   Boolean  @default(false)
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
+
+  property properties @relation(fields: [property_id], references: [id], onDelete: Cascade)
+
+  @@map("property_rules")
+}
+
+model cost_components {
+  id               String          @id @default(uuid()) @db.Uuid
+  property_id      String          @db.Uuid
+  room_id          String?         @db.Uuid
+  name             String
+  amount           Decimal         @db.Decimal(14, 2)
+  billing_type     BillingType     @default(MONTHLY)
+  is_mandatory     Boolean         @default(true)
+  is_refundable    Boolean         @default(false)
+  description      String?
+  cost_confidence  CostConfidence  @default(NEEDS_CONFIRMATION)
+  created_at       DateTime        @default(now())
+  updated_at       DateTime        @updatedAt
+
+  property properties @relation(fields: [property_id], references: [id], onDelete: Cascade)
+  room     rooms?     @relation(fields: [room_id], references: [id], onDelete: SetNull)
+
+  @@map("cost_components")
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// MODULE 3: BOOKING MANAGEMENT
+// ════════════════════════════════════════════════════════════════════════════
+
+model bookings {
+  id                         String        @id @default(uuid()) @db.Uuid
+  tenant_id                  String        @db.Uuid
+  property_id                String        @db.Uuid
+  room_id                    String        @db.Uuid
+  booking_code               String        @unique
+  start_date                 DateTime
+  end_date                   DateTime?
+  monthly_price_snapshot     Decimal       @db.Decimal(14, 2)
+  deposit_amount_snapshot    Decimal       @db.Decimal(14, 2)
+  additional_cost_snapshot   Decimal       @db.Decimal(14, 2) @default(0)
+  total_amount               Decimal       @db.Decimal(14, 2)
+  status                     BookingStatus @default(PENDING)
+  tenant_notes               String?
+  owner_notes                String?
+  expires_at                 DateTime?
+  created_at                 DateTime      @default(now())
+  updated_at                 DateTime      @updatedAt
+
+  tenant   users       @relation("BookingTenant", fields: [tenant_id], references: [id])
+  property properties  @relation(fields: [property_id], references: [id])
+  room     rooms       @relation(fields: [room_id], references: [id])
+  owner    users?      @relation("BookingOwner", fields: [owner_id], references: [id])
+  owner_id   String?   @db.Uuid
+  reviews   reviews[]
+  contracts  contracts[]
+  invoices   invoices[]
+  status_histories booking_status_histories[]
+  visitors   booking_visitors[]
+  payments   payments[]
+
+  @@map("bookings")
+}
+
+model booking_status_histories {
+  id           String   @id @default(uuid()) @db.Uuid
+  booking_id   String   @db.Uuid
+  previous_status BookingStatus?
+  new_status   BookingStatus
+  changed_by   String?  @db.Uuid
+  reason       String?
+  created_at   DateTime @default(now())
+
+  booking bookings @relation(fields: [booking_id], references: [id], onDelete: Cascade)
+
+  @@map("booking_status_histories")
+}
+
+model booking_visitors {
+  id           String   @id @default(uuid()) @db.Uuid
+  booking_id   String   @db.Uuid
+  tenant_id    String   @db.Uuid
+  scheduled_at DateTime?
+  status       String   @default("scheduled")
+  notes        String?
+  created_at   DateTime @default(now())
+
+  booking bookings @relation(fields: [booking_id], references: [id], onDelete: Cascade)
+  tenant  users      @relation(fields: [tenant_id], references: [id])
+
+  @@map("booking_visitors")
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// MODULE 4: CONTRACT MANAGEMENT
+// ════════════════════════════════════════════════════════════════════════════
+
+model contracts {
+  id                String        @id @default(uuid()) @db.Uuid
+  booking_id        String        @unique @db.Uuid
+  tenant_id         String        @db.Uuid
+  owner_id          String        @db.Uuid
+  property_id       String        @db.Uuid
+  room_id           String        @db.Uuid
+  contract_number   String        @unique
+  start_date        DateTime
+  end_date          DateTime?
+  monthly_rent      Decimal       @db.Decimal(14, 2)
+  deposit_amount    Decimal       @db.Decimal(14, 2)
+  contract_status   ContractStatus @default(DRAFT)
+  signed_at         DateTime?
+  created_at        DateTime      @default(now())
+  updated_at        DateTime      @updatedAt
+
+  booking    bookings     @relation(fields: [booking_id], references: [id], onDelete: Cascade)
+  tenant     users        @relation("ContractTenant", fields: [tenant_id], references: [id])
+  owner      users        @relation("ContractOwner", fields: [owner_id], references: [id])
+  property   properties   @relation(fields: [property_id], references: [id])
+  room       rooms        @relation(fields: [room_id], references: [id])
+  documents  contract_documents[]
+  invoices   invoices[]
+  room_condition_reports room_condition_reports[]
+
+  @@map("contracts")
+}
+
+model contract_documents {
+  id           String   @id @default(uuid()) @db.Uuid
+  contract_id  String   @db.Uuid
+  storage_path String
+  document_type String
+  uploaded_by  String   @db.Uuid
+  created_at   DateTime @default(now())
+
+  contract contracts @relation(fields: [contract_id], references: [id], onDelete: Cascade)
+  uploader   users    @relation(fields: [uploaded_by], references: [id])
+
+  @@map("contract_documents")
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// MODULE 5: BILLING AND PAYMENT
+// ════════════════════════════════════════════════════════════════════════════
+
+model invoices {
+  id                 String        @id @default(uuid()) @db.Uuid
+  tenant_id          String        @db.Uuid
+  owner_id           String        @db.Uuid
+  booking_id         String?       @db.Uuid
+  contract_id        String?       @db.Uuid
+  invoice_number     String        @unique
+  billing_period_start DateTime?
+  billing_period_end   DateTime?
+  issue_date         DateTime?
+  due_date           DateTime?
+  subtotal           Decimal       @db.Decimal(14, 2)
+  discount_amount    Decimal       @db.Decimal(14, 2) @default(0)
+  total_amount       Decimal       @db.Decimal(14, 2)
+  invoice_status     InvoiceStatus @default(DRAFT)
+  notes              String?
+  created_at         DateTime      @default(now())
+  updated_at         DateTime      @updatedAt
+
+  tenant    users      @relation("InvoiceTenant", fields: [tenant_id], references: [id])
+  owner     users      @relation("InvoiceOwner", fields: [owner_id], references: [id])
+  booking   bookings?  @relation(fields: [booking_id], references: [id])
+  contract  contracts? @relation(fields: [contract_id], references: [id])
+  invoice_items   invoice_items[]
+  payments   payments[]
+
+  @@map("invoices")
+}
+
+model invoice_items {
+  id          String   @id @default(uuid()) @db.Uuid
+  invoice_id  String   @db.Uuid
+  description String
+  quantity    Decimal  @db.Decimal(10, 2) @default(1)
+  unit_price  Decimal  @db.Decimal(14, 2)
+  subtotal    Decimal  @db.Decimal(14, 2)
+  cost_type   String?
+  created_at  DateTime @default(now())
+
+  invoice invoices @relation(fields: [invoice_id], references: [id], onDelete: Cascade)
+
+  @@map("invoice_items")
+}
+
+model payments {
+  id                    String        @id @default(uuid()) @db.Uuid
+  invoice_id            String?       @db.Uuid
+  tenant_id             String        @db.Uuid
+  booking_id            String?       @db.Uuid
+  payment_code          String        @unique
+  payment_provider      String        @default("midtrans")
+  provider_transaction_id String?
+  provider_order_id     String?
+  payment_method        String?
+  amount                Decimal       @db.Decimal(14, 2)
+  currency              String        @default("IDR")
+  payment_status        PaymentStatus @default(PENDING)
+  paid_at               DateTime?
+  expired_at            DateTime?
+  created_at            DateTime      @default(now())
+  updated_at            DateTime      @updatedAt
+
+  invoice    invoices?   @relation(fields: [invoice_id], references: [id])
+  tenant     users       @relation("PaymentTenant", fields: [tenant_id], references: [id])
+  booking    bookings?   @relation(fields: [booking_id], references: [id])
+  status_histories payment_status_histories[]
+
+  @@map("payments")
+}
+
+model payment_status_histories {
+  id             String   @id @default(uuid()) @db.Uuid
+  payment_id     String   @db.Uuid
+  previous_status PaymentStatus?
+  new_status     PaymentStatus
+  source         String?
+  description    String?
+  created_at     DateTime @default(now())
+
+  payment payments @relation(fields: [payment_id], references: [id], onDelete: Cascade)
+
+  @@map("payment_status_histories")
+}
+
+model payment_webhook_events {
+  id                   String   @id @default(uuid()) @db.Uuid
+  provider             String
+  event_id             String   @unique
+  provider_transaction_id String?
+  payload              Json?
+  processing_status    String   @default("processed")
+  processed_at         DateTime?
+  created_at           DateTime @default(now())
+
+  @@map("payment_webhook_events")
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// MODULE 6: MAINTENANCE MANAGEMENT
+// ════════════════════════════════════════════════════════════════════════════
+
+model maintenance_requests {
+  id                 String             @id @default(uuid()) @db.Uuid
+  tenant_id          String             @db.Uuid
+  owner_id           String             @db.Uuid
+  property_id        String             @db.Uuid
+  room_id            String?            @db.Uuid
+  title              String
+  description          String?
+  category             String
+  priority             MaintenancePriority @default(MEDIUM)
+  status               MaintenanceStatus @default(OPEN)
+  assigned_to          String?          @db.Uuid
+  reported_at          DateTime         @default(now())
+  resolved_at          DateTime?
+  created_at           DateTime         @default(now())
+  updated_at           DateTime         @updatedAt
+
+  tenant     users                  @relation("MaintenanceTenant", fields: [tenant_id], references: [id])
+  owner      users                  @relation("MaintenanceOwner", fields: [owner_id], references: [id])
+  property   properties             @relation(fields: [property_id], references: [id])
+  room       rooms?                 @relation(fields: [room_id], references: [id])
+  images     maintenance_images[]
+  status_histories maintenance_status_histories[]
+
+  @@map("maintenance_requests")
+}
+
+model maintenance_images {
+  id                 String   @id @default(uuid()) @db.Uuid
+  maintenance_request_id String @db.Uuid
+  storage_path       String
+  uploaded_by        String   @db.Uuid
+  created_at         DateTime @default(now())
+
+  request maintenance_requests @relation(fields: [maintenance_request_id], references: [id], onDelete: Cascade)
+  uploader  users            @relation(fields: [uploaded_by], references: [id])
+
+  @@map("maintenance_images")
+}
+
+model maintenance_status_histories {
+  id             String   @id @default(uuid()) @db.Uuid
+  maintenance_request_id String @db.Uuid
+  previous_status MaintenanceStatus?
+  new_status     MaintenanceStatus
+  changed_by     String?  @db.Uuid
+  notes          String?
+  created_at     DateTime @default(now())
+
+  request maintenance_requests @relation(fields: [maintenance_request_id], references: [id], onDelete: Cascade)
+
+  @@map("maintenance_status_histories")
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// MODULE 7: ROOM PASSPORT
+// ════════════════════════════════════════════════════════════════════════════
+
+model room_condition_reports {
+  id                String        @id @default(uuid()) @db.Uuid
+  room_id           String        @db.Uuid
+  tenant_id         String        @db.Uuid
+  owner_id          String?       @db.Uuid
+  contract_id       String?       @db.Uuid
+  report_type       ReportType    @default(CHECK_IN)
+  report_date       DateTime?
+  general_condition String?
+  notes             String?
+  status            ReportStatus  @default(DRAFT)
+  created_at        DateTime      @default(now())
+  updated_at        DateTime      @updatedAt
+
+  room     rooms                  @relation(fields: [room_id], references: [id])
+  tenant   users                  @relation("RoomConditionTenant", fields: [tenant_id], references: [id])
+  owner    users?                 @relation("RoomConditionOwner", fields: [owner_id], references: [id])
+  contract   contracts?           @relation(fields: [contract_id], references: [id])
+  images     room_condition_images[]
+  checklist_items room_condition_checklist_items[]
+  acknowledgements room_condition_acknowledgements[]
+
+  @@map("room_condition_reports")
+}
+
+model room_condition_images {
+  id            String   @id @default(uuid()) @db.Uuid
+  report_id     String   @db.Uuid
+  storage_path  String
+  area_name     String?
+  description   String?
+  uploaded_by   String   @db.Uuid
+  created_at    DateTime @default(now())
+
+  report room_condition_reports @relation(fields: [report_id], references: [id], onDelete: Cascade)
+  uploader users            @relation(fields: [uploaded_by], references: [id])
+
+  @@map("room_condition_images")
+}
+
+model room_condition_checklist_items {
+  id           String   @id @default(uuid()) @db.Uuid
+  report_id    String   @db.Uuid
+  item_name    String
+  condition_status String?
+  notes        String?
+  created_at   DateTime @default(now())
+
+  report room_condition_reports @relation(fields: [report_id], references: [id], onDelete: Cascade)
+
+  @@map("room_condition_checklist_items")
+}
+
+model room_condition_acknowledgements {
+  id                String   @id @default(uuid()) @db.Uuid
+  report_id         String   @db.Uuid
+  user_id           String   @db.Uuid
+  acknowledgement_type AcknowledgementType
+  notes             String?
+  acknowledged_at   DateTime @default(now())
+
+  report room_condition_reports @relation(fields: [report_id], references: [id], onDelete: Cascade)
+  user    users                 @relation(fields: [user_id], references: [id])
+
+  @@map("room_condition_acknowledgements")
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// MODULE 8: KOSVISIT COMPANION
+// ════════════════════════════════════════════════════════════════════════════
+
+model visits {
+  id           String   @id @default(uuid()) @db.Uuid
+  tenant_id    String   @db.Uuid
+  property_id  String   @db.Uuid
+  room_id      String?  @db.Uuid
+  scheduled_at DateTime?
+  visit_status VisitStatus @default(SCHEDULED)
+  notes        String?
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  tenant users   @relation("VisitTenant", fields: [tenant_id], references: [id])
+  property properties @relation(fields: [property_id], references: [id])
+  room     rooms?  @relation(fields: [room_id], references: [id])
+  checklists visit_checklists[]
+  images   visit_images[]
+  notes_   visit_notes[] @relation("VisitNote")
+
+  @@map("visits")
+}
+
+model visit_checklists {
+  id         String   @id @default(uuid()) @db.Uuid
+  visit_id   String   @db.Uuid
+  checklist_item String
+  is_checked Boolean  @default(false)
+  notes      String?
+  created_at DateTime @default(now())
+
+  visit visits @relation(fields: [visit_id], references: [id], onDelete: Cascade)
+
+  @@map("visit_checklists")
+}
+
+model visit_images {
+  id          String   @id @default(uuid()) @db.Uuid
+  visit_id    String   @db.Uuid
+  storage_path String
+  description String?
+  created_at  DateTime @default(now())
+
+  visit visits @relation(fields: [visit_id], references: [id], onDelete: Cascade)
+
+  @@map("visit_images")
+}
+
+model visit_notes {
+  id         String   @id @default(uuid()) @db.Uuid
+  visit_id   String   @db.Uuid
+  category   String
+  content    String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  visit visits @relation("VisitNote", fields: [visit_id], references: [id], onDelete: Cascade)
+
+  @@map("visit_notes")
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// MODULE 9: KOSMATCH AND USER PREFERENCES
+// ════════════════════════════════════════════════════════════════════════════
+
+model user_preferences {
+  id                      String   @id @default(uuid()) @db.Uuid
+  user_id                 String   @unique @db.Uuid
+  minimum_budget          Decimal? @db.Decimal(14, 2)
+  maximum_budget          Decimal? @db.Decimal(14, 2)
+  preferred_city          String?
+  preferred_district      String?
+  preferred_gender_policy String?
+  maximum_distance_km     Decimal? @db.Decimal(10, 2)
+  preferred_facilities    String?  // JSON string or comma-separated
+  preferred_transportation String?
+  created_at              DateTime @default(now())
+  updated_at              DateTime @updatedAt
+
+  user users @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@map("user_preferences")
+}
+
+model favorites {
+  id        String   @id @default(uuid()) @db.Uuid
+  user_id   String   @db.Uuid
+  property_id String @db.Uuid
+  created_at DateTime @default(now())
+
+  user     users     @relation("FavoriteTenant", fields: [user_id], references: [id])
+  property properties @relation(fields: [property_id], references: [id], onDelete: Cascade)
+
+  @@map("favorites")
+  @@unique([user_id, property_id])
+}
+
+model property_views {
+  id         String   @id @default(uuid()) @db.Uuid
+  user_id    String?  @db.Uuid
+  property_id String  @db.Uuid
+  viewed_at  DateTime @default(now())
+
+  user     users?     @relation("PropertyViewUser", fields: [user_id], references: [id])
+  property properties @relation(fields: [property_id], references: [id], onDelete: Cascade)
+
+  @@map("property_views")
+}
+
+model reviews {
+  id                    String      @id @default(uuid()) @db.Uuid
+  tenant_id             String      @db.Uuid
+  property_id           String      @db.Uuid
+  booking_id            String?     @db.Uuid
+  rating                Int
+  cleanliness_rating    Int?
+  location_rating       Int?
+  facilities_rating     Int?
+  owner_service_rating  Int?
+  review_content        String?
+  review_status         ReviewStatus @default(PENDING_MODERATION)
+  created_at            DateTime    @default(now())
+  updated_at            DateTime    @updatedAt
+
+  tenant   users      @relation("ReviewTenant", fields: [tenant_id], references: [id])
+  property properties @relation(fields: [property_id], references: [id], onDelete: Cascade)
+  booking  bookings?  @relation(fields: [booking_id], references: [id])
+
+  @@map("reviews")
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// MODULE 10: TRUECOST SIMULATOR (uses cost_components)
+// ════════════════════════════════════════════════════════════════════════════
+// (no dedicated table; cost_components + booking snapshots serve this module)
+
+// ════════════════════════════════════════════════════════════════════════════
+// MODULE 11: REVIEWS AND RATINGS (reviews model above)
+// ════════════════════════════════════════════════════════════════════════════
+// (covered by reviews model)
+
+// ════════════════════════════════════════════════════════════════════════════
+// MODULE 12: ADMIN MANAGEMENT
+// ════════════════════════════════════════════════════════════════════════════
+
+model owner_verification_documents {
+  id               String   @id @default(uuid()) @db.Uuid
+  owner_id         String   @db.Uuid
+  document_type    String
+  storage_path     String
+  verification_status String @default("PENDING")
+  reviewed_by      String?  @db.Uuid
+  reviewed_at      DateTime?
+  rejection_reason String?
+  created_at       DateTime @default(now())
+
+  owner     users   @relation("OwnerVerificationDocOwner", fields: [owner_id], references: [id])
+  reviewer  users?  @relation("OwnerVerificationDocReviewer", fields: [reviewed_by], references: [id])
+
+  @@map("owner_verification_documents")
+}
+
+model property_verification_histories {
+  id             String   @id @default(uuid()) @db.Uuid
+  property_id    String   @db.Uuid
+  admin_id       String?  @db.Uuid
+  previous_status PropertyVerificationStatus?
+  new_status     PropertyVerificationStatus
+  notes          String?
+  created_at     DateTime @default(now())
+
+  property properties @relation(fields: [property_id], references: [id])
+  admin    users?   @relation("PropertyVerificationAdmin", fields: [admin_id], references: [id])
+
+  @@map("property_verification_histories")
+}
+
+model reports {
+  id                  String   @id @default(uuid()) @db.Uuid
+  reporter_id         String   @db.Uuid
+  target_type         String
+  target_id           String
+  category            ReportCategory
+  description         String
+  evidence_storage_path String?
+  status              ReportStatusAdmin @default(OPEN)
+  reviewed_by         String?  @db.Uuid
+  reviewed_at         DateTime?
+  resolution_notes    String?
+  created_at          DateTime @default(now())
+  updated_at          DateTime @updatedAt
+
+  reporter users @relation("ReportReporter", fields: [reporter_id], references: [id])
+  reviewer users? @relation("ReportReviewer", fields: [reviewed_by], references: [id])
+
+  @@map("reports")
+}
+
+model audit_logs {
+  id           String   @id @default(uuid()) @db.Uuid
+  actor_id     String?  @db.Uuid
+  action       String
+  entity_type  String
+  entity_id    String
+  old_values   Json?
+  new_values   Json?
+  ip_address   String?
+  user_agent   String?
+  created_at   DateTime @default(now())
+
+  actor users? @relation("AuditLogActor", fields: [actor_id], references: [id])
+
+  @@map("audit_logs")
+}
+
+model notifications {
+  id                  String             @id @default(uuid()) @db.Uuid
+  user_id             String             @db.Uuid
+  notification_type   NotificationType
+  title               String
+  message             String
+  related_entity_type String?
+  related_entity_id   String?
+  is_read             Boolean            @default(false)
+  read_at             DateTime?
+  created_at          DateTime           @default(now())
+
+  user users @relation("NotificationUser", fields: [user_id], references: [id])
+
+  @@map("notifications")
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// MODULE 13: ADDITIONAL TABLES
+// ════════════════════════════════════════════════════════════════════════════
+
+model expenses {
+  id          String   @id @default(uuid()) @db.Uuid
+  property_id String   @db.Uuid
+  category    String
+  amount      Decimal  @db.Decimal(14, 2)
+  description String?
+  date        DateTime?
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  property properties @relation(fields: [property_id], references: [id], onDelete: Cascade)
+
+  @@map("expenses")
+}
+
+model password_reset_tokens {
+  id        String   @id @default(uuid()) @db.Uuid
+  user_id   String   @unique @db.Uuid
+  token     String   @unique
+  expires_at DateTime
+  used_at   DateTime?
+  created_at DateTime @default(now())
+
+  user users @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@map("password_reset_tokens")
+}
+
+model refresh_sessions {
+  id        String   @id @default(uuid()) @db.Uuid
+  user_id   String   @db.Uuid
+  token     String   @unique
+  expires_at DateTime
+  created_at DateTime @default(now())
+
+  user users @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@map("refresh_sessions")
+}
+
+model content_articles {
+  id          String   @id @default(uuid()) @db.Uuid
+  title       String
+  slug        String   @unique
+  content     String?
+  author_id   String?  @db.Uuid
+  status      String   @default("draft")
+  published_at DateTime?
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  author users? @relation(fields: [author_id], references: [id])
+
+  @@map("content_articles")
+}
