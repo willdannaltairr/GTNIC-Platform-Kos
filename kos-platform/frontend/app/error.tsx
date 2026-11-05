@@ -6,7 +6,7 @@ export default function Error({
 }: {
   error: Error
   reset: () => void
-}): JSX.Element {
+}) {
   return (
     <div className="flex h-screen flex-col items-center justify-center gap-2 text-center">
       <h2 className="text-lg font-medium">Terjadi kesalahan</h2>

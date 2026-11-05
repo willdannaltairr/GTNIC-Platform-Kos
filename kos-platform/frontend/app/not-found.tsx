@@ -1,4 +1,4 @@
-export default function NotFound(): JSX.Element {
+export default function NotFound() {
   return (
     <div className="flex h-screen flex-col items-center justify-center gap-2 text-center p-4">
       <h2 className="text-lg font-medium">Halaman tidak ditemukan</h2>

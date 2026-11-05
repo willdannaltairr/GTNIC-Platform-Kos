@@ -1,3 +1,3 @@
-export default function Loading(): JSX.Element {
+export default function Loading() {
   return <div className="flex h-screen items-center justify-center">Memuat…</div>
 }
