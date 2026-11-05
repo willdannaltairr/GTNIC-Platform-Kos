@@ -1,15 +1,28 @@
+import { HeroSection } from '@/components/landing/hero-section'
+import { LocationsSection } from '@/components/landing/locations-section'
+import { SearchSection } from '@/components/landing/search-section'
+import { FeaturesSection } from '@/components/landing/features-section'
+import { RecommendedSection } from '@/components/landing/recommended-section'
+import { HowItWorksSection } from '@/components/landing/how-it-works-section'
+import { BenefitsSection } from '@/components/landing/benefits-section'
+import { TrustSection } from '@/components/landing/trust-section'
+import { FaqSection } from '@/components/landing/faq-section'
+import { CtaSection } from '@/components/landing/cta-section'
+
+/** Beranda publik: nilai platform, pencarian, fitur, dan properti terverifikasi. */
 export default function HomePage() {
   return (
-    <main className="min-h-screen bg-background text-foreground">
-      <section className="py-20 px-4 sm:px-6 lg:px-8">
-        <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
-          Selamat datang di KosPlatform
-        </h1>
-        <p className="mt-4 text-lg text-muted-foreground max-w-2xl">
-          Platform pencarian dan pengelolaan kos dengan transparansi biaya,
-          rekomendasi KosMatch, dan dokumentasi kondisi kamar (Room Passport).
-        </p>
-      </section>
-    </main>
+    <>
+      <HeroSection />
+      <LocationsSection />
+      <SearchSection />
+      <FeaturesSection />
+      <RecommendedSection />
+      <HowItWorksSection />
+      <BenefitsSection />
+      <TrustSection />
+      <FaqSection />
+      <CtaSection />
+    </>
   )
 }
