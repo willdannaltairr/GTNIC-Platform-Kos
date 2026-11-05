@@ -1,0 +1,52 @@
+# Monorepo
+node_modules/
+.pnp
+.pnp.js
+
+# Next.js
+apps/web/.next/
+apps/web/out/
+apps/web/node_modules/
+
+# Express / API
+apps/api/dist/
+apps/api/node_modules/
+
+# Shared package
+packages/shared/dist/
+packages/shared/node_modules/
+
+# Prisma
+prisma/migrations/*/
+packages/shared/prisma/dev.db
+packages/shared/prisma/*.db
+packages/shared/prisma/dev.db-journal
+
+# Environment
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+!.env.example
+
+# IDE
+.idea/
+.vscode/
+*.code-workspace
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Coverage
+coverage/
+
+# TypeScript
+*.tsbuildinfo
