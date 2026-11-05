@@ -1,36 +1,44 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 
+/* Token desain diadaptasi dari rancangan Gridora dan disesuaikan untuk
+   platform kos: hijau daun sebagai warna utama (hangat, terpercaya),
+   latar krem-hijau lembut, dan aksen jingga untuk penanda penting.
+   Nilai lama tidak diubah sembarangan — kontras teks sudah diperiksa. */
 :root {
-  --background: #f8fafc;
-  --foreground: #1e293b;
-  --card: #ffffff;
-  --card-foreground: #1e293b;
-  --popover: #ffffff;
-  --popover-foreground: #1e293b;
-  --primary: #172b4d;
-  --primary-foreground: #ffffff;
-  --secondary: #e2e8f0;
-  --secondary-foreground: #1e293b;
-  --muted: #f1f5f9;
-  --muted-foreground: #64748b;
-  --accent: #eaf2ff;
-  --accent-foreground: #172b4d;
-  --destructive: #dc2626;
-  --border: #e2e8f0;
-  --input: #e2e8f0;
-  --ring: #172b4d;
-  --radius: 0.5rem;
-
-  /* Warna tema kos */
-  --kos-primary: #172b4d;
-  --kos-success: #16a34a;
-  --kos-warning: #f59e0b;
-  --kos-danger: #dc2626;
-  --kos-light-blue: #eaf2ff;
+  --background: #f4f5f1;
+  --foreground: #0e1a12;
+  --card: #fff;
+  --card-foreground: #0e1a12;
+  --popover: #fff;
+  --popover-foreground: #0e1a12;
+  --primary: #1e8538;
+  --primary-foreground: #fff;
+  --secondary: #e8ede5;
+  --secondary-foreground: #0e1a12;
+  --muted: #eceee9;
+  --muted-foreground: #58635a;
+  --accent: #ddf3d9;
+  --accent-foreground: #14532d;
+  --destructive: #e40014;
+  --border: #dfe3db;
+  --input: #d3d9cf;
+  --ring: #1e8538;
+  --radius: 0.875rem;
+  --primary-strong: #176c2d;
+  --leaf: #57c76a;
+  --leaf-soft: #ddf3d9;
+  --forest: #0b2414;
+  --forest-foreground: #e8f3e6;
+  --sun: #f2643a;
+  --sage: #a3b3a6;
+  --mist: #eef2ec;
 }
 
 @theme inline {
+  --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, 'SFMono-Regular', Menlo, monospace;
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -39,6 +47,7 @@
   --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+  --color-primary-strong: var(--primary-strong);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
@@ -49,18 +58,23 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --radius: var(--radius);
+  --color-leaf: var(--leaf);
+  --color-leaf-soft: var(--leaf-soft);
+  --color-forest: var(--forest);
+  --color-forest-foreground: var(--forest-foreground);
+  --color-sun: var(--sun);
+  --color-sage: var(--sage);
+  --color-mist: var(--mist);
 
-  --color-kos-primary: var(--kos-primary);
-  --color-kos-success: var(--kos-success);
-  --color-kos-warning: var(--kos-warning);
-  --color-kos-danger: var(--kos-danger);
-  --color-kos-light-blue: var(--kos-light-blue);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
 }
 
 @layer base {
   html {
-    font-family: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+    font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
   }
 
@@ -72,6 +86,52 @@
   @media (prefers-reduced-motion: no-preference) {
     html {
       scroll-behavior: smooth;
+    }
+  }
+
+  ::selection {
+    background-color: var(--leaf-soft);
+    color: var(--foreground);
+  }
+}
+
+@layer utilities {
+  /* Mask foto hero: tepi atas dan bawah melebur ke latar. */
+  .hero-photo-mask {
+    mask-image: linear-gradient(
+      rgba(0, 0, 0, 0) 0%,
+      rgb(0, 0, 0) 22%,
+      rgb(0, 0, 0) 78%,
+      rgba(0, 0, 0, 0) 100%
+    );
+  }
+
+  @keyframes kos-reveal-up {
+    0% {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    100% {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      .reveal {
+        animation: kos-reveal-up both linear;
+        animation-timeline: view();
+        animation-range: entry entry 40%;
+      }
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reveal {
+      animation: none;
+      opacity: 1;
+      transform: none;
     }
   }
 }

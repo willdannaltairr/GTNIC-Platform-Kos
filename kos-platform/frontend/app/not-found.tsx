@@ -1,10 +1,29 @@
+import Link from 'next/link'
+
 export default function NotFound() {
   return (
-    <div className="flex h-screen flex-col items-center justify-center gap-2 text-center p-4">
-      <h2 className="text-lg font-medium">Halaman tidak ditemukan</h2>
-      <a href="/" className="rounded-md border px-4 py-2 text-sm">
-        Kembali ke beranda
-      </a>
+    <div className="mx-auto flex max-w-md flex-col items-center px-4 py-24 text-center sm:px-6">
+      <span className="grid h-14 w-14 place-items-center rounded-2xl bg-muted text-2xl font-bold text-muted-foreground">
+        404
+      </span>
+      <h1 className="mt-5 text-xl font-bold tracking-tight">Halaman tidak ditemukan</h1>
+      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+        Kos yang Anda cari mungkin sudah tidak dipublikasikan, atau tautannya salah ketik.
+      </p>
+      <div className="mt-6 flex gap-3">
+        <Link
+          href="/kos"
+          className="rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary-strong"
+        >
+          Cari kos lain
+        </Link>
+        <Link
+          href="/"
+          className="rounded-lg border border-border px-5 py-2.5 text-sm font-medium transition-colors hover:bg-muted"
+        >
+          Kembali ke beranda
+        </Link>
+      </div>
     </div>
   )
 }
