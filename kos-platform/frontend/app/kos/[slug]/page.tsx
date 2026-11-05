@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { cache } from 'react'
 import { AlertTriangle, CheckCircle2, MapPin, ShieldCheck, UserRound } from 'lucide-react'
 import { fetchProperty } from '@/lib/api'
 import {
@@ -14,10 +15,6 @@ import {
   formatRupiah,
 } from '@/lib/format'
 
-export const metadata = {
-  title: 'Detail Kos',
-}
-
 const STATUS_CLASS: Record<string, string> = {
   AVAILABLE: 'bg-emerald-50 text-emerald-700 ring-emerald-200',
   RESERVED: 'bg-amber-50 text-amber-700 ring-amber-200',
@@ -26,13 +23,39 @@ const STATUS_CLASS: Record<string, string> = {
   INACTIVE: 'bg-slate-100 text-slate-500 ring-slate-200',
 }
 
+// cache() mendedupe pemanggilan API dalam satu request, sehingga
+// generateMetadata dan komponen halaman hanya menembak API sekali.
+const getProperty = cache(async (slug: string) => fetchProperty(slug))
+
+/**
+ * notFound() dipanggil di sini juga, bukan hanya di komponen halaman.
+ *
+ * generateMetadata dievaluasi sebelum shell dirender, jadi status HTTP tetap
+ * 404 meskipun suatu saat ada Suspense boundary (loading.tsx) di segmen induk.
+ * Tanpa ini, kos yang tidak ada bisa tampil sebagai soft-404: konten 404
+ * dengan status 200.
+ */
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params
+  const property = await getProperty(slug)
+
+  if (!property) notFound()
+
+  return {
+    title: property.name,
+    description:
+      property.description?.slice(0, 150) ??
+      `Detail kos ${property.name} di ${property.district}, ${property.city}.`,
+  }
+}
+
 export default async function PropertyDetailPage({
   params,
 }: {
   params: Promise<{ slug: string }>
 }) {
   const { slug } = await params
-  const property = await fetchProperty(slug)
+  const property = await getProperty(slug)
 
   if (!property) notFound()
 
