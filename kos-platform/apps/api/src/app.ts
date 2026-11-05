@@ -10,6 +10,7 @@ import { prisma } from './config/prisma'
 import { globalLimiter, originGuard } from './middlewares/security'
 import { errorHandler, notFoundHandler } from './middlewares/error'
 import { authRoutes } from './modules/auth/auth.routes'
+import { usersRoutes } from './modules/users/users.routes'
 import { publicRoot } from './utils/storage'
 import { sendSuccess } from './utils/http'
 
@@ -74,6 +75,7 @@ export function createApp() {
   })
 
   app.use('/api/v1/auth', authRoutes)
+  app.use('/api/v1/users', usersRoutes)
 
   app.use(notFoundHandler)
   app.use(errorHandler)

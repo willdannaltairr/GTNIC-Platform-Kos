@@ -12,7 +12,16 @@ export function ensureStorageDirectories(): void {
 }
 
 export function publicUrlFor(storagePath: string): string {
-  return `${env.PUBLIC_UPLOAD_BASE_URL.replace(/\/$/, '')}/${storagePath.replace(/^\/+/, '')}`
+  const normalised = storagePath.replace(/\\/g, '/').replace(/^\/+/, '')
+  const publicRelative = normalised.startsWith('public/') ? normalised.slice('public/'.length) : normalised
+  return `${env.PUBLIC_UPLOAD_BASE_URL.replace(/\/$/, '')}/${publicRelative}`
+}
+
+export function storagePathForPublicUrl(url: string | null | undefined): string | null {
+  if (!url) return null
+  const base = env.PUBLIC_UPLOAD_BASE_URL.replace(/\/$/, '')
+  if (!url.startsWith(`${base}/`)) return null
+  return `public/${url.slice(base.length + 1)}`
 }
 
 export function resolveStoragePath(storagePath: string): string | null {
