@@ -1,0 +1,208 @@
+/**
+ * Klien API untuk seluruh halaman frontend.
+ *
+ * Semua fungsi mengembalikan `null` (bukan melempar) ketika API tidak dapat
+ * dihubungi atau membalas error, supaya halaman tetap dapat dirender dengan
+ * empty state yang jujur alih-alih layar putih.
+ */
+
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000'
+
+export type CostConfidence = 'COMPLETE' | 'PARTIAL' | 'NEEDS_CONFIRMATION'
+
+export interface PropertyListItem {
+  id: string
+  name: string
+  slug: string
+  city: string
+  district: string
+  propertyType: 'KOS_PUTRA' | 'KOS_PUTRI' | 'KOS_CAMPUR'
+  genderPolicy: string
+  verificationStatus: string
+  costConfidence: CostConfidence
+  imageUrl: string | null
+  imageAlt: string
+  minMonthlyPrice: number | null
+  maxMonthlyPrice: number | null
+  availableRooms: number
+  totalRooms: number
+  bathroomTypes: string[]
+  facilities: string[]
+  facilitySlugs: string[]
+  availabilityConfirmedDaysAgo: number | null
+  isAvailabilityStale: boolean
+}
+
+export interface PropertyListMeta {
+  page: number
+  limit: number
+  total: number
+  totalPages: number
+}
+
+export interface PropertyListResult {
+  items: PropertyListItem[]
+  meta: PropertyListMeta
+}
+
+export interface CostProjection {
+  months: number
+  total: number
+}
+
+export interface CostSummary {
+  monthlyRent: number | null
+  monthlyFixed: number
+  monthlyEstimated: number
+  monthlyTotalMin: number
+  monthlyTotalEstimated: number
+  depositAmount: number
+  oneTimeOther: number
+  upfrontTotal: number
+  projections: CostProjection[]
+  confidence: CostConfidence
+  unknowns: string[]
+  formulas: { monthly: string; upfront: string; projection: string }
+}
+
+export interface PropertyDetail {
+  id: string
+  name: string
+  slug: string
+  description: string | null
+  address: string
+  province: string
+  city: string
+  district: string
+  subdistrict: string | null
+  postalCode: string | null
+  latitude: number | null
+  longitude: number | null
+  propertyType: string
+  genderPolicy: string
+  verificationStatus: string
+  costConfidence: CostConfidence
+  totalRooms: number
+  owner: { id: string; name: string; businessName: string | null; verified: boolean }
+  images: { id: string; url: string | null; alt: string; isPrimary: boolean }[]
+  facilities: { name: string; slug: string; category: 'PROPERTY' | 'ROOM' }[]
+  rules: { id: string; title: string; description: string | null; isMandatory: boolean }[]
+  rooms: {
+    id: string
+    roomNumber: string
+    roomName: string | null
+    roomType: string
+    monthlyPrice: number
+    maximumOccupants: number
+    bathroomType: string
+    areaWidth: number | null
+    areaLength: number | null
+    floorNumber: number | null
+    availabilityStatus: string
+    facilities: string[]
+  }[]
+  costSummary: CostSummary
+  availabilityConfirmedDaysAgo: number | null
+  isAvailabilityStale: boolean
+}
+
+export interface RegisterPayload {
+  fullName: string
+  email: string
+  password: string
+  role: 'TENANT' | 'OWNER'
+}
+
+export interface LoginPayload {
+  email: string
+  password: string
+}
+
+export interface ApiError {
+  message: string
+  fields: { field: string; message: string }[]
+}
+
+const asApiError = (payload: unknown, fallback: string): ApiError => {
+  if (payload && typeof payload === 'object') {
+    const data = payload as { message?: string; errors?: { field: string; message: string }[] }
+    return { message: data.message ?? fallback, fields: data.errors ?? [] }
+  }
+  return { message: fallback, fields: [] }
+}
+
+/** GET data publik dari API; `null` bila API tidak dapat dihubungi. */
+export async function fetchProperties(
+  params: Record<string, string | number | undefined> = {},
+): Promise<PropertyListResult | null> {
+  const query = new URLSearchParams()
+
+  for (const [key, value] of Object.entries(params)) {
+    if (value !== undefined && value !== '') query.set(key, String(value))
+  }
+
+  try {
+    const response = await fetch(`${API_BASE}/api/v1/properties?${query.toString()}`, {
+      cache: 'no-store',
+    })
+
+    if (!response.ok) return null
+
+    const payload = (await response.json()) as {
+      data: PropertyListItem[]
+      meta: PropertyListMeta
+    }
+
+    return { items: payload.data, meta: payload.meta }
+  } catch {
+    return null
+  }
+}
+
+/** GET detail properti; `null` bila tidak ditemukan atau API mati. */
+export async function fetchProperty(slug: string): Promise<PropertyDetail | null> {
+  try {
+    const response = await fetch(`${API_BASE}/api/v1/properties/${encodeURIComponent(slug)}`, {
+      cache: 'no-store',
+    })
+
+    if (!response.ok) return null
+
+    const payload = (await response.json()) as { data: PropertyDetail }
+    return payload.data
+  } catch {
+    return null
+  }
+}
+
+/** POST JSON ke endpoint autentikasi; melempar ApiError yang siap ditampilkan. */
+async function postAuth<T>(path: string, body: unknown): Promise<T> {
+  const response = await fetch(`${API_BASE}/api/v1${path}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify(body),
+  })
+
+  const payload = (await response.json().catch(() => null)) as { data?: T } | null
+
+  if (!response.ok) {
+    throw asApiError(payload, 'Permintaan gagal, coba lagi')
+  }
+
+  return (payload?.data ?? null) as T
+}
+
+export async function registerAccount(payload: RegisterPayload) {
+  return postAuth<{ id: string; full_name: string; email: string; role: string }>(
+    '/auth/register',
+    payload,
+  )
+}
+
+export async function loginAccount(payload: LoginPayload) {
+  return postAuth<{ user: { id: string; full_name: string; email: string; role: string } }>(
+    '/auth/login',
+    payload,
+  )
+}
