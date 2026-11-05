@@ -11,6 +11,11 @@ import { globalLimiter, originGuard } from './middlewares/security'
 import { errorHandler, notFoundHandler } from './middlewares/error'
 import { authRoutes } from './modules/auth/auth.routes'
 import { usersRoutes } from './modules/users/users.routes'
+import { propertiesRoutes } from './modules/properties/properties.routes'
+import { facilitiesRoutes } from './modules/properties/facilities.routes'
+import { discoveryRoutes } from './modules/discovery/discovery.routes'
+import { destinationsRoutes } from './modules/discovery/destinations.routes'
+import { favoritesRoutes } from './modules/discovery/favorites.routes'
 import { publicRoot } from './utils/storage'
 import { sendSuccess } from './utils/http'
 
@@ -76,6 +81,11 @@ export function createApp() {
 
   app.use('/api/v1/auth', authRoutes)
   app.use('/api/v1/users', usersRoutes)
+  app.use('/api/v1/properties', propertiesRoutes)
+  app.use('/api/v1/facilities', facilitiesRoutes)
+  app.use('/api/v1/discovery', discoveryRoutes)
+  app.use('/api/v1/destinations', destinationsRoutes)
+  app.use('/api/v1/favorites', favoritesRoutes)
 
   app.use(notFoundHandler)
   app.use(errorHandler)

@@ -108,6 +108,17 @@ export const propertySearchSchema = paginationSchema.extend({
 })
 export type PropertySearchInput = z.infer<typeof propertySearchSchema>
 
+export const ownerPropertyListQuerySchema = paginationSchema.extend({
+  q: z.string().trim().max(120).optional(),
+  publicationStatus: z.enum(['DRAFT', 'PUBLISHED', 'UNPUBLISHED', 'ARCHIVED']).optional(),
+  verificationStatus: z.enum(['PENDING', 'UNDER_REVIEW', 'VERIFIED', 'REJECTED', 'SUSPENDED']).optional(),
+})
+export type OwnerPropertyListQuery = z.infer<typeof ownerPropertyListQuerySchema>
+
+export const facilityListQuerySchema = z.object({
+  category: z.enum(['GENERAL', 'ROOM', 'SECURITY', 'PARKING', 'UTILITY', 'KITCHEN', 'OTHER']).optional(),
+})
+
 export const compareQuerySchema = z.object({
   ids: z.preprocess((value) => {
     if (Array.isArray(value)) return value.flatMap((item) => String(item).split(',')).filter(Boolean)
@@ -123,6 +134,7 @@ export const propertyRoutesQuerySchema = z.object({
   lng: z.coerce.number().min(-180).max(180).optional(),
   mode: z.enum(['WALKING', 'MOTORCYCLE', 'CAR', 'TRANSIT']).default('MOTORCYCLE'),
 })
+export type PropertyRoutesQuery = z.infer<typeof propertyRoutesQuerySchema>
 
 export const reviewCreateSchema = z.object({
   bookingId: uuidSchema,

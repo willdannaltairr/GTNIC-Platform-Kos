@@ -17,6 +17,11 @@ export function publicUrlFor(storagePath: string): string {
   return `${env.PUBLIC_UPLOAD_BASE_URL.replace(/\/$/, '')}/${publicRelative}`
 }
 
+export function publicMediaUrl(storagePath: string): string {
+  if (/^https?:\/\//i.test(storagePath)) return storagePath
+  return publicUrlFor(storagePath)
+}
+
 export function storagePathForPublicUrl(url: string | null | undefined): string | null {
   if (!url) return null
   const base = env.PUBLIC_UPLOAD_BASE_URL.replace(/\/$/, '')
