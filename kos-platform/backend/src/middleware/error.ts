@@ -1,20 +1,21 @@
-import { Request, Response, NextFunction } from 'express'
+import { NextFunction, Request, Response } from 'express'
 import { ZodError } from 'zod'
+import { HttpError } from '../lib/httpError'
 
-interface OperationalError extends Error {
-  statusCode?: number
-  isOperational?: boolean
-}
-
+/**
+ * Error handler terpusat.
+ *
+ * - ZodError -> 400 dengan daftar field yang gagal validasi.
+ * - HttpError / 4xx -> pesan asli (aman ditampilkan ke pengguna).
+ * - 5xx tak terduga -> pesan generik; detail hanya masuk log server,
+ *   stack trace tidak pernah dikirim ke klien.
+ */
 export const errorHandler = (
-  err: OperationalError,
+  err: Error & { statusCode?: number },
   _req: Request,
   res: Response,
   _next: NextFunction
 ): void => {
-  const statusCode = err.statusCode ?? 500
-
-  // Zod validation error
   if (err instanceof ZodError) {
     res.status(400).json({
       success: false,
@@ -27,10 +28,16 @@ export const errorHandler = (
     return
   }
 
-  // Jangan kirim stack trace ke klien
+  const statusCode = err.statusCode ?? 500
+  const isOperational = err instanceof HttpError || statusCode < 500
+
+  if (!isOperational) {
+    console.error('[api:error]', err)
+  }
+
   res.status(statusCode).json({
     success: false,
-    message: err.message ?? 'Terjadi kesalahan pada server',
+    message: isOperational ? err.message : 'Terjadi kesalahan pada server',
     errors: [],
   })
 }
