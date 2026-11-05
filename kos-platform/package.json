@@ -4,18 +4,18 @@
   "private": true,
   "description": "Smart Living & Trust-Based Boarding House Platform — monorepo",
   "scripts": {
-    "dev:web": "npm run dev --prefix apps/web",
-    "dev:api": "npm run dev --prefix apps/api",
-    "db:generate": "npx prisma generate --schema packages/shared/prisma/schema.prisma",
-    "db:migrate": "npx prisma migrate dev --schema packages/shared/prisma/schema.prisma",
-    "db:seed": "npx ts-node --compiler-options {\"module\":\"commonjs\"} packages/shared/seed.ts",
-    "build:web": "npm run build --prefix apps/web",
-    "build:api": "npx tsc --noEmit --project apps/api/tsconfig.json"
+    "dev:web": "npm run dev --prefix frontend",
+    "dev:api": "npm run dev --prefix backend",
+    "db:generate": "cd backend && npx prisma generate",
+    "db:migrate": "cd backend && npx prisma migrate dev",
+    "db:seed": "cd backend && npx ts-node --project tsconfig.seed.json prisma/seed.ts",
+    "db:local": "node backend/scripts/db-local.mjs",
+    "build:web": "npm run build --prefix frontend",
+    "build:api": "npx tsc --noEmit --project backend/tsconfig.json"
   },
   "workspaces": [
-    "apps/web",
-    "apps/api",
-    "packages/shared"
+    "frontend",
+    "backend"
   ],
   "devDependencies": {
     "typescript": "^5",

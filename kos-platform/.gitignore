@@ -4,23 +4,20 @@ node_modules/
 .pnp.js
 
 # Next.js
-apps/web/.next/
-apps/web/out/
-apps/web/node_modules/
+frontend/.next/
+frontend/out/
+frontend/node_modules/
 
 # Express / API
-apps/api/dist/
-apps/api/node_modules/
+backend/dist/
+backend/node_modules/
 
-# Shared package
-packages/shared/dist/
-packages/shared/node_modules/
+# Prisma (database lokal)
+backend/prisma/*.db
+backend/prisma/*.db-journal
 
-# Prisma
-prisma/migrations/*/
-packages/shared/prisma/dev.db
-packages/shared/prisma/*.db
-packages/shared/prisma/dev.db-journal
+# Cluster PostgreSQL dev lokal (bila dipakai)
+.pgdata/
 
 # Environment
 .env

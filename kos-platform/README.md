@@ -6,11 +6,12 @@ Smart Living & Trust-Based Boarding House Platform — marketplace dan sistem ma
 
 ```
 kos-platform/
-├── apps/web/          # Next.js App Router (frontend)
-├── apps/api/          # Express.js + TypeScript (backend REST API)
-├── packages/shared/   # Prisma schema, shared types, Zod schemas, seed
-├── prisma/            # Migration directory
-└── package.json       # Root workspace config
+├── frontend/              # Next.js App Router (landing page + halaman lain)
+├── backend/               # Express.js + TypeScript (REST API + database)
+│   ├── prisma/            # Prisma schema + migrations + seed
+│   ├── scripts/           # db-local.mjs (cluster PostgreSQL dev proyek)
+│   └── src/               # config, middleware, modules, routes
+└── package.json           # Root workspace config
 ```
 
 ## Teknologi
@@ -18,45 +19,87 @@ kos-platform/
 - Frontend: Next.js 16, React 19, TypeScript, Tailwind CSS v4, shadcn/ui
 - Backend: Node.js, Express.js, TypeScript
 - Database: PostgreSQL + PostGIS, Prisma ORM (migrate)
-- Auth: JWT (HttpOnly secure cookies), bcrypt (Argon2id-ready)
+- Auth: JWT (HttpOnly secure cookies), bcrypt
 - Payment: Midtrans Sandbox (QRIS / Virtual Account)
 - Maps: Google Maps Platform (with MapLibre abstraction)
 - Image storage: Cloudinary
 - Email: Resend
 - Monitoring: Sentry
 
-## Fase pengembangan (per `tempelan-1.txt`)
+## Database dev lokal
 
-- PHASE 1 — Foundation: monorepo, Next.js, Express, TypeScript, PostgreSQL, Prisma, shared package, env config, error handling, logging, API versioning, docs.
-- PHASE 2 — Authentication & Authorization: register, login, logout, get current user, password hashing, session management, RBAC, protected routes, ownership checks, basic profile management.
-- PHASE 3 — Property & Room Management, PHASE 4 — Search & Discovery, PHASE 5 — Booking & Contract, PHASE 6 — Payment & Billing, PHASE 7 — Tenant & Owner Operations, PHASE 8 — Admin Management, PHASE 9 — Map & Location, PHASE 10 — Testing & Polishing.
+Mesin dev memakai cluster PostgreSQL terpisah untuk proyek ini (port **5433**,
+folder `backend/.pgdata` yang di-gitignore) agar tidak mengganggu service
+PostgreSQL lain di mesin.
+
+```bash
+npm run db:local -- init     # buat cluster + database (sekali saja)
+npm run db:local -- start    # hidupkan server
+npm run db:local -- status   # cek status
+npm run db:local -- stop     # hentikan server
+
+npm run db:migrate           # jalankan migration (prisma migrate dev)
+npm run db:seed              # isi akun demo
+```
+
+Connection string ada di `backend/.env` (contoh lengkap: `.env.example`).
 
 ## Perintah umum
 
 ```bash
-# Instalasi dependency (di root kos-platform)
-npm install
-
-# Generate Prisma Client
-npm run db:generate
-
-# Jalankan migration development
-npm run db:migrate
-
-# Jalankan seed data demo
-npm run db:seed
-
-# Jalankan dev server web (port 3000)
-npm run dev:web
-
-# Jalankan dev server API (port 4000)
-npm run dev:api
+npm install                  # instalasi dependency seluruh workspace
+npm run db:generate          # generate Prisma Client
+npm run dev:web              # dev server web (port 3000)
+npm run dev:api              # dev server API (port 4000)
+npm run build:web            # build produksi frontend
+npm run build:api            # type-check backend
 ```
 
 ## Akun demo (seed)
 
-Dokumentasi kredensial demo ditambahkan saat PHASE 2 selesai (lihat `packages/shared/seed.ts`).
+Semua akun memakai password yang sama: `KosDemo123!` (data fiktif, hanya untuk demo lokal).
+
+| Email                     | Peran  |
+| ------------------------- | ------ |
+| admin@kosplatform.test    | ADMIN  |
+| owner1@kosplatform.test   | OWNER  |
+| owner2@kosplatform.test   | OWNER  |
+| tenant1@kosplatform.test  | TENANT |
+| tenant2@kosplatform.test  | TENANT |
+| tenant3@kosplatform.test  | TENANT |
+| tenant4@kosplatform.test  | TENANT |
+| tenant5@kosplatform.test  | TENANT |
+
+Properti, kamar, booking, dan data operasional lain menyusul pada fase berikutnya.
+
+## Fase pengembangan (per `tempelan-1.txt`)
+
+- PHASE 1 — Foundation: monorepo, Next.js, Express, TypeScript, PostgreSQL, Prisma, env config, error handling, logging, API versioning, docs. **(selesai)**
+- PHASE 2 — Authentication & Authorization: register, login, logout, get current user, password hashing, session management, RBAC, protected routes, ownership checks, basic profile management. **(berjalan)**
+- PHASE 3 — Property & Room Management
+- PHASE 4 — Search & Discovery (KosMatch, TrueCost Simulator)
+- PHASE 5 — Booking & Contract
+- PHASE 6 — Payment & Billing
+- PHASE 7 — Tenant & Owner Operations
+- PHASE 8 — Admin Management
+- PHASE 9 — Map & Location
+- PHASE 10 — Testing & Polishing
+
+## API
+
+Semua endpoint di bawah prefix `/api/v1`:
+
+- `GET  /api/v1/health` — health check
+- `POST /api/v1/auth/register` — daftar (TENANT/OWNER)
+- `POST /api/v1/auth/login` — login (cookie HttpOnly)
+- `POST /api/v1/auth/logout` — logout
+- `GET  /api/v1/auth/me` — profil pengguna aktif
+- `PATCH /api/v1/users/me` — perbarui profil sendiri
+- `GET  /api/v1/users` — daftar pengguna (ADMIN)
 
 ## Keamanan
 
-Jangan pernah commit file `.env` asli. Gunakan `.env.example` sebagai referensi variabel yang diperlukan.
+- Password di-hash bcrypt; token JWT hanya lewat cookie HttpOnly (tidak di localStorage).
+- Rate limit per IP untuk seluruh API dan batas lebih ketat untuk endpoint auth.
+- Backend memverifikasi role dan kepemilikan resource di setiap endpoint privat.
+- Jangan pernah commit file `.env` asli. Gunakan `.env.example` sebagai referensi.
