@@ -10,10 +10,22 @@ const required = (key: string): string => {
   return value
 }
 
+/**
+ * Origin frontend yang diizinkan mengakses API.
+ *
+ * Boleh lebih dari satu, dipisah koma — mis. ketika dev server web jatuh ke
+ * port lain karena 3000 sudah dipakai. Browser memblokir permintaan
+ * lintas-origin yang tidak terdaftar di sini, termasuk login dan daftar.
+ */
+const allowedOrigins = (process.env.FRONTEND_URL ?? 'http://localhost:3000')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean)
+
 export const env = {
   NODE_ENV: process.env.NODE_ENV ?? 'development',
   PORT: Number(process.env.PORT ?? 4000),
-  FRONTEND_URL: process.env.FRONTEND_URL ?? 'http://localhost:3000',
+  FRONTEND_URL: allowedOrigins,
   BACKEND_URL: process.env.BACKEND_URL ?? 'http://localhost:4000',
   API_PREFIX: process.env.API_PREFIX ?? '/api/v1',
   DATABASE_URL: required('DATABASE_URL'),
