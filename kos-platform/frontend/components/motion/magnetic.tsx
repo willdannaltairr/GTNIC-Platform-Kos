@@ -5,6 +5,7 @@ import type { FC, PointerEvent, ReactNode } from 'react'
 import { useRef } from 'react'
 import { motion, useMotionValue, useSpring } from 'motion/react'
 import { cn } from '@/lib/utils'
+import { usePrefersReducedMotion } from '@/hooks/use-prefers-reduced-motion'
 
 interface MagneticProps {
   children: ReactNode
@@ -16,9 +17,12 @@ interface MagneticProps {
  * Menarik isinya sedikit ke arah kursor.
  *
  * Hanya pointer jenis mouse yang diikuti; sentuhan dan pena diabaikan supaya
- * tombol tetap berperilaku biasa di perangkat layar sentuh.
+ * tombol tetap berperilaku biasa di perangkat layar sentuh. Saat pengunjung
+ * memilih reduced motion, tarikannya dimatikan sama sekali — tombol yang
+ * bergeser sendiri ke arah kursor justru jenis gerakan yang ingin dihindari.
  */
 const Magnetic: FC<MagneticProps> = ({ children, strength = 0.3, className }): ReactNode => {
+  const still = usePrefersReducedMotion()
   const ref = useRef<HTMLDivElement>(null)
   const x = useMotionValue(0)
   const y = useMotionValue(0)
@@ -26,7 +30,7 @@ const Magnetic: FC<MagneticProps> = ({ children, strength = 0.3, className }): R
   const springY = useSpring(y, { stiffness: 220, damping: 16, mass: 0.4 })
 
   const onMove = (event: PointerEvent<HTMLDivElement>): void => {
-    if (event.pointerType !== 'mouse' || !ref.current) return
+    if (still || event.pointerType !== 'mouse' || !ref.current) return
 
     const rect = ref.current.getBoundingClientRect()
 
@@ -44,7 +48,7 @@ const Magnetic: FC<MagneticProps> = ({ children, strength = 0.3, className }): R
       ref={ref}
       onPointerMove={onMove}
       onPointerLeave={reset}
-      style={{ x: springX, y: springY }}
+      style={still ? undefined : { x: springX, y: springY }}
       className={cn('inline-block', className)}
     >
       {children}
