@@ -160,10 +160,12 @@
     );
   }
 
-  /* Mask hero dua arah: tepi atas-bawah dan kiri-kanan melebur, diiris. */
-  .hero-frame-mask {
+  /* Mask foto bangunan di hero: tepi atas-bawah dan kiri-kanan melebur.
+     Batas atasnya lebih rendah daripada mask lama supaya atap rumah tidak
+     ikut terpotong judul di layar lebar. */
+  .hero-house-mask {
     mask-image:
-      linear-gradient(rgba(0, 0, 0, 0) 0%, rgb(0, 0, 0) 30%, rgb(0, 0, 0) 82%, rgba(0, 0, 0, 0) 100%),
+      linear-gradient(rgba(0, 0, 0, 0) 0%, rgb(0, 0, 0) 34%, rgb(0, 0, 0) 84%, rgba(0, 0, 0, 0) 100%),
       linear-gradient(90deg, rgba(0, 0, 0, 0) 0%, rgb(0, 0, 0) 9%, rgb(0, 0, 0) 91%, rgba(0, 0, 0, 0) 100%);
     mask-composite: intersect;
   }
