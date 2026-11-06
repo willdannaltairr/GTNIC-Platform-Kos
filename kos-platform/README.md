@@ -55,6 +55,22 @@ npm run build:web            # build produksi frontend
 npm run build:api            # type-check backend
 ```
 
+## Menjalankan stack dev (Windows)
+
+Urutan yang sudah diuji dari folder `kos-platform` (git-bash):
+
+```bash
+npm run db:local -- start   # PostgreSQL di 127.0.0.1:5433 (perlu diulang tiap boot)
+npm run dev:api             # API di http://localhost:4000
+npm run dev:web             # web — lihat baris "Local:" untuk alamat sebenarnya
+```
+
+Buka alamat dari baris `Local:` itu, lalu masuk dengan akun demo di bawah.
+
+- **Port web bisa berpindah.** Bila 3000 sedang dipakai dev server lain (mis. app Gridora di root repo), Next otomatis memakai port berikutnya dan menuliskannya di terminal.
+- **Login dan daftar hanya jalan dari origin yang terdaftar.** Backend hanya menjawab CORS untuk origin di `FRONTEND_URL` (default `http://localhost:3000`); dari port lain browser memblokir permintaan auth. Beberapa origin dipisah koma, mis. `FRONTEND_URL=http://localhost:3000,http://localhost:3001` di `backend/.env`, lalu jalankan ulang API.
+- **Tanpa API.** Halaman tetap tampil; bagian "Kos terbaru" menampilkan keterangan bahwa daftar belum dapat dimuat, bukan data contoh.
+
 ## Akun demo (seed)
 
 Semua akun memakai password yang sama: `KosDemo123!` (data fiktif, hanya untuk demo lokal).
