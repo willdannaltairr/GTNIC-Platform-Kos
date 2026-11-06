@@ -218,9 +218,26 @@ const HeroSection: FC = (): ReactNode => {
 
         <div className="relative mx-auto flex h-full max-w-7xl flex-col items-center justify-between px-4 pb-8 pt-28 text-center sm:px-6 sm:pb-10 sm:pt-32 lg:px-8">
           <div className="max-w-3xl">
+            {/* Label di atas judul, bukan paragraf di tengah foto: teks sepanjang
+                itu tidak akan pernah terbaca di atas foto yang gelap tanpa
+                menutupi gambarnya. Keterangan suasana sudah ada di bawah. */}
+            <p className="flex justify-center">
+              <span
+                className={cn(
+                  'inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium transition-colors duration-700',
+                  malam
+                    ? 'bg-white/10 text-white ring-1 ring-white/25 backdrop-blur-md'
+                    : 'bg-white/70 text-primary-strong ring-1 ring-white/60 backdrop-blur-md',
+                )}
+              >
+                <span aria-hidden="true" className="size-1.5 rounded-full bg-primary" />
+                {HERO.badge}
+              </span>
+            </p>
+
             <h1
               id="hero-title"
-              className="font-heading text-[2.75rem] font-normal leading-[1.02] tracking-[-0.05em] sm:text-6xl lg:text-[4.75rem]"
+              className="mt-4 font-heading text-[2.75rem] font-normal leading-[1.02] tracking-[-0.05em] sm:text-6xl lg:text-[4.75rem]"
             >
               <span
                 className={cn('block transition-colors duration-1000', malam ? 'text-white' : 'text-primary-strong')}
@@ -233,20 +250,6 @@ const HeroSection: FC = (): ReactNode => {
                 Kosnya tenang.
               </span>
             </h1>
-
-            <p
-              className={cn(
-                'mx-auto mt-5 max-w-xl text-pretty text-sm leading-relaxed transition-colors duration-1000 sm:text-base',
-                // Halo tipis sewarna latar: subjudul berdiri di atas foto, dan
-                // tanpa ini hurufnya tenggelam di bagian foto yang gelap.
-                malam
-                  ? 'text-forest-foreground/90 drop-shadow-[0_2px_14px_rgba(11,36,20,0.85)]'
-                  : 'text-forest drop-shadow-[0_2px_14px_rgba(244,245,241,0.85)]',
-              )}
-            >
-              Bandingkan estimasi biaya total, jarak ke kampus atau kantor, dan ketersediaan kamar
-              sebelum Anda berangkat survei.
-            </p>
           </div>
 
           <div className="w-full max-w-2xl">
