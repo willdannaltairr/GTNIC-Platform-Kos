@@ -24,6 +24,11 @@
   --border: #dfe3db;
   --input: #d3d9cf;
   --ring: #1e8538;
+  --chart-1: #1e8538;
+  --chart-2: #0f2e1a;
+  --chart-3: #e9b23a;
+  --chart-4: #2b8cb8;
+  --chart-5: #9aa59c;
   --radius: 0.875rem;
   --primary-strong: #176c2d;
   --leaf: #57c76a;
@@ -33,11 +38,28 @@
   --sun: #f2643a;
   --sage: #a3b3a6;
   --mist: #eef2ec;
+
+  /* Tipografi bawaan seluruh situs. */
+  --font-app-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Landing page memakai tiga keluarga huruf yang sama dengan Gridora.
+   Diterapkan sebagai kelas pada pembungkus landing — bukan di :root — supaya
+   halaman lain tidak ikut berubah. */
+.landing-scope {
+  --font-app-sans: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-app-heading: 'Space Grotesk', 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-app-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
 }
 
 @theme inline {
-  --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
-  --font-mono: ui-monospace, 'SFMono-Regular', Menlo, monospace;
+  /* Tiga token font dibaca lewat variabel perantara, bukan nilai mati: itu
+     yang memungkinkan landing memakai tipografi Gridora (DM Sans + Space
+     Grotesk + JetBrains Mono) tanpa mengubah font halaman /kos, /masuk,
+     /daftar, dan /kredit yang tetap Plus Jakarta Sans. */
+  --font-sans: var(--font-app-sans, ui-sans-serif, system-ui, sans-serif);
+  --font-heading: var(--font-app-heading, var(--font-app-sans), ui-sans-serif, system-ui, sans-serif);
+  --font-mono: var(--font-app-mono, ui-monospace, 'SFMono-Regular', Menlo, monospace);
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -58,6 +80,11 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
   --color-leaf: var(--leaf);
   --color-leaf-soft: var(--leaf-soft);
   --color-forest: var(--forest);
@@ -89,9 +116,36 @@
     }
   }
 
+  /* Lenis mengambil alih penggulungan; perilaku halus bawaan harus dilepas
+     agar keduanya tidak saling menimpa. */
+  html.lenis {
+    scroll-behavior: auto !important;
+  }
+
   ::selection {
     background-color: var(--leaf-soft);
     color: var(--foreground);
+  }
+
+  details::details-content {
+    height: 0;
+    overflow: clip;
+  }
+}
+
+@supports (interpolate-size: allow-keywords) {
+  :root {
+    interpolate-size: allow-keywords;
+  }
+
+  details::details-content {
+    transition:
+      height 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+      content-visibility 0.45s allow-discrete;
+  }
+
+  details[open]::details-content {
+    height: auto;
   }
 }
 
@@ -104,6 +158,14 @@
       rgb(0, 0, 0) 78%,
       rgba(0, 0, 0, 0) 100%
     );
+  }
+
+  /* Mask hero dua arah: tepi atas-bawah dan kiri-kanan melebur, diiris. */
+  .hero-frame-mask {
+    mask-image:
+      linear-gradient(rgba(0, 0, 0, 0) 0%, rgb(0, 0, 0) 30%, rgb(0, 0, 0) 82%, rgba(0, 0, 0, 0) 100%),
+      linear-gradient(90deg, rgba(0, 0, 0, 0) 0%, rgb(0, 0, 0) 9%, rgb(0, 0, 0) 91%, rgba(0, 0, 0, 0) 100%);
+    mask-composite: intersect;
   }
 
   @keyframes kos-reveal-up {
@@ -132,6 +194,172 @@
       animation: none;
       opacity: 1;
       transform: none;
+    }
+  }
+
+  /* Wordmark raksasa di footer, memudar dari hijau daun ke transparan. */
+  .wordmark-footer {
+    color: transparent;
+    background-image: linear-gradient(rgba(87, 199, 106, 0.55) 0%, rgba(87, 199, 106, 0.08) 85%);
+    background-clip: text;
+  }
+
+  /* Tirai pembuka: sekali per muat halaman, lalu menghapus dirinya sendiri.
+     pointer-events-none memastikan tirai tidak pernah menahan klik, dan
+     pengunjung yang memilih reduced motion tidak melihatnya sama sekali. */
+  @keyframes gridora-curtain-up {
+    100% {
+      visibility: hidden;
+      transform: translateY(-100%);
+    }
+  }
+
+  @keyframes gridora-curtain-inner {
+    0% {
+      opacity: 0;
+      transform: translateY(24px);
+    }
+    100% {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes gridora-curtain-bar {
+    0% {
+      transform: scaleX(0);
+    }
+    100% {
+      transform: scaleX(1);
+    }
+  }
+
+  .intro-curtain {
+    animation: gridora-curtain-up 1s cubic-bezier(0.76, 0, 0.24, 1) 0.95s 1 normal forwards;
+  }
+
+  .intro-curtain-inner {
+    animation: gridora-curtain-inner 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0s 1 normal both;
+  }
+
+  .intro-curtain-bar {
+    animation: gridora-curtain-bar 0.9s cubic-bezier(0.65, 0, 0.35, 1) 50ms 1 normal both;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .intro-curtain {
+      display: none;
+    }
+  }
+
+  /* Marquee kawasan: dua salinan identik bergeser tepat setengah trek. */
+  @keyframes gridora-marquee {
+    0% {
+      transform: translate(0);
+    }
+    100% {
+      transform: translate(-50%);
+    }
+  }
+
+  .marquee-track {
+    animation: gridora-marquee 38s linear infinite;
+  }
+
+  .marquee:hover .marquee-track {
+    animation-play-state: paused;
+  }
+
+  .marquee-mask {
+    mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0), rgb(0, 0, 0) 12%, rgb(0, 0, 0) 88%, rgba(0, 0, 0, 0));
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .marquee-track {
+      flex-wrap: wrap;
+      justify-content: center;
+      width: 100%;
+      animation: none;
+    }
+
+    .marquee-copy {
+      display: none;
+    }
+
+    .marquee-mask {
+      mask-image: none;
+    }
+  }
+
+  @keyframes gridora-scroll-cue {
+    0% {
+      transform: translateY(-100%);
+    }
+    100% {
+      transform: translateY(200%);
+    }
+  }
+
+  .scroll-cue-line {
+    animation: gridora-scroll-cue 1.8s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+  }
+
+  @keyframes gridora-flow-cue {
+    0% {
+      transform: translate(-100%);
+    }
+    100% {
+      transform: translate(200%);
+    }
+  }
+
+  .flow-cue-line {
+    animation: gridora-flow-cue 1.8s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .scroll-cue-line,
+    .flow-cue-line {
+      animation: none;
+    }
+  }
+
+  @keyframes kos-fog-drift {
+    0% {
+      transform: translate(-6%);
+    }
+    100% {
+      transform: translate(6%);
+    }
+  }
+
+  .hero-fog {
+    animation: kos-fog-drift 26s ease-in-out infinite alternate;
+  }
+
+  .hero-fog-slow {
+    animation: kos-fog-drift 38s ease-in-out infinite alternate-reverse;
+  }
+
+  @keyframes kos-twinkle {
+    0%,
+    100% {
+      opacity: 0.25;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+
+  .hero-star {
+    animation: kos-twinkle 3.6s ease-in-out infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-fog,
+    .hero-fog-slow,
+    .hero-star {
+      animation: none;
     }
   }
 }
