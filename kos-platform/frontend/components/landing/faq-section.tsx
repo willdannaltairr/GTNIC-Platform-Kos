@@ -1,29 +1,59 @@
-import { ChevronDown } from 'lucide-react'
-import { FAQS } from '@/lib/constants'
+import type { FC, ReactNode } from 'react'
 
-/** Tanya jawab memakai elemen <details> agar tetap berfungsi tanpa JS. */
-export function FaqSection() {
+import Link from 'next/link'
+import { ArrowRight, Plus } from 'lucide-react'
+import SectionHeading from '@/components/landing/section-heading'
+import { LANDING_FAQS } from '@/lib/landing'
+
+/**
+ * Tanya jawab memakai elemen <details>, jadi tetap berfungsi tanpa JavaScript.
+ *
+ * Ikon plus memutar 45 derajat saat terbuka — satu-satunya gerakan di sini,
+ * karena daftar akordeon dibuka-tutup jauh lebih sering daripada bagian lain.
+ */
+const FaqSection: FC = (): ReactNode => {
   return (
-    <section id="tanya-jawab" className="mx-auto max-w-3xl px-4 py-14 sm:px-6">
-      <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">Tanya Jawab</h2>
-      <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-        Pertanyaan yang paling sering muncul sebelum orang memesan kos lewat platform.
-      </p>
+    <section id="tanya-jawab" aria-labelledby="tanya-jawab-title" className="scroll-mt-20 bg-white py-24 sm:py-32">
+      <div className="mx-auto grid max-w-7xl gap-12 px-4 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16 lg:px-8">
+        <div className="reveal lg:sticky lg:top-28 lg:self-start">
+          <SectionHeading
+            id="tanya-jawab-title"
+            eyebrow="Tanya jawab"
+            title="Pertanyaan yang paling sering muncul."
+            description="Termasuk bagian yang tidak menyenangkan: apa yang belum pasti, dan apa yang memang tidak kami jamin."
+          />
 
-      <div className="mt-8 divide-y divide-border rounded-2xl border border-border bg-card">
-        {FAQS.map((faq) => (
-          <details key={faq.question} className="group px-5">
-            <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-4 text-sm font-semibold text-foreground [&::-webkit-details-marker]:hidden">
-              {faq.question}
-              <ChevronDown
-                className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-180"
-                aria-hidden
-              />
-            </summary>
-            <p className="pb-5 text-sm leading-relaxed text-muted-foreground">{faq.answer}</p>
-          </details>
-        ))}
+          <Link
+            href="/kos"
+            className="mt-8 inline-flex items-center gap-2 rounded-full text-sm font-medium text-primary transition-colors hover:text-primary-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-4"
+          >
+            Mulai cari kos sekarang <ArrowRight className="size-4" aria-hidden="true" />
+          </Link>
+        </div>
+
+        <div className="space-y-3">
+          {LANDING_FAQS.map((faq) => (
+            <details
+              key={faq.question}
+              className="reveal group rounded-2xl bg-background ring-1 ring-black/5 transition-colors open:bg-white open:shadow-[0_20px_40px_-30px_rgba(14,26,18,0.4)]"
+            >
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 rounded-2xl p-5 text-base font-medium text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:p-6 [&::-webkit-details-marker]:hidden">
+                {faq.question}
+
+                <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-white text-foreground ring-1 ring-black/5 transition-transform duration-300 group-open:rotate-45">
+                  <Plus className="size-4" aria-hidden="true" />
+                </span>
+              </summary>
+
+              <p className="-mt-1 px-5 pb-6 text-[15px] leading-relaxed text-muted-foreground sm:px-6">
+                {faq.answer}
+              </p>
+            </details>
+          ))}
+        </div>
       </div>
     </section>
   )
 }
+
+export default FaqSection

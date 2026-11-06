@@ -1,35 +1,71 @@
+import type { FC, ReactNode } from 'react'
+
 import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
+import Magnetic from '@/components/motion/magnetic'
 
-/** Ajakan terakhir di beranda. */
-export function CtaSection() {
+/**
+ * Ajakan terakhir.
+ *
+ * Dua jalur yang jelas: mencari kos (tujuan utama) dan mendaftar sebagai
+ * pemilik. Tanpa formulir, karena formulir hanya menarik kalau tujuannya sudah
+ * pasti — di sini tujuannya masih bercabang.
+ */
+const CtaSection: FC = (): ReactNode => {
   return (
-    <section className="mx-auto max-w-6xl px-4 pb-16 sm:px-6">
-      <div className="rounded-2xl bg-forest px-6 py-12 text-center text-forest-foreground sm:px-12">
-        <h2 className="mx-auto max-w-2xl text-2xl font-bold tracking-tight sm:text-3xl">
-          Siap Menemukan Kos yang Tenang untuk Ditinggali?
-        </h2>
-        <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-forest-foreground/85">
-          Mulai dari pencarian sederhana. Semua informasi biaya, jarak, dan ketersediaan tersaji
-          sebelum Anda mengambil keputusan.
-        </p>
+    <section
+      id="mulai"
+      aria-labelledby="mulai-title"
+      className="relative isolate scroll-mt-20 overflow-hidden bg-background pb-24 pt-4 sm:pb-32"
+    >
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="relative isolate overflow-hidden rounded-[2.5rem] bg-forest px-6 py-16 text-center sm:px-12 sm:py-24">
+          <div aria-hidden="true" className="absolute inset-0 -z-20 bg-[url('/images/kos-5.jpg')] bg-cover bg-center opacity-30" />
 
-        <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
-          <Link
-            href="/kos"
-            className="inline-flex items-center gap-2 rounded-xl bg-leaf px-6 py-3 text-sm font-semibold text-forest transition-colors hover:bg-leaf/90"
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 -z-10 bg-gradient-to-b from-forest via-forest/90 to-primary/50"
+          />
+
+          <div
+            aria-hidden="true"
+            className="absolute -left-24 bottom-0 -z-10 size-80 rounded-full bg-leaf/20 blur-3xl"
+          />
+
+          <h2
+            id="mulai-title"
+            className="mx-auto max-w-3xl text-balance font-heading text-4xl font-light leading-[1.05] tracking-[-0.045em] text-white sm:text-6xl lg:text-7xl"
           >
-            Cari Kos Sekarang
-            <ArrowRight className="h-4 w-4" aria-hidden />
-          </Link>
-          <Link
-            href="/daftar"
-            className="inline-flex items-center gap-2 rounded-xl border border-forest-foreground/30 px-6 py-3 text-sm font-semibold text-forest-foreground transition-colors hover:bg-forest-foreground/10"
-          >
-            Daftar Sebagai Pemilik
-          </Link>
+            Mulai dari angka yang jelas, bukan dari kira-kira.
+          </h2>
+
+          <p className="reveal mx-auto mt-6 max-w-xl text-pretty text-base leading-relaxed text-forest-foreground/80 sm:text-lg">
+            Cari kos, bandingkan biaya totalnya, lalu datang survei membawa daftar pertanyaan yang tepat.
+            Gratis untuk pencari kos.
+          </p>
+
+          <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <Magnetic strength={0.18}>
+              <Link
+                href="/kos"
+                className="inline-flex h-12 items-center gap-2 rounded-full bg-leaf px-7 text-[15px] font-semibold text-forest transition-colors hover:bg-leaf/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-forest"
+              >
+                Cari kos sekarang
+                <ArrowRight className="size-4" aria-hidden="true" />
+              </Link>
+            </Magnetic>
+
+            <Link
+              href="/daftar"
+              className="inline-flex h-12 items-center gap-2 rounded-full bg-white/10 px-7 text-[15px] font-medium text-white ring-1 ring-white/20 backdrop-blur-md transition-colors hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-forest"
+            >
+              Daftar sebagai pemilik
+            </Link>
+          </div>
         </div>
       </div>
     </section>
   )
 }
+
+export default CtaSection
