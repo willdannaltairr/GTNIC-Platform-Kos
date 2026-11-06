@@ -11,6 +11,7 @@ import MatchVisual from '@/components/landing/solutions/match-visual'
 import CostVisual from '@/components/landing/solutions/cost-visual'
 import RouteVisual from '@/components/landing/solutions/route-visual'
 import { usePrefersReducedMotion } from '@/hooks/use-prefers-reduced-motion'
+import { useMediaQuery } from '@/hooks/use-media-query'
 import { COST_DEMO, MATCH_DEMO, SOLUTION_STAGES, SOLUTION_UNDERNEATH } from '@/lib/landing'
 import { formatRupiah } from '@/lib/format'
 
@@ -46,6 +47,10 @@ const visuals: Record<string, ReactNode> = {
  */
 const SolutionsSection: FC = (): ReactNode => {
   const still = usePrefersReducedMotion()
+  // Pergeseran horizontal hanya berlaku saat bagian ini tersemat, yaitu pada
+  // layar `lg` ke atas. Di bawah itu kartunya ditumpuk biasa — kalau
+  // transformasinya tetap dipasang, kartu ikut tergeser keluar layar.
+  const desktop = useMediaQuery('(min-width: 1024px)')
   const sectionRef = useRef<HTMLElement>(null)
 
   const { scrollYProgress } = useScroll({ target: sectionRef, offset: ['start start', 'end end'] })
@@ -109,7 +114,7 @@ const SolutionsSection: FC = (): ReactNode => {
 
         <div className="mt-12 lg:mt-10 lg:min-h-0 lg:flex-1 lg:overflow-clip">
           <motion.div
-            style={still ? undefined : { x: shift }}
+            style={still || !desktop ? undefined : { x: shift }}
             className="relative mx-auto flex max-w-7xl flex-col gap-4 px-4 sm:px-6 lg:mx-0 lg:h-full lg:w-max lg:max-w-none lg:flex-row lg:gap-6 lg:px-[max(2rem,calc((100vw-80rem)/2+2rem))]"
           >
             <div className="max-w-xl pb-4 lg:flex lg:w-[21rem] lg:max-w-none lg:shrink-0 lg:flex-col lg:justify-between lg:py-2">
