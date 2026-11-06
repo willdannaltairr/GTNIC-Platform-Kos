@@ -17,7 +17,10 @@ const HEADER_OFFSET = -88
  */
 const SmoothScroll: FC = (): ReactNode => {
   useEffect(() => {
-    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    // Pengunjung yang meminta gerakan minimal tidak mendapat Lenis sama sekali:
+    // penggulungan beranimasi itu sendiri adalah gerakan, dan hanya meluncurkan
+    // ulang tautan ke bagian halaman tidak cukup untuk menghormatinya.
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
 
     const lenis = new Lenis({
       autoRaf: true,
@@ -42,7 +45,7 @@ const SmoothScroll: FC = (): ReactNode => {
       if (!target) return
 
       event.preventDefault()
-      lenis.scrollTo(target, { offset: HEADER_OFFSET, immediate: reduceMotion, duration: 1.4 })
+      lenis.scrollTo(target, { offset: HEADER_OFFSET, duration: 1.4 })
       window.history.replaceState(window.history.state, '', url.hash)
     }
 
