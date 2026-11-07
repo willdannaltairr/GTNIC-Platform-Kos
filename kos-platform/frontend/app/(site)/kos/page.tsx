@@ -42,7 +42,7 @@ function KosResultsSkeleton() {
   return (
     <div>
       <div className="h-4 w-56 animate-pulse rounded bg-muted" />
-      <div className="mt-5 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+      <div className="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {Array.from({ length: 6 }).map((_, index) => (
           <div key={index} className="h-72 animate-pulse rounded-xl bg-muted" />
         ))}
@@ -109,7 +109,7 @@ async function KosResults({ query }: { query: KosQuery }) {
         Menampilkan {result.items.length} dari {result.meta.total} kos terverifikasi.
       </p>
 
-      <div className="mt-5 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+      <div className="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {result.items.map((property) => (
           <PropertyCard key={property.id} property={property} />
         ))}
@@ -125,6 +125,14 @@ async function KosResults({ query }: { query: KosQuery }) {
   )
 }
 
+/**
+ * Halaman cari kos.
+ *
+ * Filter tampil sebagai satu bagian utuh tepat di bawah judul, bukan kolom
+ * sempit di samping hasil: pilihan filter adalah hal pertama yang dicari
+ * pengunjung, sementara kolom samping memaksa kartu kos berdesakan di ruang
+ * yang tersisa.
+ */
 export default async function KosPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
   const sp = await searchParams
   const facilitiesParam = first(sp.facilities)
@@ -158,42 +166,22 @@ export default async function KosPage({ searchParams }: { searchParams: Promise<
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
       <header>
         <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Cari Kos</h1>
-        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-          Semua filter di bawah diterapkan langsung pada pencarian di server. Hasilnya bisa
-          dibagikan lewat URL karena pilihan Anda tersimpan di alamat halaman.
-        </p>
       </header>
 
-      <div className="mt-8 grid gap-8 lg:grid-cols-[280px_1fr]">
-        <aside className="lg:sticky lg:top-20 lg:self-start">
-          <details className="rounded-2xl border border-border bg-card lg:hidden">
-            <summary className="cursor-pointer list-none px-4 py-3.5 text-sm font-semibold [&::-webkit-details-marker]:hidden">
-              Filter pencarian
-            </summary>
-            <div className="border-t border-border p-4">
-              <KosFilters initial={initial} />
-            </div>
-          </details>
+      <div className="mt-6">
+        <KosFilters initial={initial} />
+      </div>
 
-          <div className="hidden rounded-2xl border border-border bg-card p-5 lg:block">
-            <h2 className="text-sm font-bold tracking-tight">Filter pencarian</h2>
-            <div className="mt-5">
-              <KosFilters initial={initial} />
-            </div>
-          </div>
-        </aside>
-
-        <div>
-          {/*
-            Skeleton pemuatan dipasang lewat Suspense di sini, bukan lewat
-            loading.tsx: loading.tsx pada segmen /kos juga membungkus rute
-            anaknya (/kos/[slug]), dan shell yang sudah ter-flush membuat
-            halaman "tidak ditemukan" berstatus 200, bukan 404.
-          */}
-          <Suspense fallback={<KosResultsSkeleton />}>
-            <KosResults query={query} />
-          </Suspense>
-        </div>
+      <div className="mt-8">
+        {/*
+          Skeleton pemuatan dipasang lewat Suspense di sini, bukan lewat
+          loading.tsx: loading.tsx pada segmen /kos juga membungkus rute
+          anaknya (/kos/[slug]), dan shell yang sudah ter-flush membuat
+          halaman "tidak ditemukan" berstatus 200, bukan 404.
+        */}
+        <Suspense fallback={<KosResultsSkeleton />}>
+          <KosResults query={query} />
+        </Suspense>
       </div>
     </div>
   )
