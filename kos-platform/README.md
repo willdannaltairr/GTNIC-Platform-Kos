@@ -14,9 +14,13 @@ kos-platform/
 │   ├── lib/                  # api.ts (klien API), format.ts, landing.ts, constants.ts
 │   └── public/images/        # foto demo + CREDITS.md
 ├── backend/                  # Express + TypeScript — REST API
-│   ├── prisma/               # schema 46 tabel, migration init, seed.ts
 │   ├── scripts/db-local.mjs  # kelola cluster PostgreSQL dev proyek
-│   └── src/                  # config, middleware, modules, routes
+│   ├── scripts/db-sql.mjs    # jalankan migration/seed SQL ke database
+│   └── src/                  # config, lib (koneksi + query), middleware, modules, routes
+├── supabase/                 # seluruh skema dan data demo, murni SQL
+│   ├── migrations/           # DDL: 46 tabel, 23 enum, 78 foreign key, trigger updated_at
+│   ├── seed.sql              # 8 akun demo + 6 properti contoh
+│   └── config.toml           # konfigurasi Supabase CLI
 ├── .env.example              # referensi seluruh environment variable
 └── package.json              # npm workspaces (frontend + backend) + skrip bersama
 ```
@@ -26,8 +30,8 @@ kos-platform/
 | Bagian | Dipakai |
 | --- | --- |
 | Frontend | Next.js 16.2.3 (App Router, Turbopack), React 19.2.4, TypeScript 5, Tailwind CSS v4, motion 14, lenis, lucide-react, three + @react-three/fiber (kartu 3D) |
-| Backend | Node.js, Express 4, TypeScript 5, Zod 3, ts-node (dev) |
-| Database | PostgreSQL + Prisma ORM 5 (1 migration, 46 model) |
+| Backend | Node.js, Express 4, TypeScript 5, Zod 3, node-postgres (`pg` 8), ts-node (dev) |
+| Database | PostgreSQL (lokal atau Supabase) — **tanpa ORM**: skema, migration, dan seluruh query ditulis SQL langsung |
 | Auth | JWT pada cookie HttpOnly (access 15 menit + refresh 7 hari), bcrypt untuk password |
 | Middleware | helmet, cors, express-rate-limit, cookie-parser, logger permintaan, error handler terpusat |
 
@@ -39,7 +43,10 @@ ketergantungan aktif — tidak ada satu pun yang diimpor di `backend/src` maupun
 
 - Node.js **20.9+** (syarat Next.js 16; diuji pada Node 22.17)
 - npm 10+
-- PostgreSQL terpasang di mesin untuk cluster dev lokal (diuji pada PostgreSQL 18)
+- Database **PostgreSQL**, salah satu:
+  - **Supabase** — cukup connection string dari dashboard, atau
+  - **cluster lokal** untuk mengembangkan tanpa internet (PostgreSQL terpasang di mesin, diuji pada PostgreSQL 18)
+- Supabase CLI **hanya bila** memakai Supabase (dijalankan lewat `npx supabase`, tidak perlu dipasang global)
 
 ## Menjalankan stack dev (Windows, sudah diuji)
 
@@ -51,10 +58,39 @@ cp .env.example backend/.env # lalu isi DATABASE_URL dan JWT_SECRET
 cp .env.example frontend/.env.local   # cukup sisakan NEXT_PUBLIC_API_URL
 ```
 
+### Pilihan A — database Supabase
+
+Ambil connection string dari dashboard Supabase (**Connect → Session pooler**), lalu
+tempel ke `DATABASE_URL` di `backend/.env`.
+
+> **Pakai Session pooler, bukan koneksi langsung.** Host koneksi langsung
+> (`db.<ref>.supabase.co`) hanya punya alamat IPv6; dari jaringan yang cuma punya IPv4,
+> host itu tidak bisa dihubungi sama sekali. Session pooler
+> (`aws-<n>-<region>.pooler.supabase.com:5432`) selalu IPv4.
+>
+> Menempelkan `?sslmode=require` di connection string juga tidak membantu — driver `pg`
+> akan mengabaikan pengaturan TLS dari aplikasi begitu parameter itu ada. Enkripsi sudah
+> diurus otomatis oleh `backend/src/lib/db.ts`.
+
+```bash
+npx supabase login                              # sekali saja, menyimpan token akses
+npx supabase link --project-ref <ref-proyek>    # contoh: ftunxbdpiokslgrzcmvd
+npm run db:migrate                              # buat seluruh tabel + kunci akses REST
+npm run db:seed                                 # 8 akun demo + 6 properti contoh
+```
+
+Bila `supabase db push` gagal karena IPv6 (perintah itu menyambung lewat koneksi
+langsung), berikan connection string pooler secara eksplisit:
+
+```bash
+npx supabase db push --db-url "postgresql://postgres.<ref>:[PASSWORD]@aws-<n>-<region>.pooler.supabase.com:5432/postgres"
+```
+
+### Pilihan B — PostgreSQL lokal
+
 ```bash
 npm run db:local -- init     # buat cluster PostgreSQL di 127.0.0.1:5433 (sekali saja)
-npm run db:migrate           # buat seluruh tabel
-npm run db:seed              # 8 akun demo + 6 properti contoh
+npm run db:setup             # buat seluruh tabel, lalu isi data demo
 ```
 
 Lalu dua terminal terpisah:
@@ -74,10 +110,11 @@ Buka alamat dari baris `Local:` itu, lalu masuk dengan akun demo di bawah.
 | `npm run dev:api` | Dev server backend (ts-node, port 4000) |
 | `npm run build:web` | Build produksi frontend (`next build`) |
 | `npm run build:api` | Type-check backend (`tsc --noEmit`, tanpa output) |
-| `npm run db:generate` | Generate Prisma Client |
-| `npm run db:migrate` | `prisma migrate dev` |
+| `npm run db:migrate` | Jalankan seluruh migration SQL ke database di `DATABASE_URL` |
 | `npm run db:seed` | Isi akun demo dan properti contoh |
-| `npm run db:local -- init\|start\|stop\|status` | Kelola cluster PostgreSQL dev |
+| `npm run db:setup` | `db:migrate` lalu `db:seed` sekaligus |
+| `npm run db:push` | Deployment migration ke proyek Supabase yang sudah di-`link` |
+| `npm run db:local -- init\|start\|stop\|status` | Kelola cluster PostgreSQL dev lokal |
 
 > **Dari folder akar repo.** `package.json` di akar hanya menjembatani perintah ke
 > `kos-platform/frontend`, jadi `npm run dev|build|start` di akar sama dengan
@@ -164,16 +201,57 @@ Semuanya benar-benar diterapkan di query database, bukan hanya disaring di front
 
 ## Database
 
-- **46 model Prisma** dalam satu migration init (`backend/prisma/migrations/20261105131551_init`).
-- Kelompok modelnya: pengguna dan profil (`users`, `owner_profiles`, `tenant_profiles`,
-  `password_reset_tokens`, `refresh_sessions`, `user_preferences`, `favorites`), properti
-  (`properties`, `rooms`, `property_images`, `room_images`, `facilities`,
-  `property_facilities`, `room_facilities`, `property_rules`, `cost_components`), transaksi
-  (`bookings`, `contracts`, `invoices`, `payments`, beserta tabel riwayat status), operasional
-  (`maintenance_requests`, `room_condition_reports`, `visits`, `expenses`), dan admin
-  (`reports`, `audit_logs`, `notifications`, `content_articles`).
-- Hanya model pengguna, properti, kamar, fasilitas, aturan, dan komponen biaya yang sudah
-  dipakai endpoint. Sisanya masih tabel kosong tanpa API.
+Skema dipegang **SQL langsung**, tanpa ORM. Seluruh definisinya ada di `supabase/`:
+
+| Berkas | Isi |
+| --- | --- |
+| `supabase/migrations/20261107120000_init.sql` | 46 tabel, 23 tipe enum, 78 foreign key, 67 indeks unik, trigger `updated_at` |
+| `supabase/migrations/20261107130000_kunci_akses_public.sql` | RLS menyala di semua tabel + cabut hak akses peran `anon`/`authenticated` |
+| `supabase/seed.sql` | 8 akun demo, 14 fasilitas, 6 properti lengkap dengan kamar, foto, aturan, dan komponen biaya |
+
+Jalankan dengan `npm run db:migrate` dan `npm run db:seed` (keduanya membaca `DATABASE_URL`),
+atau deploy ke Supabase lewat `npm run db:push`.
+
+Tiga hal yang diurus database sendiri — dulu dikerjakan aplikasi:
+
+- **`id`** punya `DEFAULT gen_random_uuid()`, jadi UUID dibuat database, bukan kode.
+- **`created_at` / `updated_at`** punya default `now()`, dan trigger `set_updated_at()`
+  memperbarui `updated_at` di setiap `UPDATE` — tidak bisa terlupa di query.
+- **Keunikan email** dijaga indeks unik, bukan pemeriksaan terpisah di aplikasi, sehingga
+  dua pendaftaran bersamaan tidak bisa sama-sama lolos (backend menerjemahkan pelanggaran
+  indeks `23505` menjadi 409 "Email sudah terdaftar").
+
+Kelompok tabelnya: pengguna dan profil (`users`, `owner_profiles`, `tenant_profiles`,
+`password_reset_tokens`, `refresh_sessions`, `user_preferences`, `favorites`), properti
+(`properties`, `rooms`, `property_images`, `room_images`, `facilities`,
+`property_facilities`, `room_facilities`, `property_rules`, `cost_components`), transaksi
+(`bookings`, `contracts`, `invoices`, `payments`, beserta tabel riwayat status), operasional
+(`maintenance_requests`, `room_condition_reports`, `visits`, `expenses`), dan admin
+(`reports`, `audit_logs`, `notifications`, `content_articles`).
+
+Hanya tabel pengguna, properti, kamar, fasilitas, aturan, dan komponen biaya yang sudah
+dipakai endpoint. Sisanya masih tabel kosong tanpa API.
+
+### Cara backend menyambung
+
+`backend/src/lib/db.ts` membuat satu pool `pg` dari `DATABASE_URL`:
+
+- **TLS otomatis.** Menyala untuk host non-lokal (Supabase wajib terenkripsi), mati untuk
+  localhost yang umumnya tanpa TLS. Paksa dengan `DB_SSL=require` atau `DB_SSL=disable`.
+- **Parameter `sslmode` di connection string dibuang lebih dulu.** Kalau tidak, `pg` akan
+  menimpakan objek `ssl`-nya sendiri dan pengaturan aplikasi diabaikan — sumber galat
+  "self-signed certificate in certificate chain" yang membingungkan.
+- **Query lewat parameter, bukan rangkaian teks.** Semua nilai filter dikirim sebagai `$1`,
+  `$2`, … sehingga filter pencarian yang jumlahnya berubah-ubah tetap aman dari injeksi.
+
+### Supabase
+
+Skema `public` disiapkan tertutup: RLS menyala di seluruh tabel dan hak akses `anon` serta
+`authenticated` dicabut. Alasannya, Supabase mengekspos `public` sebagai REST API yang bisa
+dipanggil siapa pun yang memegang kunci publik — dan pada tabel yang dibuat lewat SQL
+migration, RLS **tidak** menyala otomatis. Tanpa langkah ini, `password_hash` bisa terbaca
+dari browser. Aplikasi tidak terpengaruh karena backend masuk sebagai pemilik tabel, dan
+pemilik tabel melewati RLS.
 
 ### Cluster dev lokal
 
@@ -213,7 +291,7 @@ detail dengan aturan yang dipegang ketat:
 
 | Fase | Isi | Status |
 | --- | --- | --- |
-| 1 | Foundation: monorepo, Next.js, Express, TypeScript, PostgreSQL, Prisma, env config, error handling, logging, API versioning | Selesai |
+| 1 | Foundation: monorepo, Next.js, Express, TypeScript, PostgreSQL, skema SQL langsung, env config, error handling, logging, API versioning | Selesai |
 | 2 | Authentication & Authorization: register, login, logout, profil, RBAC, rate limit | Berjalan — endpoint inti sudah ada; endpoint refresh token belum |
 | 3 | Property & Room Management | Sebagian — baru endpoint baca publik; belum ada CRUD pemilik |
 | 4 | Search & Discovery (KosMatch, TrueCost Simulator) | Sebagian — filter pencarian dan TrueCost sudah jalan; skor KosMatch belum diimplementasikan |
@@ -227,6 +305,14 @@ detail dengan aturan yang dipegang ketat:
 ## Keamanan
 
 - Password di-hash bcrypt; token JWT hanya lewat cookie HttpOnly (tidak di localStorage).
+- **Query memakai parameter, bukan rangkaian teks.** Tidak ada satu pun nilai dari pengguna
+  yang disisipkan ke dalam teks SQL — termasuk filter pencarian yang jumlahnya berubah-ubah.
+- **Daftar kolom ditulis eksplisit.** Tidak ada `SELECT *`, sehingga kolom sensitif seperti
+  `password_hash` tidak ikut terkirim hanya karena ada kolom baru ditambahkan.
+- **Keunikan dijaga database.** Pendaftaran email ganda ditolak indeks unik, bukan oleh
+  pemeriksaan yang bisa dilewati dua permintaan bersamaan.
+- **REST API Supabase ditutup.** RLS menyala di seluruh tabel dan hak akses peran `anon`
+  serta `authenticated` dicabut, sehingga isi database tidak bisa dibaca lewat kunci publik.
 - Rate limit per IP untuk seluruh API dan batas lebih ketat untuk endpoint auth.
 - Backend memverifikasi role dan kepemilikan resource di setiap endpoint privat.
 - `JWT_SECRET` wajib diganti sebelum dipakai di luar mesin lokal.
