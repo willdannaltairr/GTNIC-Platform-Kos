@@ -94,6 +94,39 @@ export const authService = {
     return jwt.sign(payload, env.JWT_SECRET, options)
   },
 
+  /**
+   * Muat ulang pemilik sesi dari database saat sesi diperpanjang.
+   *
+   * Token yang masih sah belum tentu akunnya masih boleh dipakai: akun bisa
+   * dinonaktifkan atau dihapus setelah token diterbitkan. Tanpa pemeriksaan
+   * ini, sesi yang diperpanjang terus hidup di atas akun yang sudah ditutup,
+   * dan pemiliknya tidak pernah diminta berhenti.
+   */
+  async findSessionUser(userId: string) {
+    const user = await queryOne<{
+      id: string
+      full_name: string
+      email: string
+      role: string
+      account_status: string
+    }>(
+      `SELECT id, full_name, email, role, account_status
+       FROM users
+       WHERE id = $1 AND deleted_at IS NULL`,
+      [userId],
+    )
+
+    if (!user) {
+      throw new HttpError(401, 'Sesi tidak berlaku lagi, silakan masuk kembali')
+    }
+
+    if (user.account_status !== 'ACTIVE') {
+      throw new HttpError(403, 'Akun tidak aktif')
+    }
+
+    return user
+  },
+
   generateRefreshToken(payload: TokenPayload): string {
     const options: SignOptions = {
       expiresIn: env.JWT_REFRESH_EXPIRES_IN as SignOptions['expiresIn'],

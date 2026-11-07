@@ -39,7 +39,7 @@ export const env = {
   DB_SSL: (process.env.DB_SSL ?? 'auto') as 'auto' | 'disable' | 'require',
   JWT_SECRET: required('JWT_SECRET'),
   JWT_ACCESS_EXPIRES_IN: process.env.JWT_ACCESS_EXPIRES_IN ?? '15m',
-  JWT_REFRESH_EXPIRES_IN: process.env.JWT_REFRESH_EXPIRES_IN ?? '7d',
+  JWT_REFRESH_EXPIRES_IN: process.env.JWT_REFRESH_EXPIRES_IN ?? '30d',
   BCRYPT_SALT_ROUNDS: Number(process.env.BCRYPT_SALT_ROUNDS ?? 10),
   /**
    * Penyimpanan foto (Supabase Storage).

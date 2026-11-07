@@ -5,6 +5,8 @@ import type { FC, ReactNode } from 'react'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { ArrowRight, Menu, X } from 'lucide-react'
+import { AccountActions } from '@/components/session/account-actions'
+import { useSession } from '@/components/session/session-provider'
 import { Logo } from '@/components/landing/logo'
 import { cn } from '@/lib/utils'
 import { LANDING_NAV, LANDING_CTA } from '@/lib/landing'
@@ -23,6 +25,14 @@ const NAV_LINK_CLASS =
 export const LandingHeader: FC = (): ReactNode => {
   const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const { user, status } = useSession()
+
+  // Slot akun di menu ponsel mengikuti keadaan sesi. Selama statusnya masih
+  // "memuat", yang tampil tombol masuk — bukan kerangka kosong, karena menu ini
+  // muncul setelah pengunjung menekan tombol dan kedipan di situ mengganggu.
+  const masuk = status === 'masuk' && user !== null
+  const akunHref = masuk ? '/beranda' : '/masuk'
+  const akunLabel = masuk ? (user?.full_name ?? 'Beranda') : 'Masuk'
 
   useEffect(() => {
     const onScroll = (): void => setScrolled(window.scrollY > 24)
@@ -70,12 +80,10 @@ export const LandingHeader: FC = (): ReactNode => {
           <span aria-hidden="true" className="hidden h-px flex-1 bg-forest/15 lg:block" />
 
           <div className="flex items-center gap-2">
-            <Link
-              href="/masuk"
-              className="hidden h-10 items-center rounded-full px-4 text-sm font-medium text-forest transition-colors hover:bg-forest/[0.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:inline-flex"
-            >
-              Masuk
-            </Link>
+            {/* Satu komponen untuk tamu maupun pengunjung yang sudah masuk:
+                dulu tombol "Masuk" di sini tidak tahu ada sesi berjalan, jadi
+                pengunjung yang sudah login tetap ditawari masuk lagi. */}
+            <AccountActions variant="landing" />
 
             <Link
               href={LANDING_CTA.href}
@@ -119,11 +127,11 @@ export const LandingHeader: FC = (): ReactNode => {
 
           <div className="mt-2 grid gap-2">
             <Link
-              href="/masuk"
+              href={akunHref}
               onClick={() => setOpen(false)}
               className="flex h-11 items-center justify-center rounded-xl border border-border text-sm font-medium text-foreground"
             >
-              Masuk
+              {akunLabel}
             </Link>
 
             <Link
