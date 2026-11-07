@@ -1,10 +1,12 @@
+'use client'
+
 import type { FC, KeyboardEvent, PointerEvent, ReactNode } from 'react'
 
 import Image from 'next/image'
 import { useEffect, useRef, useState } from 'react'
 import { Move3d } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import SolarArrayScene, { type OrbitState } from '@/components/landing/solar-array/solar-array-scene'
+import HouseScene from '@/components/landing/house-viewer/house-scene'
 import {
   DEFAULT_VIEW,
   PITCH_MAX,
@@ -12,31 +14,51 @@ import {
   VIEWS,
   clamp,
   closestYaw,
-  type SolarView,
+  type HouseView,
+  type OrbitState,
   type ViewPreset,
-} from '@/components/landing/solar-array/orbit'
+} from '@/components/landing/house-viewer/orbit'
 import { usePrefersReducedMotion } from '@/hooks/use-prefers-reduced-motion'
 
 const DEFAULT_PITCH = DEFAULT_VIEW.pitch
 const DRAG_YAW = 0.006
 const DRAG_PITCH = 0.004
 
+/**
+ * Pengganti scene 3D saat WebGL belum siap atau tidak tersedia.
+ *
+ * Memakai foto hero yang sama, sehingga peralihan dari foto ke model — dan
+ * sebaliknya di perangkat tanpa WebGL — tidak terasa seperti gambar yang
+ * tertukar.
+ */
 const PhotoFallback: FC = (): ReactNode => {
   return (
-    <Image
-      src="/images/solar-array.jpg"
-      alt="Rows of solar panels on a green field, angled towards the sun"
-      fill
-      sizes="(min-width: 1024px) 60vw, 100vw"
-      className="rounded-[2rem] object-cover"
-    />
+    // Pembungkus `relative` sendiri, karena komponen ini juga dipakai sebagai
+    // fallback di dalam <Canvas> — di sana induknya bukan elemen berposisi.
+    <div className="relative h-full w-full">
+      <Image
+        src="/images/hero-kos-pagi.jpg"
+        alt="Rumah kos berlantai satu dengan panel surya di atapnya, terlihat dari halaman depan"
+        fill
+        sizes="(min-width: 1024px) 60vw, 100vw"
+        className="rounded-[2rem] object-cover"
+      />
+    </div>
   )
 }
 
-const SolarArrayViewer: FC = (): ReactNode => {
+/**
+ * Model rumah yang bisa diputar.
+ *
+ * Sudut pandang disimpan di dalam ref, bukan state React: nilainya berubah
+ * setiap frame saat kamera melayang sendiri, dan menyimpannya sebagai state
+ * akan merender ulang seluruh pohon puluhan kali per detik. Yang masuk ke state
+ * hanya sisi terdekat, karena itu yang perlu dibaca pengunjung.
+ */
+const HouseViewer: FC = (): ReactNode => {
   const reduced = usePrefersReducedMotion()
 
-  const [view, setView] = useState<SolarView>(DEFAULT_VIEW.id)
+  const [view, setView] = useState<HouseView>(DEFAULT_VIEW.id)
   const [ready, setReady] = useState(false)
   const [touched, setTouched] = useState(false)
   const [grabbing, setGrabbing] = useState(false)
@@ -53,8 +75,8 @@ const SolarArrayViewer: FC = (): ReactNode => {
   const drag = useRef<{ x: number; y: number } | null>(null)
   const animation = useRef<number | null>(null)
 
-  // The scene mounts, then eases in: a short intro keeps the first frame from
-  // snapping from the fallback photo to a fully settled camera.
+  // Scene dipasang, lalu masuk perlahan: intro singkat menjaga frame pertama
+  // tidak melompat dari foto pengganti ke kamera yang sudah diam.
   useEffect(() => {
     orbit.current.reduced = reduced
 
@@ -73,7 +95,7 @@ const SolarArrayViewer: FC = (): ReactNode => {
     return () => cancelAnimationFrame(frame)
   }, [reduced])
 
-  // Ease the camera to a preset instead of jumping, so orientation stays readable.
+  // Kamera diantar ke sisi pilihan, bukan melompat, supaya arah putarannya terbaca.
   const goTo = (preset: ViewPreset): void => {
     setTouched(true)
     setView(preset.id)
@@ -164,8 +186,8 @@ const SolarArrayViewer: FC = (): ReactNode => {
       <div
         role="group"
         tabIndex={0}
-        aria-roledescription="3D view"
-        aria-label="Solar array, drag to turn it or use the arrow keys"
+        aria-roledescription="tampilan 3D"
+        aria-label="Model rumah kos, seret untuk memutarnya atau pakai tombol panah"
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
@@ -184,7 +206,7 @@ const SolarArrayViewer: FC = (): ReactNode => {
         </div>
 
         <div className={cn('absolute inset-0 transition-opacity duration-700', ready ? 'opacity-100' : 'opacity-0')}>
-          <SolarArrayScene
+          <HouseScene
             orbit={orbit}
             active={!reduced}
             onViewChange={setView}
@@ -201,14 +223,14 @@ const SolarArrayViewer: FC = (): ReactNode => {
           )}
         >
           <Move3d className="size-4" />
-          Drag to turn it
+          Seret untuk memutar
         </p>
       </div>
 
       <div className="mt-6 flex flex-col items-center gap-4">
         <div
           role="group"
-          aria-label="Choose a side to look at"
+          aria-label="Pilih sisi yang ingin dilihat"
           className="inline-flex rounded-full bg-mist p-1 ring-1 ring-black/5"
         >
           {VIEWS.map((preset) => (
@@ -240,4 +262,4 @@ const SolarArrayViewer: FC = (): ReactNode => {
   )
 }
 
-export default SolarArrayViewer
+export default HouseViewer

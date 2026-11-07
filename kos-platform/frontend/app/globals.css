@@ -1,8 +1,8 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 
-/* Token desain diadaptasi dari rancangan Gridora dan disesuaikan untuk
-   platform kos: hijau daun sebagai warna utama (hangat, terpercaya),
+/* Token desain platform kos: hijau daun sebagai warna utama (hangat,
+   terpercaya),
    latar krem-hijau lembut, dan aksen jingga untuk penanda penting.
    Nilai lama tidak diubah sembarangan — kontras teks sudah diperiksa. */
 :root {
@@ -43,9 +43,9 @@
   --font-app-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
 }
 
-/* Landing page memakai tiga keluarga huruf yang sama dengan Gridora.
-   Diterapkan sebagai kelas pada pembungkus landing — bukan di :root — supaya
-   halaman lain tidak ikut berubah. */
+/* Landing page memakai tiga keluarga hurufnya sendiri: DM Sans, Space Grotesk,
+   dan JetBrains Mono. Diterapkan sebagai kelas pada pembungkus landing — bukan
+   di :root — supaya halaman lain tidak ikut berubah. */
 .landing-scope {
   --font-app-sans: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
   --font-app-heading: 'Space Grotesk', 'DM Sans', ui-sans-serif, system-ui, sans-serif;
@@ -54,7 +54,7 @@
 
 @theme inline {
   /* Tiga token font dibaca lewat variabel perantara, bukan nilai mati: itu
-     yang memungkinkan landing memakai tipografi Gridora (DM Sans + Space
+     yang memungkinkan landing memakai tipografinya sendiri (DM Sans + Space
      Grotesk + JetBrains Mono) tanpa mengubah font halaman /kos, /masuk,
      /daftar, dan /kredit yang tetap Plus Jakarta Sans. */
   --font-sans: var(--font-app-sans, ui-sans-serif, system-ui, sans-serif);
@@ -160,10 +160,12 @@
     );
   }
 
-  /* Mask hero dua arah: tepi atas-bawah dan kiri-kanan melebur, diiris. */
-  .hero-frame-mask {
+  /* Mask foto bangunan di hero: tepi atas-bawah dan kiri-kanan melebur.
+     Batas atasnya lebih rendah daripada mask lama supaya atap rumah tidak
+     ikut terpotong judul di layar lebar. */
+  .hero-house-mask {
     mask-image:
-      linear-gradient(rgba(0, 0, 0, 0) 0%, rgb(0, 0, 0) 30%, rgb(0, 0, 0) 82%, rgba(0, 0, 0, 0) 100%),
+      linear-gradient(rgba(0, 0, 0, 0) 0%, rgb(0, 0, 0) 34%, rgb(0, 0, 0) 84%, rgba(0, 0, 0, 0) 100%),
       linear-gradient(90deg, rgba(0, 0, 0, 0) 0%, rgb(0, 0, 0) 9%, rgb(0, 0, 0) 91%, rgba(0, 0, 0, 0) 100%);
     mask-composite: intersect;
   }
@@ -207,14 +209,14 @@
   /* Tirai pembuka: sekali per muat halaman, lalu menghapus dirinya sendiri.
      pointer-events-none memastikan tirai tidak pernah menahan klik, dan
      pengunjung yang memilih reduced motion tidak melihatnya sama sekali. */
-  @keyframes gridora-curtain-up {
+  @keyframes kos-curtain-up {
     100% {
       visibility: hidden;
       transform: translateY(-100%);
     }
   }
 
-  @keyframes gridora-curtain-inner {
+  @keyframes kos-curtain-inner {
     0% {
       opacity: 0;
       transform: translateY(24px);
@@ -225,7 +227,7 @@
     }
   }
 
-  @keyframes gridora-curtain-bar {
+  @keyframes kos-curtain-bar {
     0% {
       transform: scaleX(0);
     }
@@ -235,15 +237,15 @@
   }
 
   .intro-curtain {
-    animation: gridora-curtain-up 1s cubic-bezier(0.76, 0, 0.24, 1) 0.95s 1 normal forwards;
+    animation: kos-curtain-up 1s cubic-bezier(0.76, 0, 0.24, 1) 0.95s 1 normal forwards;
   }
 
   .intro-curtain-inner {
-    animation: gridora-curtain-inner 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0s 1 normal both;
+    animation: kos-curtain-inner 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0s 1 normal both;
   }
 
   .intro-curtain-bar {
-    animation: gridora-curtain-bar 0.9s cubic-bezier(0.65, 0, 0.35, 1) 50ms 1 normal both;
+    animation: kos-curtain-bar 0.9s cubic-bezier(0.65, 0, 0.35, 1) 50ms 1 normal both;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -253,7 +255,7 @@
   }
 
   /* Marquee kawasan: dua salinan identik bergeser tepat setengah trek. */
-  @keyframes gridora-marquee {
+  @keyframes kos-marquee {
     0% {
       transform: translate(0);
     }
@@ -263,7 +265,7 @@
   }
 
   .marquee-track {
-    animation: gridora-marquee 38s linear infinite;
+    animation: kos-marquee 38s linear infinite;
   }
 
   .marquee:hover .marquee-track {
@@ -291,7 +293,7 @@
     }
   }
 
-  @keyframes gridora-scroll-cue {
+  @keyframes kos-scroll-cue {
     0% {
       transform: translateY(-100%);
     }
@@ -301,10 +303,10 @@
   }
 
   .scroll-cue-line {
-    animation: gridora-scroll-cue 1.8s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+    animation: kos-scroll-cue 1.8s cubic-bezier(0.65, 0, 0.35, 1) infinite;
   }
 
-  @keyframes gridora-flow-cue {
+  @keyframes kos-flow-cue {
     0% {
       transform: translate(-100%);
     }
@@ -314,7 +316,7 @@
   }
 
   .flow-cue-line {
-    animation: gridora-flow-cue 1.8s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+    animation: kos-flow-cue 1.8s cubic-bezier(0.65, 0, 0.35, 1) infinite;
   }
 
   @media (prefers-reduced-motion: reduce) {

@@ -17,8 +17,8 @@ const SCENE_IDS: HeroSceneId[] = ['pagi', 'malam']
  * Hero landing.
  *
  * Tinggi 175svh dengan isi yang menempel di layar, sehingga foto tetap diam
- * sementara teks pudar dan kalimat penutup muncul — pola yang sama dengan
- * hero Gridora. Pemilih Pagi/Malam mengganti foto dan salinan sekaligus.
+ * sementara teks pudar dan kalimat penutup muncul. Pemilih Pagi/Malam
+ * mengganti foto dan salinan sekaligus.
  *
  * Formulir pencarian di bagian bawah mengarah ke /kos dengan filter yang sudah
  * terisi, sama seperti pencarian di halaman /kos.
@@ -147,14 +147,17 @@ const HeroSection: FC = (): ReactNode => {
                   id === scene ? 'opacity-100' : 'opacity-0',
                 )}
               >
-                <div className="hero-frame-mask absolute left-1/2 top-0 h-full w-[150%] -translate-x-1/2 sm:w-[125%] md:w-[110%] lg:left-0 lg:w-full lg:translate-x-0">
+                {/* Bingkai foto: di layar kecil bangunan ditaruh di bawah judul
+                    sebagai panel 16:9, lalu di layar lebar foto mengisi seluruh
+                    panggung dengan tepi yang melebur. */}
+                <div className="hero-house-mask absolute bottom-[16%] left-1/2 aspect-video w-[150%] -translate-x-1/2 sm:bottom-[12%] sm:w-[125%] md:w-[110%] lg:inset-0 lg:aspect-auto lg:w-full lg:translate-x-0">
                   <Image
                     src={HERO.scenes[id].image}
                     alt={HERO.scenes[id].imageAlt}
                     fill
                     priority={id === 'pagi'}
                     sizes="(min-width: 1024px) 100vw, 150vw"
-                    className="object-cover object-center"
+                    className="object-cover object-[50%_78%]"
                   />
                 </div>
               </div>
