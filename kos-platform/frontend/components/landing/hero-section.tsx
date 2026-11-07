@@ -115,29 +115,6 @@ const HeroSection: FC = (): ReactNode => {
               <div className='absolute bottom-[18%] right-[16%] size-16 rounded-full bg-[#ffd9a8] opacity-70 shadow-[0_0_90px_30px_rgba(255,190,120,0.35)] sm:size-24' />
             </div>
 
-            <div className='hero-fog-slow absolute -inset-x-[15%] top-[22%] h-[34%]'>
-              <div
-                className={cn(
-                  'absolute inset-0 transition-opacity duration-[1400ms]',
-                  malam ? 'opacity-0' : 'opacity-100',
-                )}
-                style={{
-                  background:
-                    'radial-gradient(50% 50% at 30% 50%, rgba(244,241,230,0.7), transparent), radial-gradient(45% 45% at 75% 55%, rgba(244,241,230,0.5), transparent)',
-                }}
-              />
-              <div
-                className={cn(
-                  'absolute inset-0 transition-opacity duration-[1400ms]',
-                  malam ? 'opacity-100' : 'opacity-0',
-                )}
-                style={{
-                  background:
-                    'radial-gradient(50% 50% at 30% 50%, rgba(70,84,98,0.45), transparent), radial-gradient(45% 45% at 75% 55%, rgba(70,84,98,0.35), transparent)',
-                }}
-              />
-            </div>
-
             {/* Foto kamar: hanya suasana yang aktif yang terlihat. */}
             {SCENE_IDS.map((id) => (
               <div
@@ -162,29 +139,6 @@ const HeroSection: FC = (): ReactNode => {
                 </div>
               </div>
             ))}
-
-            <div className='hero-fog absolute -inset-x-[15%] bottom-[2%] h-[36%]'>
-              <div
-                className={cn(
-                  'absolute inset-0 transition-opacity duration-[1400ms]',
-                  malam ? 'opacity-0' : 'opacity-100',
-                )}
-                style={{
-                  background:
-                    'radial-gradient(45% 55% at 25% 60%, rgba(238,236,224,0.8), transparent), radial-gradient(40% 50% at 70% 70%, rgba(238,236,224,0.7), transparent)',
-                }}
-              />
-              <div
-                className={cn(
-                  'absolute inset-0 transition-opacity duration-[1400ms]',
-                  malam ? 'opacity-100' : 'opacity-0',
-                )}
-                style={{
-                  background:
-                    'radial-gradient(45% 55% at 25% 60%, rgba(52,64,76,0.6), transparent), radial-gradient(40% 50% at 70% 70%, rgba(52,64,76,0.5), transparent)',
-                }}
-              />
-            </div>
 
             <div
               className={cn(
