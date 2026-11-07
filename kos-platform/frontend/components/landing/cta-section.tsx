@@ -47,7 +47,7 @@ const CtaSection: FC = (): ReactNode => {
           <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Magnetic strength={0.18}>
               <Link
-                href="/kos"
+                href="/masuk"
                 className="inline-flex h-12 items-center gap-2 rounded-full bg-leaf px-7 text-[15px] font-semibold text-forest transition-colors hover:bg-leaf/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-forest"
               >
                 Cari kos sekarang
@@ -56,7 +56,7 @@ const CtaSection: FC = (): ReactNode => {
             </Magnetic>
 
             <Link
-              href="/daftar"
+              href="/masuk"
               className="inline-flex h-12 items-center gap-2 rounded-full bg-white/10 px-7 text-[15px] font-medium text-white ring-1 ring-white/20 backdrop-blur-md transition-colors hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-forest"
             >
               Daftar sebagai pemilik

@@ -23,7 +23,14 @@ export const LANDING_NAV: LandingNavLink[] = [
   { label: 'Tanya Jawab', href: '/#tanya-jawab' },
 ]
 
-export const LANDING_CTA = { label: 'Cari Kos', href: '/kos' }
+/**
+ * Ajakan utama landing.
+ *
+ * Mengarah ke halaman masuk lebih dulu, bukan langsung ke /kos: halaman situs
+ * hanya bisa dibuka dengan akun, jadi setiap tautan yang meninggalkan landing
+ * lewat pintu masuk.
+ */
+export const LANDING_CTA = { label: 'Cari Kos', href: '/masuk' }
 
 export interface LandingFooterColumn {
   title: string
@@ -34,7 +41,7 @@ export const LANDING_FOOTER_COLUMNS: LandingFooterColumn[] = [
   {
     title: 'Pencari Kos',
     links: [
-      { label: 'Cari Kos', href: '/kos' },
+      { label: 'Cari Kos', href: '/masuk' },
       { label: 'KosMatch', href: '/#kosmatch' },
       { label: 'Simulasi Biaya', href: '/#truecost' },
       { label: 'Cara Kerja', href: '/#cara-kerja' },
@@ -43,7 +50,7 @@ export const LANDING_FOOTER_COLUMNS: LandingFooterColumn[] = [
   {
     title: 'Pemilik Kos',
     links: [
-      { label: 'Daftar Sebagai Pemilik', href: '/daftar' },
+      { label: 'Daftar Sebagai Pemilik', href: '/masuk' },
       { label: 'Manfaat', href: '/#manfaat' },
       { label: 'Masuk Dashboard', href: '/masuk' },
     ],
@@ -52,7 +59,7 @@ export const LANDING_FOOTER_COLUMNS: LandingFooterColumn[] = [
     title: 'Lainnya',
     links: [
       { label: 'Tanya Jawab', href: '/#tanya-jawab' },
-      { label: 'Kredit Foto', href: '/kredit' },
+      { label: 'Kredit Foto', href: '/masuk' },
       { label: 'Masuk', href: '/masuk' },
     ],
   },
@@ -99,21 +106,24 @@ export interface AreaLink {
 }
 
 /**
- * Kawasan yang bisa langsung dibuka lewat pencarian — dipakai marquee di bawah
- * hero.
+ * Kawasan yang tampil di marquee bawah hero.
  *
  * Ikonnya sengaja seragam: ikon variatif biasanya dipakai untuk logo mitra,
  * sedangkan di sini yang ditampilkan nama tempat. Ikon Wi-Fi atau kunci di
  * sebelah nama kota akan terbaca sebagai klaim fasilitas yang tidak pernah
  * kita maksud.
+ *
+ * Semuanya menuju /masuk: hasil pencarian per kota hanya bisa dibuka dengan
+ * akun. Kolom `href` tetap ada supaya alamat per kota bisa dipasang kembali di
+ * sini begitu gerbang masuknya dicabut.
  */
 export const AREA_LINKS: AreaLink[] = [
-  { name: 'Jakarta Selatan', href: '/kos?city=Jakarta%20Selatan', icon: MapPin },
-  { name: 'Bandung', href: '/kos?city=Bandung', icon: MapPin },
-  { name: 'Sleman', href: '/kos?city=Sleman', icon: MapPin },
-  { name: 'Surabaya', href: '/kos?city=Surabaya', icon: MapPin },
-  { name: 'Malang', href: '/kos?city=Malang', icon: MapPin },
-  { name: 'Depok', href: '/kos?city=Depok', icon: MapPin },
+  { name: 'Jakarta Selatan', href: '/masuk', icon: MapPin },
+  { name: 'Bandung', href: '/masuk', icon: MapPin },
+  { name: 'Sleman', href: '/masuk', icon: MapPin },
+  { name: 'Surabaya', href: '/masuk', icon: MapPin },
+  { name: 'Malang', href: '/masuk', icon: MapPin },
+  { name: 'Depok', href: '/masuk', icon: MapPin },
 ]
 
 /** Kalimat manifesto yang menyala mengikuti scroll. `accent` menandai bagian penekanan. */

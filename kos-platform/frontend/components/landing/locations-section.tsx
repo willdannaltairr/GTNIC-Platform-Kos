@@ -9,9 +9,11 @@ import { LOCATIONS } from '@/lib/constants'
 /**
  * Lokasi populer.
  *
- * Setiap kartu membuka /kos dengan kota yang sudah tersaring. Kota pertama
- * dibuat lebih besar supaya blok ini punya satu titik masuk yang jelas, bukan
- * enam tombol yang setara.
+ * Setiap kartu mengarah ke halaman masuk: hasil pencarian per kota hanya bisa
+ * dibuka dengan akun, jadi menautkannya langsung ke /kos hanya akan memantul
+ * kembali. Daftar kotanya tetap ditampilkan supaya pengunjung tahu kawasan
+ * mana yang sudah terisi data. Kota pertama dibuat lebih besar supaya blok ini
+ * punya satu titik masuk yang jelas, bukan enam tombol yang setara.
  */
 const LocationsSection: FC = (): ReactNode => {
   return (
@@ -21,7 +23,7 @@ const LocationsSection: FC = (): ReactNode => {
           id="lokasi-title"
           eyebrow="Lokasi"
           title="Mulai dari kawasan yang dekat dengan keseharian Anda."
-          description="Setiap kota membuka hasil pencarian yang sudah tersaring — bukan halaman contoh. Jumlah kos yang tampil mengikuti data terverifikasi di database."
+          description="Setiap kota punya hasil pencarian yang sudah tersaring — bukan halaman contoh. Masuk dengan akun Anda untuk membukanya."
         />
 
         <ul className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -39,7 +41,7 @@ const LocationsSection: FC = (): ReactNode => {
                 )}
               >
                 <Link
-                  href={location.href}
+                  href="/masuk"
                   className={
                     featured
                       ? 'group relative isolate flex h-full min-h-56 flex-col justify-between overflow-hidden rounded-[2rem] bg-forest p-6 text-white ring-1 ring-inset ring-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-4 sm:min-h-64'
