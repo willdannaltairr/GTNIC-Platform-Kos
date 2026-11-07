@@ -1,5 +1,5 @@
 import type { LucideIcon } from 'lucide-react'
-import { BadgeCheck, Calculator, CircleAlert, MapPin, LockKeyhole, ShieldCheck, Wallet } from 'lucide-react'
+import { BadgeCheck, Calculator, MapPin, LockKeyhole, ShieldCheck, Wallet } from 'lucide-react'
 
 import { FAQS, FEATURES, LOCATIONS, OWNER_BENEFITS, STEPS, TENANT_BENEFITS, TRUST_POINTS } from './constants'
 
@@ -20,6 +20,7 @@ export const LANDING_NAV: LandingNavLink[] = [
   { label: 'Produk', href: '/#produk' },
   { label: 'Cara Kerja', href: '/#cara-kerja' },
   { label: 'Lokasi', href: '/#lokasi' },
+  { label: 'Testimoni', href: '/#testimoni' },
   { label: 'Tanya Jawab', href: '/#tanya-jawab' },
 ]
 
@@ -225,57 +226,6 @@ export const MATCH_DEMO: MatchFactor[] = [
   { label: 'Preferensi kamar', weight: 15, score: 70 },
 ]
 
-export interface AboutFact {
-  value: string
-  label: string
-}
-
-/**
- * Fakta di bagian "Tentang".
- *
- * Semua angka di sini berasal dari cara kerja produk yang bisa Anda periksa di
- * dalam aplikasi — jumlah kota pada pencarian, jumlah faktor KosMatch, dan
- * rentang proyeksi biaya. Tidak ada angka survei yang tidak bisa ditelusuri.
- */
-export const ABOUT_FACTS: AboutFact[] = [
-  { value: '6', label: 'kota dengan pencarian tersaring' },
-  { value: '4', label: 'faktor bobot di KosMatch' },
-  { value: '12', label: 'bulan proyeksi biaya' },
-]
-
-export interface Principle {
-  icon: LucideIcon
-  title: string
-  text: string
-}
-
-/** Prinsip yang menentukan apa yang tampil dan apa yang tidak. */
-export const PRINCIPLES: Principle[] = [
-  {
-    icon: ShieldCheck,
-    title: 'Verifikasi dulu, baru tayang',
-    text: 'Properti hanya muncul setelah diperiksa admin. Status verifikasi ditampilkan apa adanya, termasuk yang masih tertunda.',
-  },
-  {
-    icon: Calculator,
-    title: 'Setiap angka membawa sumbernya',
-    text: 'Nilai yang dikonfirmasi pemilik dipisahkan dari nilai perkiraan, sehingga tidak ada angka yang tampak pasti padahal belum dicek.',
-  },
-  {
-    icon: CircleAlert,
-    title: 'Batasannya kami sebutkan',
-    text: 'Kalau ada komponen biaya yang belum diketahui, kami menuliskannya sebagai daftar pertanyaan untuk survei — bukan mengosongkannya.',
-  },
-]
-
-export const ABOUT = {
-  missionTitle: 'Misi kami',
-  mission: 'Membuat informasi kos bisa dipercaya sebelum uang berpindah tangan.',
-  title: 'Dibangun karena mencari kos seharusnya tidak menebak-nebak.',
-  description:
-    'KosPlatform dimulai dari percakapan dengan penghuni kos dan pemiliknya: harga sewa hampir selalu bukan biaya sesungguhnya, dan ketersediaan kamar sering baru diketahui saat sampai di lokasi. Platform ini menyusun ulang informasi itu supaya bisa diperiksa sebelum keputusan diambil.',
-}
-
 export interface RouteStop {
   label: string
   distance: string
@@ -437,3 +387,51 @@ export const LANDING_STEPS = STEPS
 export const LANDING_TRUST = TRUST_POINTS
 
 export const LANDING_FAQS = FAQS
+
+export interface Testimonial {
+  quote: string
+  author: string
+  role: string
+  company: string
+}
+
+/**
+ * Kutipan yang tampil di bagian testimoni.
+ *
+ * Semuanya contoh dari data demo platform, bukan ulasan pengguna sungguhan:
+ * platform ini belum punya cukup penghuni untuk dikutip, dan mengarang
+ * testimoni atas nama orang nyata bukan sesuatu yang boleh dilakukan meski
+ * tampilannya jadi lebih meyakinkan. Nama serta pekerjaannya pun fiktif, dan
+ * keterangan itu ikut tampil di bagian ini supaya pembaca tahu apa yang
+ * sedang dibacanya.
+ */
+export const TESTIMONIALS: Testimonial[] = [
+  {
+    quote:
+      'Yang berubah bukan pilihan kosnya, tapi saya tahu persis apa yang saya bayar. Deposit, listrik, air — semuanya sudah ada angkanya sebelum saya datang survei.',
+    author: 'Rani Prameswari',
+    role: 'Mahasiswa',
+    company: 'Depok',
+  },
+  {
+    quote:
+      'Dulu saya harus menelepon satu per satu untuk tahu kamar mana yang masih kosong. Sekarang ketersediaannya saya perbarui sekali, dan calon penyewa melihat hal yang sama.',
+    author: 'Hendra Wijaya',
+    role: 'Pemilik kos',
+    company: 'Yogyakarta',
+  },
+  {
+    quote:
+      'Jarak ke kampus dihitung dari titik yang sebenarnya, jadi saya tidak lagi menyewa tempat yang di iklan katanya "dekat", ternyata 40 menit naik motor.',
+    author: 'Bagas Nugroho',
+    role: 'Mahasiswa',
+    company: 'Bandung',
+  },
+  {
+    quote:
+      'Laporan kondisi kamar saat masuk dan keluar itu yang paling menolong. Tidak ada lagi perdebatan soal goresan meja yang sebenarnya sudah ada sejak awal.',
+    author: 'Sinta Maharani',
+    role: 'Penyewa',
+    company: 'Jakarta Selatan',
+  },
+]

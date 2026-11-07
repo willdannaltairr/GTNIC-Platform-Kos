@@ -11,7 +11,7 @@ import { RecommendedSection } from '@/components/landing/recommended-section'
 import HowItWorksSection from '@/components/landing/how-it-works-section'
 import BenefitsSection from '@/components/landing/benefits-section'
 import StatsSection from '@/components/landing/stats-section'
-import AboutSection from '@/components/landing/about-section'
+import TestimonialSection from '@/components/landing/testimonial-section'
 import FaqSection from '@/components/landing/faq-section'
 import CtaSection from '@/components/landing/cta-section'
 import HouseSection from '@/components/landing/house-section'
@@ -67,7 +67,7 @@ export default function HomePage() {
       <HowItWorksSection />
       <BenefitsSection />
       <StatsSection />
-      <AboutSection />
+      <TestimonialSection />
       <FaqSection />
       <CtaSection />
       <HouseSection />
