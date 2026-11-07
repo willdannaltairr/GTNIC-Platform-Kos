@@ -1,13 +1,23 @@
 import bcrypt from 'bcryptjs'
 import jwt, { SignOptions } from 'jsonwebtoken'
 import { env } from '../../config/env'
+import { PG_ERROR, query, queryOne } from '../../lib/db'
 import { HttpError } from '../../lib/httpError'
-import { prisma } from '../../lib/prisma'
 
 export interface TokenPayload {
   userId: string
   email: string
   role: string
+}
+
+export interface UserRow {
+  id: string
+  full_name: string
+  email: string
+  role: string
+  account_status: string
+  password_hash: string | null
+  created_at: Date
 }
 
 export const authService = {
@@ -25,53 +35,44 @@ export const authService = {
     password: string
     role: 'TENANT' | 'OWNER'
   }) {
-    const existing = await prisma.users.findUnique({
-      where: { email: data.email },
-    })
-
-    if (existing) {
-      throw new HttpError(409, 'Email sudah terdaftar')
-    }
-
     const passwordHash = await this.hashPassword(data.password)
 
-    const user = await prisma.users.create({
-      data: {
-        full_name: data.fullName,
-        email: data.email,
-        password_hash: passwordHash,
-        role: data.role,
-        account_status: 'ACTIVE',
-      },
-      select: {
-        id: true,
-        full_name: true,
-        email: true,
-        role: true,
-        account_status: true,
-        created_at: true,
-      },
-    })
+    // Keunikan email dijaga indeks unik di database, bukan oleh pemeriksaan
+    // terpisah — supaya dua permintaan yang datang bersamaan tidak bisa
+    // sama-sama lolos.
+    try {
+      const rows = await query<{
+        id: string
+        full_name: string
+        email: string
+        role: string
+        account_status: string
+        created_at: Date
+      }>(
+        `INSERT INTO users (full_name, email, password_hash, role, account_status)
+         VALUES ($1, $2, $3, $4, 'ACTIVE')
+         RETURNING id, full_name, email, role, account_status, created_at`,
+        [data.fullName, data.email, passwordHash, data.role],
+      )
 
-    return user
+      return rows[0]
+    } catch (error) {
+      if ((error as { code?: string }).code === PG_ERROR.UNIQUE_VIOLATION) {
+        throw new HttpError(409, 'Email sudah terdaftar')
+      }
+      throw error
+    }
   },
 
   async validateUser(email: string, password: string) {
-    const user = await prisma.users.findFirst({
-      where: { email, deleted_at: null },
-      select: {
-        id: true,
-        full_name: true,
-        email: true,
-        role: true,
-        password_hash: true,
-        account_status: true,
-      },
-    })
+    const user = await queryOne<UserRow>(
+      `SELECT id, full_name, email, role, account_status, password_hash, created_at
+       FROM users
+       WHERE email = $1 AND deleted_at IS NULL`,
+      [email],
+    )
 
-    if (!user) return null
-
-    if (!user.password_hash) return null
+    if (!user || !user.password_hash) return null
 
     const isMatch = await this.comparePassword(password, user.password_hash)
     if (!isMatch) return null
@@ -80,12 +81,9 @@ export const authService = {
       throw new HttpError(403, 'Akun tidak aktif')
     }
 
-    await prisma.users.update({
-      where: { id: user.id },
-      data: { last_login_at: new Date() },
-    })
+    await query('UPDATE users SET last_login_at = now() WHERE id = $1', [user.id])
 
-    const { password_hash, ...userWithoutPassword } = user
+    const { password_hash: _passwordHash, ...userWithoutPassword } = user
     return userWithoutPassword
   },
 
