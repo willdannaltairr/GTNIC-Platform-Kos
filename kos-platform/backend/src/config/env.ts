@@ -29,7 +29,14 @@ export const env = {
   BACKEND_URL: process.env.BACKEND_URL ?? 'http://localhost:4000',
   API_PREFIX: process.env.API_PREFIX ?? '/api/v1',
   DATABASE_URL: required('DATABASE_URL'),
-  DIRECT_URL: process.env.DIRECT_URL ?? process.env.DATABASE_URL,
+  /**
+   * Mode TLS ke database.
+   *
+   * `auto` (default) menyalakan TLS hanya untuk host non-lokal — Supabase wajib
+   * terenkripsi, sedangkan cluster PostgreSQL di mesin sendiri umumnya tidak
+   * menyediakan TLS. Isi `disable` atau `require` untuk memaksa salah satunya.
+   */
+  DB_SSL: (process.env.DB_SSL ?? 'auto') as 'auto' | 'disable' | 'require',
   JWT_SECRET: required('JWT_SECRET'),
   JWT_ACCESS_EXPIRES_IN: process.env.JWT_ACCESS_EXPIRES_IN ?? '15m',
   JWT_REFRESH_EXPIRES_IN: process.env.JWT_REFRESH_EXPIRES_IN ?? '7d',
