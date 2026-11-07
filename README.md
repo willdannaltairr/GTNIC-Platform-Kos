@@ -20,11 +20,13 @@ dikonfirmasi pemilik dan mana yang masih perkiraan.
 
 ## Untuk siapa
 
-**Pencari kos** — mahasiswa, pekerja, atau siapa pun yang pindah ke kota baru. Bisa mencari,
-membandingkan, dan menyimpan kos tanpa akun; akun dibutuhkan saat ingin mengurus sewa.
+**Pencari kos** — mahasiswa, pekerja, atau siapa pun yang pindah ke kota baru. Mencari dan
+membandingkan kos bisa dilakukan tanpa akun. Akun sudah bisa dibuat, tetapi fitur yang
+memakainya — menyimpan kos favorit, mengajukan sewa, memantau status — belum aktif.
 
 **Pemilik kos** — yang ingin propertinya dilihat calon penghuni dengan informasi yang jujur,
-sehingga percakapan saat survei tidak dimulai dari selisih angka.
+sehingga percakapan saat survei tidak dimulai dari selisih angka. Akun pemilik juga sudah bisa
+dibuat; halaman pengelolaannya belum ada.
 
 ## Yang bisa dilakukan di web ini
 
@@ -108,8 +110,9 @@ Tiga alat ini sudah tampil di beranda dan sedang dikerjakan bertahap:
 **Sudah bisa dicoba:** jelajah beranda, pencarian beserta seluruh filternya, halaman detail
 dengan rincian biaya, serta pendaftaran dan masuk akun.
 
-**Belum ada:** skor KosMatch, peta jarak, halaman pengelolaan bagi pemilik kos, pemesanan dan
-pembayaran sewa, dokumentasi kamar (Room Passport), dan ulasan penghuni.
+**Belum ada:** menyimpan kos favorit, skor KosMatch, peta jarak, halaman pengelolaan bagi
+pemilik kos, pemesanan dan pembayaran sewa, dokumentasi kamar (Room Passport), dan ulasan
+penghuni.
 
 > **Datanya masih contoh.** Yang tampil sekarang adalah 6 kos demo di 6 kota — Bandung, Depok,
 > Jakarta Selatan, Malang, Sleman, dan Surabaya — beserta kamar, fasilitas, aturan, dan komponen
