@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { SessionProvider } from '@/components/session/session-provider'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -37,7 +38,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           rel="stylesheet"
         />
       </head>
-      <body className="flex min-h-screen flex-col">{children}</body>
+      <body className="flex min-h-screen flex-col">
+        {/* Provider dipasang di akar, bukan per route group, supaya landing,
+            halaman situs, dan halaman auth membaca sesi yang sama — dan
+            perpanjangan token hanya berjalan sekali, bukan sekali per group. */}
+        <SessionProvider>{children}</SessionProvider>
+      </body>
     </html>
   )
 }
