@@ -1,11 +1,12 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { BedDouble, MapPin, Users } from 'lucide-react'
+import { BedDouble, MapPin, Navigation, Users } from 'lucide-react'
 import type { PropertyListItem } from '@/lib/api'
 import {
   COST_CONFIDENCE_CLASS,
   COST_CONFIDENCE_LABEL,
   PROPERTY_TYPE_LABEL,
+  formatJarak,
   formatLastConfirmed,
   formatRupiah,
 } from '@/lib/format'
@@ -17,13 +18,19 @@ import {
  * `gated` dipakai oleh rekomendasi di landing page: di sana kartu belum boleh
  * membuka detail properti, karena pengunjung belum tentu punya akun. Kartu di
  * halaman /kos tidak memakai ini — di sana pengunjung memang sudah masuk.
+ *
+ * Jarak hanya muncul bila API mengirimkannya — yaitu ketika pencarian menyertakan
+ * titik koordinat. Di halaman /kos tanpa koordinat, kartunya sama seperti dulu.
  */
 export function PropertyCard({
   property,
   gated = false,
+  jarakDari = 'lokasi Anda',
 }: {
   property: PropertyListItem
   gated?: boolean
+  /** Sebutan titik yang jadi acuan `distanceKm`, mis. "tujuan" atau "kampus". */
+  jarakDari?: string
 }) {
   const available = property.availableRooms
   const total = property.totalRooms
@@ -59,6 +66,13 @@ export function PropertyCard({
         <span className="absolute left-3 top-3 rounded-full bg-background/95 px-2.5 py-1 text-[11px] font-medium text-foreground ring-1 ring-border">
           {PROPERTY_TYPE_LABEL[property.propertyType] ?? property.propertyType}
         </span>
+
+        {property.distanceKm !== null && (
+          <span className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full bg-primary/95 px-2.5 py-1 text-[11px] font-semibold text-primary-foreground">
+            <Navigation className="size-3 shrink-0" aria-hidden="true" />
+            {formatJarak(property.distanceKm)}
+          </span>
+        )}
       </Link>
 
       <div className="flex flex-1 flex-col gap-3 p-4">
@@ -71,6 +85,18 @@ export function PropertyCard({
             </span>
           </p>
         </div>
+
+        {property.distanceKm !== null && (
+          <p className="text-xs font-medium text-primary">
+            {formatJarak(property.distanceKm)} dari {jarakDari}
+            {property.distanceFromOriginKm !== null && (
+              <span className="font-normal text-muted-foreground">
+                {' '}
+                · {formatJarak(property.distanceFromOriginKm)} dari titik asal
+              </span>
+            )}
+          </p>
+        )}
 
         <div className="flex flex-wrap gap-1.5">
           <span className="inline-flex items-center gap-1 rounded-md bg-muted px-2 py-1 text-[11px] text-muted-foreground">
