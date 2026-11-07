@@ -43,9 +43,10 @@ export function LoginForm() {
     try {
       await loginAccount({ email, password })
       setDone(true)
-      // /kos adalah halaman yang dituju seluruh tautan dari landing page;
-      // setelah masuk, pengunjung melanjutkan tepat di sana.
-      router.push('/kos')
+      // Beranda adalah halaman pertama yang isinya rekomendasi — kos terdekat,
+      // rute lokasi ke lokasi, dan area terpopuler. Pengunjung yang baru masuk
+      // melanjutkan di sana, bukan dilempar kembali ke landing page.
+      router.push('/beranda')
       router.refresh()
     } catch (caught) {
       setError(caught as ApiError)

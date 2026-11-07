@@ -26,6 +26,18 @@ export const formatRupiahRingkas = (value: number | null | undefined): string =>
 
 export const formatNumber = (value: number): string => new Intl.NumberFormat('id-ID').format(value)
 
+/**
+ * Jarak untuk ditampilkan: "800 m" di bawah satu kilometer, "4,3 km" di atasnya.
+ *
+ * Di bawah 1 km, "0,8 km" menyembunyikan hal yang justru paling menentukan —
+ * bahwa kosnya bisa dicapai jalan kaki.
+ */
+export const formatJarak = (km: number | null | undefined): string => {
+  if (km === null || km === undefined) return '—'
+  if (km < 1) return `${formatNumber(Math.round(km * 1000))} m`
+  return `${km.toFixed(1).replace('.', ',')} km`
+}
+
 export const PROPERTY_TYPE_LABEL: Record<string, string> = {
   KOS_PUTRA: 'Kos Putra',
   KOS_PUTRI: 'Kos Putri',

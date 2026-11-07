@@ -7,16 +7,16 @@ import { useState } from 'react'
 import {
   Camera,
   ChevronDown,
+  Compass,
   Home,
-  LogIn,
   MapPin,
   Menu,
   Search,
   Sparkles,
-  UserPlus,
   X,
 } from 'lucide-react'
 import { Logo } from '@/components/landing/logo'
+import { AccountActions } from '@/components/session/account-actions'
 import { LOCATIONS } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 
@@ -46,8 +46,18 @@ const isDivider = (entry: NavEntry): entry is { divider: true } => 'divider' in 
  * menu yang menjanjikan halaman kosong lebih buruk daripada menu yang jujur.
  */
 const NAV: NavEntry[] = [
-  { label: 'Beranda', href: '/', icon: Home },
+  { label: 'Beranda', href: '/beranda', icon: Home },
   { label: 'Cari Kos', href: '/kos', icon: Search },
+  {
+    label: 'Rekomendasi',
+    href: '/beranda',
+    icon: Compass,
+    items: [
+      { label: 'Sekitar saya', href: '/beranda#sekitar-saya', hint: 'Pakai lokasi GPS' },
+      { label: 'Rute lokasi', href: '/beranda#rute', hint: 'Dari mana ke mana' },
+      { label: 'Sekitar kampus', href: '/beranda#kampus', hint: 'Kampus di Indonesia' },
+    ],
+  },
   { divider: true },
   {
     label: 'Kawasan',
@@ -201,30 +211,6 @@ function NavList({ onNavigate }: { onNavigate: () => void }) {
   )
 }
 
-function AuthActions({ onNavigate }: { onNavigate: () => void }) {
-  return (
-    <div className="space-y-2">
-      <Link
-        href="/masuk"
-        onClick={onNavigate}
-        className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-      >
-        <LogIn className="size-4 shrink-0" aria-hidden="true" />
-        Masuk
-      </Link>
-
-      <Link
-        href="/daftar"
-        onClick={onNavigate}
-        className="flex items-center justify-center gap-2 rounded-xl bg-primary px-3 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary-strong"
-      >
-        <UserPlus className="size-4 shrink-0" aria-hidden="true" />
-        Daftar
-      </Link>
-    </div>
-  )
-}
-
 /**
  * Sidebar navigasi halaman situs.
  *
@@ -288,7 +274,7 @@ export function SiteSidebar() {
             </div>
 
             <div className="mt-6 border-t border-border pt-4">
-              <AuthActions onNavigate={() => setOpen(false)} />
+              <AccountActions variant="sidebar" onNavigate={() => setOpen(false)} />
             </div>
           </div>
         </div>
@@ -309,7 +295,7 @@ export function SiteSidebar() {
         </div>
 
         <div className="mt-6 border-t border-border pt-4">
-          <AuthActions onNavigate={() => undefined} />
+          <AccountActions variant="sidebar" />
         </div>
       </aside>
     </>
