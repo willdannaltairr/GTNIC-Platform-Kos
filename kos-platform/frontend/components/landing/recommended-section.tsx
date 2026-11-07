@@ -9,6 +9,10 @@ import { fetchProperties } from '@/lib/api'
  * Data diambil dari properti terverifikasi yang sudah dipublikasikan. Bila API
  * tidak dapat dihubungi, bagian ini menjelaskan keadaannya — tidak mengarang
  * daftar kos contoh, karena kartu properti di sini akan diklik orang.
+ *
+ * Kartu di bagian ini memakai mode `gated`: foto dan namanya tetap tampil
+ * sebagai gambaran isi platform, tetapi kliknya berhenti di halaman masuk
+ * sampai pengunjung punya akun.
  */
 export async function RecommendedSection() {
   const result = await fetchProperties({ limit: 6, sort: 'newest' })
@@ -37,7 +41,7 @@ export async function RecommendedSection() {
           </div>
 
           <Link
-            href="/kos"
+            href="/masuk"
             className="inline-flex shrink-0 items-center gap-1.5 rounded-full text-sm font-medium text-primary transition-colors hover:text-primary-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-4"
           >
             Lihat semua kos
@@ -49,7 +53,7 @@ export async function RecommendedSection() {
           <>
             <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {result.items.map((property) => (
-                <PropertyCard key={property.id} property={property} />
+                <PropertyCard key={property.id} property={property} gated />
               ))}
             </div>
 

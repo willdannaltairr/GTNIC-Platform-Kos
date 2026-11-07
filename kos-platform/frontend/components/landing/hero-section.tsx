@@ -20,8 +20,9 @@ const SCENE_IDS: HeroSceneId[] = ['pagi', 'malam']
  * sementara teks pudar dan kalimat penutup muncul. Pemilih Pagi/Malam
  * mengganti foto dan salinan sekaligus.
  *
- * Formulir pencarian di bagian bawah mengarah ke /kos dengan filter yang sudah
- * terisi, sama seperti pencarian di halaman /kos.
+ * Formulir pencarian di bagian bawah mengarah ke halaman masuk, bukan langsung
+ * ke /kos: hasil pencarian hanya bisa dibuka dengan akun, jadi menembak /kos
+ * dari sini hanya akan memantulkan pengunjung kembali ke pintu masuk.
  */
 const HeroSection: FC = (): ReactNode => {
   const router = useRouter()
@@ -49,11 +50,10 @@ const HeroSection: FC = (): ReactNode => {
   const submit = (event: FormEvent<HTMLFormElement>): void => {
     event.preventDefault()
 
-    const query = new URLSearchParams()
-    if (keyword.trim()) query.set('q', keyword.trim())
-    if (city) query.set('city', city)
-
-    router.push(`/kos${query.toString() ? `?${query.toString()}` : ''}`)
+    // Kata kunci dan kota belum ikut dibawa ke halaman masuk: yang dibutuhkan
+    // di sana hanya akun, dan setelah masuk pengunjung memulai pencariannya di
+    // /kos dengan filter yang tersedia di halaman itu.
+    router.push('/masuk')
   }
 
   return (

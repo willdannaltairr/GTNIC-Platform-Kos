@@ -24,7 +24,7 @@ const FaqSection: FC = (): ReactNode => {
           />
 
           <Link
-            href="/kos"
+            href="/masuk"
             className="mt-8 inline-flex items-center gap-2 rounded-full text-sm font-medium text-primary transition-colors hover:text-primary-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-4"
           >
             Mulai cari kos sekarang <ArrowRight className="size-4" aria-hidden="true" />

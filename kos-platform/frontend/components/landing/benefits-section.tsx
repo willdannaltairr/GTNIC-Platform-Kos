@@ -42,7 +42,7 @@ const BenefitsSection: FC = (): ReactNode => {
             </ul>
 
             <Link
-              href="/kos"
+              href="/masuk"
               className="mt-8 inline-flex items-center gap-1.5 self-start text-sm font-medium text-primary transition-colors hover:text-primary-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-4"
             >
               Mulai cari kos
@@ -74,7 +74,7 @@ const BenefitsSection: FC = (): ReactNode => {
             </ul>
 
             <Link
-              href="/daftar"
+              href="/masuk"
               className="mt-8 inline-flex h-11 items-center gap-2 self-start rounded-full bg-white/10 px-5 text-sm font-medium text-white ring-1 ring-white/20 backdrop-blur-md transition-colors hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf"
             >
               Daftar sebagai pemilik

@@ -13,8 +13,18 @@ import {
 /**
  * Kartu properti untuk daftar pencarian dan rekomendasi di beranda.
  * Semua angka berasal dari API — tidak ada nilai yang di-hardcode.
+ *
+ * `gated` dipakai oleh rekomendasi di landing page: di sana kartu belum boleh
+ * membuka detail properti, karena pengunjung belum tentu punya akun. Kartu di
+ * halaman /kos tidak memakai ini — di sana pengunjung memang sudah masuk.
  */
-export function PropertyCard({ property }: { property: PropertyListItem }) {
+export function PropertyCard({
+  property,
+  gated = false,
+}: {
+  property: PropertyListItem
+  gated?: boolean
+}) {
   const available = property.availableRooms
   const total = property.totalRooms
   const bathroom =
@@ -28,7 +38,10 @@ export function PropertyCard({ property }: { property: PropertyListItem }) {
 
   return (
     <article className="group flex flex-col overflow-hidden rounded-xl border border-border bg-card transition-shadow hover:shadow-md">
-      <Link href={`/kos/${property.slug}`} className="relative block aspect-[4/3] overflow-hidden bg-muted">
+      <Link
+        href={gated ? '/masuk' : `/kos/${property.slug}`}
+        className="relative block aspect-[4/3] overflow-hidden bg-muted"
+      >
         {property.imageUrl ? (
           <Image
             src={property.imageUrl}

@@ -7,8 +7,8 @@ import { AREA_LINKS } from '@/lib/landing'
  * Marquee kawasan populer.
  *
  * Bentuknya teks polos tanpa kotak, dengan ikon di kiri dan peredupan di tepi.
- * Bedanya, setiap butir di sini adalah tautan yang membuka pencarian kota
- * tersebut.
+ * Bedanya, setiap butir di sini adalah tautan — mengarah ke halaman masuk,
+ * karena hasil pencarian kota hanya bisa dibuka dengan akun.
  *
  * Dua salinan daftar yang identik digeser tepat setengah trek, sehingga
  * perulangannya mulus tanpa mengukur lebar di JavaScript. Saat pengunjung
@@ -20,7 +20,7 @@ const AreasMarquee: FC = (): ReactNode => {
     <section id="kawasan" aria-labelledby="kawasan-title" className="bg-background py-14 sm:py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <h2 id="kawasan-title" className="reveal text-center text-sm text-muted-foreground">
-          Kawasan yang paling sering dicari — tiap tautan membuka pencarian yang sudah tersaring
+          Kawasan yang paling sering dicari — masuk dulu untuk membuka hasil pencariannya
         </h2>
       </div>
 
