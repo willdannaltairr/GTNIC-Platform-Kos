@@ -13,7 +13,7 @@ import { SiteSidebar } from '@/components/site-sidebar'
  */
 export function SiteShell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex flex-1">
+    <div className="flex flex-1 flex-col md:flex-row">
       <SiteSidebar />
 
       <div className="flex min-w-0 flex-1 flex-col">
