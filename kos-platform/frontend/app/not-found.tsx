@@ -1,15 +1,15 @@
 import Link from 'next/link'
-import { SiteChrome } from '@/components/site-chrome'
+import { SiteShell } from '@/components/site-shell'
 
 /**
  * Halaman 404.
  *
- * Berada di luar route group, jadi chrome-nya dipasang langsung agar header
- * dan footer tetap tampil seperti sebelumnya.
+ * Berada di luar route group, jadi kerangkanya dipasang langsung agar sidebar
+ * dan footer tetap tampil seperti halaman lain.
  */
 export default function NotFound() {
   return (
-    <SiteChrome>
+    <SiteShell>
       <div className="mx-auto flex max-w-md flex-col items-center px-4 py-24 text-center sm:px-6">
         <span className="grid h-14 w-14 place-items-center rounded-2xl bg-muted text-2xl font-bold text-muted-foreground">
           404
@@ -33,6 +33,6 @@ export default function NotFound() {
           </Link>
         </div>
       </div>
-    </SiteChrome>
+    </SiteShell>
   )
 }
