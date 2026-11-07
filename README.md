@@ -72,8 +72,8 @@ otomatis di repo ini.
 | Branch | Fungsi |
 | --- | --- |
 | `main` | Rilis stabil — hanya menerima hasil yang sudah fix. |
-| `develop` | Integrasi — semua fitur digabung ke sini lebih dulu. |
-| `feature/<nama>` | Satu cabang per fitur, dibiarkan tetap ada setelah digabung supaya gampang dibuka dan diubah lagi. |
+| `develop` | Integrasi — semua fitur digabung ke sini lebih dulu. Sekaligus tempat kerja perubahan non-fitur: dokumentasi, konfigurasi, dan perbaikan kecil. |
+| `feature/<nama>` | Satu cabang per **fitur website** (mis. `feature/kartu-3d-rumah-kos`), dibiarkan tetap ada setelah digabung supaya gampang dibuka dan diubah lagi. |
 
 ```bash
 git switch develop
