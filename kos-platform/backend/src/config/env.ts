@@ -41,6 +41,16 @@ export const env = {
   JWT_ACCESS_EXPIRES_IN: process.env.JWT_ACCESS_EXPIRES_IN ?? '15m',
   JWT_REFRESH_EXPIRES_IN: process.env.JWT_REFRESH_EXPIRES_IN ?? '7d',
   BCRYPT_SALT_ROUNDS: Number(process.env.BCRYPT_SALT_ROUNDS ?? 10),
+  /**
+   * Penyimpanan foto (Supabase Storage).
+   *
+   * Boleh kosong: seluruh endpoint selain unggah foto tetap bekerja, dan
+   * unggahan gagal dengan pesan yang menyebut variabel mana yang belum diisi —
+   * bukan dengan galat samar dari driver.
+   */
+  SUPABASE_URL: process.env.SUPABASE_URL ?? '',
+  SUPABASE_SECRET_KEY: process.env.SUPABASE_SECRET_KEY ?? '',
+  STORAGE_BUCKET: process.env.STORAGE_BUCKET ?? 'room-photos',
   MIDTRANS_SERVER_KEY: process.env.MIDTRANS_SERVER_KEY ?? '',
   NEXT_PUBLIC_MIDTRANS_CLIENT_KEY: process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY ?? '',
   MIDTRANS_IS_PRODUCTION: process.env.MIDTRANS_IS_PRODUCTION === 'true',
