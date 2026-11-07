@@ -754,6 +754,105 @@ WHERE p.slug = 'kos-kenanga-putri-depok'
   AND f.slug = ANY(ARRAY['ac', 'kamar-mandi-dalam', 'kasur', 'lemari', 'meja-belajar'])
 ON CONFLICT (room_id, facility_id) DO NOTHING;
 
+-- ─── Kampus (acuan peta lokasi) ─────────────────────────────────────────────
+-- Dipakai fitur "kos sekitar kampus" di beranda.
+--
+-- Koordinat di bawah adalah PERKIRAAN yang dibulatkan ke pusat kampus, bukan
+-- hasil survei: cukup untuk mengurutkan dan menyaring berdasarkan jarak (galat
+-- beberapa ratus meter tidak mengubah peringkat pada radius 5 km), tetapi tidak
+-- boleh dipakai untuk navigasi atau klaim jarak yang presisi.
+--
+-- Isinya sengaja tersebar di banyak kota — bukan hanya pulau Jawa — supaya
+-- tampilan "kampus populer" di beranda tetap masuk akal ketika nanti diisi data
+-- properti dari kota lain.
+--
+-- `is_popular` menandai kampus yang paling dikenal. Yang dipilih adalah kampus
+-- dengan jumlah properti terdekat terbanyak pada data demo, karena fitur di
+-- beranda menampilkan keduanya berdampingan: kampus populer yang tidak punya
+-- satu pun kos di sekitarnya hanya akan tampil sebagai kartu kosong.
+
+INSERT INTO campuses (name, slug, abbreviation, city, province, latitude, longitude, is_popular)
+VALUES
+  ('Universitas Indonesia',            'universitas-indonesia',            'UI',     'Depok',         'Jawa Barat',        -6.3608000, 106.8272000, true),
+  ('Institut Teknologi Bandung',       'institut-teknologi-bandung',       'ITB',    'Bandung',       'Jawa Barat',        -6.8915000, 107.6107000, true),
+  ('Universitas Gadjah Mada',          'universitas-gadjah-mada',          'UGM',    'Sleman',        'DI Yogyakarta',     -7.7713000, 110.3777000, true),
+  ('Universitas Brawijaya',            'universitas-brawijaya',            'UB',     'Malang',        'Jawa Timur',        -7.9526000, 112.6145000, true),
+  ('Universitas Airlangga',            'universitas-airlangga',            'Unair',  'Surabaya',      'Jawa Timur',        -7.2682000, 112.7590000, true),
+  ('Institut Teknologi Sepuluh Nopember', 'institut-teknologi-sepuluh-nopember', 'ITS', 'Surabaya',    'Jawa Timur',        -7.2819000, 112.7952000, true),
+  ('Universitas Diponegoro',           'universitas-diponegoro',           'Undip',  'Semarang',      'Jawa Tengah',       -7.0499000, 110.4381000, true),
+  ('Universitas Hasanuddin',           'universitas-hasanuddin',           'Unhas',  'Makassar',      'Sulawesi Selatan',  -5.1344000, 119.4876000, true),
+  ('Universitas Sumatera Utara',       'universitas-sumatera-utara',       'USU',    'Medan',         'Sumatera Utara',     3.5624000,  98.6564000, false),
+  ('Universitas Udayana',              'universitas-udayana',              'Unud',   'Denpasar',      'Bali',              -8.7973000, 115.1739000, false),
+  ('Universitas Sebelas Maret',        'universitas-sebelas-maret',        'UNS',    'Surakarta',     'Jawa Tengah',       -7.5590000, 110.8564000, false),
+  ('Universitas Padjadjaran',          'universitas-padjadjaran',          'Unpad',  'Sumedang',      'Jawa Barat',        -6.9266000, 107.7736000, false),
+  ('Universitas Negeri Malang',        'universitas-negeri-malang',        'UM',     'Malang',        'Jawa Timur',        -7.9628000, 112.6188000, false),
+  ('Universitas Sanata Dharma',        'universitas-sanata-dharma',        'USD',    'Sleman',        'DI Yogyakarta',     -7.7797000, 110.3969000, false),
+  ('Universitas Muhammadiyah Malang',  'universitas-muhammadiyah-malang',  'UMM',    'Malang',        'Jawa Timur',        -7.9217000, 112.5954000, false),
+  ('Universitas Katolik Parahyangan',  'universitas-katolik-parahyangan',  'Unpar',  'Bandung',       'Jawa Barat',        -6.8740000, 107.6050000, false),
+  ('Universitas Negeri Semarang',      'universitas-negeri-semarang',      'Unnes',  'Semarang',      'Jawa Tengah',       -7.0500000, 110.3900000, false),
+  ('Universitas Trisakti',             'universitas-trisakti',             'Usakti', 'Jakarta Barat', 'DKI Jakarta',       -6.1674000, 106.7900000, false),
+  ('Universitas Bina Nusantara',       'universitas-bina-nusantara',       'BINUS',  'Jakarta Barat', 'DKI Jakarta',       -6.2018000, 106.7817000, false),
+  ('Universitas Andalas',              'universitas-andalas',              'Unand',  'Padang',        'Sumatera Barat',    -0.9146000, 100.3434000, false)
+ON CONFLICT (slug) DO UPDATE SET
+  name = EXCLUDED.name,
+  abbreviation = EXCLUDED.abbreviation,
+  city = EXCLUDED.city,
+  province = EXCLUDED.province,
+  latitude = EXCLUDED.latitude,
+  longitude = EXCLUDED.longitude,
+  is_popular = EXCLUDED.is_popular;
+
+-- ─── Daerah (acuan area terpopuler) ─────────────────────────────────────────
+-- Dipakai fitur "area kos terpopuler" di beranda.
+--
+-- Isinya wajib mencakup setiap kota dan kecamatan yang sudah dipakai properti di
+-- atas — kalau tidak, area itu tidak akan pernah muncul walau kosnya ada, dan
+-- yang tampil justru area kosong. Karena itu daftarnya diturunkan dari data
+-- properti di berkas ini, bukan dikarang terpisah.
+--
+-- `type` menentukan cara pencocokan ke properti: CITY dicocokkan ke kolom
+-- `properties.city`, DISTRICT ke `properties.district`. Perhatikan bahwa nama
+-- yang sama bisa muncul di kedua jenis — "Depok" adalah kota di Jawa Barat
+-- sekaligus kecamatan di Sleman — sehingga slug-nya dibedakan (`depok` dan
+-- `depok-sleman`) dan pencocokannya selalu lewat `type`, bukan lewat nama saja.
+--
+-- Koordinatnya pusat kota/kecamatan dan sama seperti kampus: perkiraan yang
+-- dibulatkan, untuk mengurutkan dan menampilkan peta, bukan untuk navigasi.
+
+INSERT INTO regions (name, slug, type, city, province, latitude, longitude, is_popular)
+VALUES
+  -- Kota
+  ('Jakarta Selatan', 'jakarta-selatan', 'CITY', 'Jakarta Selatan', 'DKI Jakarta',      -6.2615000, 106.8106000, true),
+  ('Bandung',         'bandung',         'CITY', 'Bandung',         'Jawa Barat',       -6.9175000, 107.6191000, true),
+  ('Surabaya',        'surabaya',        'CITY', 'Surabaya',        'Jawa Timur',       -7.2575000, 112.7521000, true),
+  ('Depok',           'depok',           'CITY', 'Depok',           'Jawa Barat',       -6.4025000, 106.7942000, true),
+  ('Yogyakarta',      'yogyakarta',      'CITY', 'Yogyakarta',      'DI Yogyakarta',    -7.7956000, 110.3695000, true),
+  ('Malang',          'malang',          'CITY', 'Malang',          'Jawa Timur',       -7.9666000, 112.6326000, true),
+  ('Sleman',          'sleman',          'CITY', 'Sleman',          'DI Yogyakarta',    -7.7163000, 110.3554000, false),
+  ('Semarang',        'semarang',        'CITY', 'Semarang',        'Jawa Tengah',      -6.9932000, 110.4203000, false),
+  ('Makassar',        'makassar',        'CITY', 'Makassar',        'Sulawesi Selatan', -5.1477000, 119.4327000, false),
+  ('Medan',           'medan',           'CITY', 'Medan',           'Sumatera Utara',    3.5952000,  98.6722000, false),
+  ('Denpasar',        'denpasar',        'CITY', 'Denpasar',        'Bali',             -8.6705000, 115.2126000, false),
+  ('Surakarta',       'surakarta',       'CITY', 'Surakarta',       'Jawa Tengah',      -7.5755000, 110.8243000, false),
+
+  -- Kecamatan
+  ('Kebayoran Baru',  'kebayoran-baru',  'DISTRICT', 'Jakarta Selatan', 'DKI Jakarta',  -6.2435000, 106.7992000, true),
+  ('Coblong',         'coblong',         'DISTRICT', 'Bandung',         'Jawa Barat',   -6.8856000, 107.6139000, true),
+  ('Lowokwaru',       'lowokwaru',       'DISTRICT', 'Malang',          'Jawa Timur',   -7.9429000, 112.6117000, true),
+  ('Beji',            'beji',            'DISTRICT', 'Depok',           'Jawa Barat',   -6.3689000, 106.8305000, true),
+  ('Depok',           'depok-sleman',    'DISTRICT', 'Sleman',          'DI Yogyakarta',-7.7297000, 110.3836000, false),
+  ('Gubeng',          'gubeng',          'DISTRICT', 'Surabaya',        'Jawa Timur',   -7.2653000, 112.7477000, false),
+  ('Jatinangor',      'jatinangor',      'DISTRICT', 'Sumedang',        'Jawa Barat',   -6.9266000, 107.7736000, false),
+  ('Setiabudi',       'setiabudi',       'DISTRICT', 'Jakarta Selatan', 'DKI Jakarta',  -6.2200000, 106.8300000, false)
+ON CONFLICT (slug) DO UPDATE SET
+  name = EXCLUDED.name,
+  type = EXCLUDED.type,
+  city = EXCLUDED.city,
+  province = EXCLUDED.province,
+  latitude = EXCLUDED.latitude,
+  longitude = EXCLUDED.longitude,
+  is_popular = EXCLUDED.is_popular;
+
 -- Ringkasan hasil seed, supaya satu kali jalan langsung terlihat apa yang masuk.
 -- Diletakkan sebelum COMMIT karena _seed_properties dibuat dengan ON COMMIT DROP.
 SELECT
@@ -762,6 +861,8 @@ SELECT
   (SELECT count(*) FROM properties
     WHERE slug IN (SELECT slug FROM _seed_properties))               AS properti,
   (SELECT count(*) FROM rooms)                                       AS kamar,
-  (SELECT count(*) FROM cost_components)                             AS komponen_biaya;
+  (SELECT count(*) FROM cost_components)                             AS komponen_biaya,
+  (SELECT count(*) FROM campuses)                                    AS kampus,
+  (SELECT count(*) FROM regions)                                     AS daerah;
 
 COMMIT;

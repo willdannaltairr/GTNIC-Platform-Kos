@@ -1,4 +1,5 @@
 import { query, queryOne } from '../../lib/db'
+import { distanceFromPoint, roundedDistanceSql, type GeoPoint } from '../../lib/geo'
 import { HttpError } from '../../lib/httpError'
 import { buildCostSummary, type CostComponentInput } from './cost-summary'
 import type { ListPropertiesQuery } from './properties.validator'
@@ -11,6 +12,26 @@ const daysSince = (date: Date | null): number | null => {
   const diffMs = Date.now() - date.getTime()
   return Math.floor(diffMs / (1000 * 60 * 60 * 24))
 }
+
+/**
+ * Ubah sepasang koordinat menjadi titik, bila keduanya benar-benar terisi.
+ *
+ * Validator sudah menolak koordinat yang datang tidak berpasangan, tetapi
+ * penolong ini tetap diperlukan karena tipe `ListPropertiesQuery` membuat
+ * keduanya opsional — tanpa penyatuan di sini, setiap pemakaian harus memeriksa
+ * `undefined` sendiri dan mudah terlewat di salah satunya.
+ */
+const titik = (lat?: number, lng?: number): GeoPoint | undefined =>
+  lat !== undefined && lng !== undefined ? { lat, lng } : undefined
+
+const titikPengunjung = (params: ListPropertiesQuery): GeoPoint | undefined =>
+  titik(params.nearLat, params.nearLng)
+
+const titikAsal = (params: ListPropertiesQuery): GeoPoint | undefined =>
+  titik(params.originLat, params.originLng)
+
+/** Kolom koordinat properti, dipakai bersama saat menyusun ekspresi jarak. */
+const KOLOM_KOORDINAT = { lat: 'p.latitude', lng: 'p.longitude' }
 
 /**
  * Susun klausa WHERE untuk pencarian publik.
@@ -96,6 +117,22 @@ const buildWhere = (params: ListPropertiesQuery) => {
     }
   }
 
+  // Penyaringan jarak mendaftarkan parameternya sendiri, dan hanya di sini —
+  // sehingga `values` selalu berisi tepat parameter yang benar-benar dirujuk
+  // `whereSql`. Itu bukan kerapian belaka: query hitung (`SELECT count(*)`)
+  // memakai `values` yang sama, dan satu parameter yang terdaftar tanpa dirujuk
+  // membuat PostgreSQL menolak seluruh query dengan "bind message supplies N
+  // parameters, but prepared statement requires 0".
+  if (params.maxDistanceKm !== undefined) {
+    const nearExpr = distanceFromPoint(values, titikPengunjung(params), KOLOM_KOORDINAT)
+    values.push(params.maxDistanceKm)
+    // Disaring di database, bukan setelah query. Kalau disaring di kode,
+    // `meta.total` dan jumlah halamannya akan menghitung kos yang sebenarnya
+    // tidak ditampilkan. Kos tanpa koordinat tersingkir sendiri karena jaraknya
+    // NULL, dan `NULL <= nilai` tidak pernah benar.
+    conditions.push(`${nearExpr} <= $${values.length}`)
+  }
+
   return { whereSql: `WHERE ${conditions.join(' AND ')}`, values }
 }
 
@@ -119,6 +156,8 @@ interface ListRow {
   facility_slugs: string[]
   image_url: string | null
   image_alt: string | null
+  distance_km: string | null
+  distance_from_origin_km: string | null
 }
 
 const toListItem = (row: ListRow) => {
@@ -145,6 +184,12 @@ const toListItem = (row: ListRow) => {
     facilitySlugs: row.facility_slugs,
     availabilityConfirmedDaysAgo: days,
     isAvailabilityStale: days === null || days > AVAILABILITY_STALE_DAYS,
+    // Keduanya selalu ada di hasil, bernilai null bila titiknya tidak diminta —
+    // supaya bentuk itemnya tidak berubah-ubah dan frontend tidak perlu
+    // memeriksa keberadaan kolomnya lebih dulu.
+    distanceKm: row.distance_km === null ? null : Number(row.distance_km),
+    distanceFromOriginKm:
+      row.distance_from_origin_km === null ? null : Number(row.distance_from_origin_km),
   }
 }
 
@@ -155,9 +200,23 @@ const toListItem = (row: ListRow) => {
  * Agregat kamar, fasilitas, dan foto dihitung di database lewat subquery,
  * sehingga satu halaman hasil hanya butuh satu query — bukan satu query per
  * properti.
+ *
+ * Titik koordinatnya didaftarkan ulang di sini, bukan memakai ulang nomor
+ * parameter dari `buildWhere`: query ini memakai `$1` untuk daftar id, sehingga
+ * nomor parameter penyaring tadi sudah tidak berlaku. Menyalin ekspresinya akan
+ * menghasilkan query yang menunjuk parameter yang salah.
  */
-const fetchListRows = async (ids: string[]): Promise<ListRow[]> => {
+const fetchListRows = async (
+  ids: string[],
+  pengunjung?: GeoPoint,
+  asal?: GeoPoint,
+): Promise<ListRow[]> => {
   if (ids.length === 0) return []
+
+  // $1 sudah dipakai daftar id; titik-titiknya menyusul setelahnya.
+  const values: unknown[] = [ids]
+  const nearExpr = distanceFromPoint(values, pengunjung, KOLOM_KOORDINAT)
+  const originExpr = distanceFromPoint(values, asal, KOLOM_KOORDINAT)
 
   const rows = await query<ListRow>(
     `SELECT
@@ -169,7 +228,9 @@ const fetchListRows = async (ids: string[]): Promise<ListRow[]> => {
        COALESCE(rm.bathroom_types, ARRAY[]::text[]) AS bathroom_types,
        COALESCE(fc.facility_names, ARRAY[]::text[]) AS facility_names,
        COALESCE(fc.facility_slugs, ARRAY[]::text[]) AS facility_slugs,
-       img.image_url, img.alt_text AS image_alt
+       img.image_url, img.alt_text AS image_alt,
+       ${roundedDistanceSql(nearExpr)} AS distance_km,
+       ${roundedDistanceSql(originExpr)} AS distance_from_origin_km
      FROM properties p
      LEFT JOIN (
        SELECT
@@ -199,7 +260,7 @@ const fetchListRows = async (ids: string[]): Promise<ListRow[]> => {
        LIMIT 1
      ) img ON true
      WHERE p.id = ANY($1::uuid[])`,
-    [ids],
+    values,
   )
 
   const byId = new Map(rows.map((row) => [row.id, row]))
@@ -221,13 +282,32 @@ export const propertiesService = {
 
     // Pengurutan harga dihitung dari kamar termurah tiap properti, langsung di
     // database. Properti tanpa kamar selalu di urutan paling akhir.
-    const idSql =
+    //
+    // Salinan `values` dipakai untuk query id, bukan `values` itu sendiri:
+    // `sort=distance` menambahkan parameter titik untuk ORDER BY, dan kalau
+    // salinannya tidak dipisah, nomor parameter LIMIT/OFFSET ikut bergeser dan
+    // menunjuk nilai yang salah. Klausa WHERE-nya tetap memakai `values` asli,
+    // jadi query hitung di atas tidak terpengaruh.
+    //
+    // `NULLS LAST` wajib di sini: tanpa itu, kos yang belum punya koordinat
+    // (jaraknya NULL) akan menempati urutan paling atas pada PostgreSQL — justru
+    // tampil paling dekat padahal jaraknya tidak diketahui.
+    const idValues = [...values]
+
+    const urutan =
       params.sort === 'newest'
+        ? 'p.created_at DESC'
+        : params.sort === 'distance'
+          ? `${distanceFromPoint(idValues, titikPengunjung(params), KOLOM_KOORDINAT)} ASC NULLS LAST, p.created_at DESC`
+          : null
+
+    const idSql =
+      params.sort === 'newest' || params.sort === 'distance'
         ? `SELECT p.id
            FROM properties p
            ${whereSql}
-           ORDER BY p.created_at DESC
-           LIMIT $${values.length + 1} OFFSET $${values.length + 2}`
+           ORDER BY ${urutan}
+           LIMIT $${idValues.length + 1} OFFSET $${idValues.length + 2}`
         : `SELECT p.id
            FROM properties p
            LEFT JOIN LATERAL (
@@ -236,10 +316,16 @@ export const propertiesService = {
            ${whereSql}
            ORDER BY m.min_price ${params.sort === 'price_asc' ? 'ASC' : 'DESC'} NULLS LAST,
                     p.created_at DESC
-           LIMIT $${values.length + 1} OFFSET $${values.length + 2}`
+           LIMIT $${idValues.length + 1} OFFSET $${idValues.length + 2}`
 
-    const idRows = await query<{ id: string }>(idSql, [...values, limit, offset])
-    const rows = await fetchListRows(idRows.map((row) => row.id))
+    const idRows = await query<{ id: string }>(idSql, [...idValues, limit, offset])
+
+    // Titik dioper terpisah supaya kolom jaraknya ikut terisi di hasil akhir.
+    const rows = await fetchListRows(
+      idRows.map((row) => row.id),
+      titikPengunjung(params),
+      titikAsal(params),
+    )
 
     return {
       items: rows.map(toListItem),
