@@ -31,6 +31,37 @@ export interface PropertyListItem {
   facilitySlugs: string[]
   availabilityConfirmedDaysAgo: number | null
   isAvailabilityStale: boolean
+  /** Jarak dari titik pengunjung bila `nearLat`/`nearLng` dikirim. */
+  distanceKm: number | null
+  /** Jarak dari titik asal pada pencarian "dari lokasi ke lokasi". */
+  distanceFromOriginKm: number | null
+}
+
+/** Kampus acuan beserta jumlah kos terverifikasi di sekitarnya. */
+export interface CampusPlace {
+  id: string
+  name: string
+  slug: string
+  abbreviation: string | null
+  city: string
+  province: string
+  latitude: number | null
+  longitude: number | null
+  distanceKm: number | null
+  propertyCount: number
+}
+
+/** Daerah acuan (kota atau kecamatan) beserta jumlah kosnya. */
+export interface RegionPlace {
+  id: string
+  name: string
+  slug: string
+  type: 'CITY' | 'DISTRICT'
+  city: string | null
+  province: string | null
+  latitude: number | null
+  longitude: number | null
+  propertyCount: number
 }
 
 export interface PropertyListMeta {
@@ -169,6 +200,52 @@ export async function fetchProperty(slug: string): Promise<PropertyDetail | null
     if (!response.ok) return null
 
     const payload = (await response.json()) as { data: PropertyDetail }
+    return payload.data
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Daftar kampus acuan.
+ *
+ * `nearLat`/`nearLng` hanya memengaruhi `distanceKm` — jumlah kos di sekitar
+ * kampus tetap dihitung dari koordinat kampus itu sendiri, bukan dari lokasi
+ * pengunjung.
+ */
+export async function fetchCampuses(
+  params: Record<string, string | number | undefined> = {},
+): Promise<CampusPlace[] | null> {
+  const query = new URLSearchParams()
+
+  for (const [key, value] of Object.entries(params)) {
+    if (value !== undefined && value !== '') query.set(key, String(value))
+  }
+
+  try {
+    const response = await fetch(`${API_BASE}/api/v1/places/campuses?${query.toString()}`, {
+      cache: 'no-store',
+    })
+
+    if (!response.ok) return null
+
+    const payload = (await response.json()) as { data: CampusPlace[] }
+    return payload.data
+  } catch {
+    return null
+  }
+}
+
+/** Daftar daerah acuan, sudah urut dari yang paling banyak kosnya. */
+export async function fetchRegions(limit = 12): Promise<RegionPlace[] | null> {
+  try {
+    const response = await fetch(`${API_BASE}/api/v1/places/regions?limit=${limit}`, {
+      cache: 'no-store',
+    })
+
+    if (!response.ok) return null
+
+    const payload = (await response.json()) as { data: RegionPlace[] }
     return payload.data
   } catch {
     return null
