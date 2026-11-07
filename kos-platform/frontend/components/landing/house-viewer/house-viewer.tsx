@@ -33,13 +33,17 @@ const DRAG_PITCH = 0.004
  */
 const PhotoFallback: FC = (): ReactNode => {
   return (
-    <Image
-      src="/images/hero-kos-pagi.jpg"
-      alt="Rumah kos berlantai satu dengan panel surya di atapnya, terlihat dari halaman depan"
-      fill
-      sizes="(min-width: 1024px) 60vw, 100vw"
-      className="rounded-[2rem] object-cover"
-    />
+    // Pembungkus `relative` sendiri, karena komponen ini juga dipakai sebagai
+    // fallback di dalam <Canvas> — di sana induknya bukan elemen berposisi.
+    <div className="relative h-full w-full">
+      <Image
+        src="/images/hero-kos-pagi.jpg"
+        alt="Rumah kos berlantai satu dengan panel surya di atapnya, terlihat dari halaman depan"
+        fill
+        sizes="(min-width: 1024px) 60vw, 100vw"
+        className="rounded-[2rem] object-cover"
+      />
+    </div>
   )
 }
 

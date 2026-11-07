@@ -8,9 +8,8 @@ import { ABOUT, ABOUT_FACTS, PRINCIPLES } from '@/lib/landing'
 /**
  * Bagian "Tentang".
  *
- * Susunannya mengikuti About Gridora: foto tinggi di satu sisi dengan kartu
- * misi mengambang di atasnya, lalu judul, deretan fakta, dan daftar prinsip di
- * sisi lain.
+ * Susunannya foto tinggi di satu sisi dengan kartu misi mengambang di atasnya,
+ * lalu judul, deretan fakta, dan daftar prinsip di sisi lain.
  */
 const AboutSection: FC = (): ReactNode => {
   return (
@@ -39,7 +38,7 @@ const AboutSection: FC = (): ReactNode => {
         <div>
           <SectionHeading
             id="tentang-title"
-            eyebrow="Tentang Gridora"
+            eyebrow="Tentang KosPlatform"
             title={ABOUT.title}
             description={ABOUT.description}
           />

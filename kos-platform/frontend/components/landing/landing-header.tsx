@@ -49,7 +49,7 @@ export const LandingHeader: FC = (): ReactNode => {
         >
           <Link
             href="/"
-            aria-label="Gridora — beranda"
+            aria-label="KosPlatform — beranda"
             className="rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <Logo />

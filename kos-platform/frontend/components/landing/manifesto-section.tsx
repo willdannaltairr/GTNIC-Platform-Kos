@@ -83,7 +83,7 @@ const ManifestoSection: FC = (): ReactNode => {
               className="inline-flex shrink-0 items-center gap-2 rounded-full bg-white px-3 py-1 text-xs font-medium uppercase tracking-[0.14em] text-foreground/70 ring-1 ring-black/5"
             >
               <span aria-hidden="true" className="size-1.5 rounded-full bg-primary" />
-              Kenapa Gridora
+              Kenapa KosPlatform
             </h2>
 
             <span aria-hidden="true" className="h-px flex-1 bg-foreground/10" />

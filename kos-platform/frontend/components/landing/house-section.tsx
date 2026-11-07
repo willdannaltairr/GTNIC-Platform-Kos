@@ -11,9 +11,8 @@ import { usePrefersReducedMotion } from '@/hooks/use-prefers-reduced-motion'
 /**
  * Kartu penutup sebelum footer: model bangunan kos yang bisa diputar.
  *
- * Bentuknya mengikuti kartu 3D di landing Gridora — judul, keterangan, lalu
- * panel yang menyatu saat digulir — tetapi modelnya rumah kos, bukan deret
- * panel surya.
+ * Bentuknya judul, keterangan, lalu panel yang menyatu saat digulir — tetapi
+ * modelnya rumah kos, bukan deret panel surya.
  *
  * Catatan kejujuran: model ini gambaran umum tipe bangunan, bukan properti
  * tertentu. Kalimat itu ditulis terbuka di bawah panel supaya tidak ada yang

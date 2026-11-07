@@ -14,7 +14,7 @@ interface LogoProps {
 }
 
 /**
- * Tanda Gridora: empat kotak dan satu cakram.
+ * Tanda KosPlatform: empat kotak dan satu cakram.
  *
  * Di tone `brand` dua kotak memakai hijau tua; di permukaan gelap keduanya
  * berubah putih dan hanya kotak lembut yang tetap hijau daun.
@@ -44,7 +44,7 @@ export const Logo: FC<LogoProps> = ({ className, markClassName, tone = 'brand' }
           tone === 'light' ? 'text-white' : 'text-foreground',
         )}
       >
-        Gridora
+        KosPlatform
       </span>
     </span>
   )
