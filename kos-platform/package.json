@@ -6,9 +6,10 @@
   "scripts": {
     "dev:web": "npm run dev --prefix frontend",
     "dev:api": "npm run dev --prefix backend",
-    "db:generate": "cd backend && npx prisma generate",
-    "db:migrate": "cd backend && npx prisma migrate dev",
-    "db:seed": "cd backend && npx ts-node --project tsconfig.seed.json prisma/seed.ts",
+    "db:migrate": "node backend/scripts/db-sql.mjs --migrate",
+    "db:seed": "node backend/scripts/db-sql.mjs supabase/seed.sql",
+    "db:setup": "node backend/scripts/db-sql.mjs --migrate && node backend/scripts/db-sql.mjs supabase/seed.sql",
+    "db:push": "supabase db push",
     "db:local": "node backend/scripts/db-local.mjs",
     "build:web": "npm run build --prefix frontend",
     "build:api": "npx tsc --noEmit --project backend/tsconfig.json"
@@ -19,7 +20,6 @@
   ],
   "devDependencies": {
     "typescript": "^5",
-    "ts-node": "^10",
-    "prisma": "^5"
+    "ts-node": "^10"
   }
 }

@@ -14,12 +14,12 @@ next-env.d.ts
 backend/dist/
 backend/node_modules/
 
-# Prisma (database lokal)
-backend/prisma/*.db
-backend/prisma/*.db-journal
-
 # Cluster PostgreSQL dev lokal (bila dipakai)
 .pgdata/
+
+# Supabase CLI
+supabase/.temp/
+supabase/.branches/
 
 # Environment
 .env*
