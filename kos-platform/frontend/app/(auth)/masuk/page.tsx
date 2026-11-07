@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 
-import { AuthCard } from '@/components/auth/auth-card'
+import Link from 'next/link'
+import { AuthShell } from '@/components/auth/auth-shell'
 import { LoginForm } from '@/components/auth/login-form'
 
 export const metadata: Metadata = {
@@ -10,25 +11,29 @@ export const metadata: Metadata = {
 }
 
 /**
- * Halaman masuk: kartu dua kolom dengan foto kamar di kiri, formulir di kanan.
+ * Halaman masuk: dua kolom penuh, formulir di kiri dan foto kamar di kanan.
  *
  * Halaman ini adalah pintu masuk seluruh situs — semua tautan yang meninggalkan
  * landing page mendarat di sini — jadi tata letaknya dibuat lapang dan hanya
  * berisi satu hal yang perlu dikerjakan.
- *
- * Kolom foto baru muncul di layar lebar (lg). Di layar kecil ia disembunyikan,
- * bukan ditumpuk sebagai latar: formulir yang harus dibaca di atas foto yang
- * ramai adalah formulir yang lebih sering salah isi.
  */
 export default function MasukPage() {
   return (
-    <AuthCard
+    <AuthShell
       image={{
         src: '/images/kos-4.jpg',
         alt: 'Kamar kos: tempat tidur dengan selimut kelabu, lemari kayu, dan lantai parket.',
       }}
+      footer={
+        <span>
+          Belum punya akun?{' '}
+          <Link href="/daftar" className="font-semibold text-primary hover:text-primary-strong">
+            Daftar sekarang
+          </Link>
+        </span>
+      }
     >
       <LoginForm />
-    </AuthCard>
+    </AuthShell>
   )
 }

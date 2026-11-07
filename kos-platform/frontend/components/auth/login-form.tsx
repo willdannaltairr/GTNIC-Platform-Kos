@@ -1,6 +1,5 @@
 'use client'
 
-import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { Loader2 } from 'lucide-react'
@@ -19,7 +18,8 @@ const DEMO_PASSWORD = 'KosDemo123!'
  *
  * Dipisahkan dari page.tsx supaya halamannya tetap server component dan bisa
  * memasang judul dokumennya sendiri — yang butuh state hanya formulir ini,
- * bukan tata letaknya.
+ * bukan tata letaknya. Tautan pindah ke halaman daftar ada di kaki kolom
+ * (AuthShell), bukan di sini.
  *
  * Tidak ada tautan "lupa kata sandi" dan tidak ada tombol masuk lewat penyedia
  * lain, meski acuan desainnya memakai keduanya: platform ini belum punya alur
@@ -56,9 +56,9 @@ export function LoginForm() {
 
   return (
     <div>
-      <form onSubmit={submit} className="flex flex-col gap-4">
+      <form onSubmit={submit} className="flex flex-col gap-5">
         <div className="flex flex-col gap-1.5 text-center">
-          <h1 className="text-2xl font-bold tracking-tight">Masuk ke akun Anda</h1>
+          <h1 className="font-heading text-3xl font-bold tracking-tight">Masuk ke akun Anda</h1>
           <p className="text-sm text-balance text-muted-foreground">
             Masuk untuk membuka daftar kos terverifikasi, menyimpan favorit, dan mengajukan sewa.
           </p>
@@ -108,33 +108,24 @@ export function LoginForm() {
         <button
           type="submit"
           disabled={submitting}
-          className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary-strong disabled:opacity-70"
+          className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3.5 text-xs font-bold uppercase tracking-[0.12em] text-primary-foreground transition-colors hover:bg-primary-strong disabled:opacity-70"
         >
           {submitting && <Loader2 className="h-4 w-4 animate-spin" aria-hidden />}
           {submitting ? 'Memproses…' : 'Masuk'}
         </button>
       </form>
 
-      <p className="mt-4 text-center text-sm text-muted-foreground">
-        Belum punya akun?{' '}
-        <Link href="/daftar" className="font-semibold text-primary hover:text-primary-strong">
-          Daftar sekarang
-        </Link>
-      </p>
-
-      <div className="mt-4 rounded-xl bg-secondary/60 p-3">
-        <p className="text-xs font-semibold text-foreground">Akun demo (data fiktif)</p>
-        <ul className="mt-2 space-y-1 text-xs leading-relaxed text-muted-foreground">
-          {DEMO_ACCOUNTS.map((account) => (
-            <li key={account.email}>
-              {account.role}:{' '}
-              <code className="rounded bg-card px-1.5 py-0.5">{account.email}</code>
-            </li>
-          ))}
-          <li>
-            Password: <code className="rounded bg-card px-1.5 py-0.5">{DEMO_PASSWORD}</code>
-          </li>
-        </ul>
+      <div className="mt-5 rounded-2xl bg-card/70 px-4 py-3 text-xs leading-relaxed text-muted-foreground ring-1 ring-border/60">
+        <p className="font-semibold text-foreground">Akun demo (data fiktif)</p>
+        {DEMO_ACCOUNTS.map((account) => (
+          <p key={account.email} className="mt-1">
+            {account.role}{' '}
+            <code className="rounded bg-secondary px-1.5 py-0.5">{account.email}</code>
+          </p>
+        ))}
+        <p className="mt-1">
+          Password <code className="rounded bg-secondary px-1.5 py-0.5">{DEMO_PASSWORD}</code>
+        </p>
       </div>
     </div>
   )
