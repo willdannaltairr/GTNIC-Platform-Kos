@@ -95,7 +95,7 @@ const HeroSection: FC = (): ReactNode => {
                 malam ? 'opacity-0' : 'opacity-100',
               )}
               style={{
-                background: 'radial-gradient(closest-side, rgba(255,224,178,0.6), rgba(255,224,178,0) 70%)',
+                background: 'radial-gradient(closest-side, rgba(255,224,178,0.38), rgba(255,224,178,0) 70%)',
               }}
             />
 
@@ -148,10 +148,10 @@ const HeroSection: FC = (): ReactNode => {
             >
               {/* Scrim atas menutup area judul sampai subjudul, lalu melepas
                   supaya fotonya tetap terbaca — bukan menutupi seluruh bagian tengah. */}
-              <div className="absolute inset-x-0 top-0 h-[46%] bg-gradient-to-b from-[#efede1] via-[#efede1]/70 to-transparent" />
+              <div className="absolute inset-x-0 top-0 h-[36%] bg-gradient-to-b from-[#efede1]/90 via-[#efede1]/40 to-transparent" />
               {/* Scrim bawah lebih tinggi dan lebih pekat: deskripsi dan
                   formulir pencarian perlu latar yang tenang untuk terbaca. */}
-              <div className="absolute inset-x-0 bottom-0 h-[52%] bg-gradient-to-t from-[#e4e2d4] via-[#e4e2d4]/90 to-transparent" />
+              <div className="absolute inset-x-0 bottom-0 h-[40%] bg-gradient-to-t from-[#e4e2d4]/80 via-[#e4e2d4]/35 to-transparent" />
             </div>
 
             <div
@@ -160,8 +160,8 @@ const HeroSection: FC = (): ReactNode => {
                 malam ? 'opacity-100' : 'opacity-0',
               )}
             >
-              <div className="absolute inset-x-0 top-0 h-[46%] bg-gradient-to-b from-[#121920] via-[#121920]/65 to-transparent" />
-              <div className="absolute inset-x-0 bottom-0 h-[52%] bg-gradient-to-t from-[#151c23] via-[#151c23]/92 to-transparent" />
+              <div className="absolute inset-x-0 top-0 h-[36%] bg-gradient-to-b from-[#121920]/90 via-[#121920]/40 to-transparent" />
+              <div className="absolute inset-x-0 bottom-0 h-[40%] bg-gradient-to-t from-[#151c23]/85 via-[#151c23]/45 to-transparent" />
             </div>
           </div>
 

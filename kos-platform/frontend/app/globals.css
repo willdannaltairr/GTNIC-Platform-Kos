@@ -165,7 +165,7 @@
      ikut terpotong judul di layar lebar. */
   .hero-house-mask {
     mask-image:
-      linear-gradient(rgba(0, 0, 0, 0) 0%, rgb(0, 0, 0) 34%, rgb(0, 0, 0) 84%, rgba(0, 0, 0, 0) 100%),
+      linear-gradient(rgba(0, 0, 0, 0) 0%, rgb(0, 0, 0) 24%, rgb(0, 0, 0) 92%, rgba(0, 0, 0, 0) 100%),
       linear-gradient(90deg, rgba(0, 0, 0, 0) 0%, rgb(0, 0, 0) 9%, rgb(0, 0, 0) 91%, rgba(0, 0, 0, 0) 100%);
     mask-composite: intersect;
   }
