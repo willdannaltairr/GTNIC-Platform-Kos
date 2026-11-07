@@ -67,7 +67,12 @@ npm run dev:web             # web — lihat baris "Local:" untuk alamat sebenarn
 
 Buka alamat dari baris `Local:` itu, lalu masuk dengan akun demo di bawah.
 
-- **Port web bisa berpindah.** Bila 3000 sedang dipakai dev server lain (mis. app Gridora di root repo), Next otomatis memakai port berikutnya dan menuliskannya di terminal.
+> **Dari folder akar repo.** `package.json` di akar hanya menjembatani perintah ke
+> `kos-platform/frontend`, jadi `npm run dev|build|start` di akar sama dengan
+> `npm run dev:web|build:web` di sini. Backend tetap dijalankan dari `kos-platform`
+> (`npm run dev:api`) karena tidak dijembatani.
+
+- **Port web bisa berpindah.** Bila 3000 sedang dipakai proses lain, Next otomatis memakai port berikutnya dan menuliskannya di terminal.
 - **Login dan daftar hanya jalan dari origin yang terdaftar.** Backend hanya menjawab CORS untuk origin di `FRONTEND_URL` (default `http://localhost:3000`); dari port lain browser memblokir permintaan auth. Beberapa origin dipisah koma, mis. `FRONTEND_URL=http://localhost:3000,http://localhost:3001` di `backend/.env`, lalu jalankan ulang API.
 - **Tanpa API.** Halaman tetap tampil; bagian "Kos terbaru" menampilkan keterangan bahwa daftar belum dapat dimuat, bukan data contoh.
 
