@@ -73,19 +73,19 @@ export const HERO = {
   scenes: {
     pagi: {
       label: 'Pagi',
-      caption: 'Kamar yang Anda lihat',
+      caption: 'Bangunan yang Anda lihat',
       description:
-        'Cahaya, sirkulasi, dan ukuran kamar terlihat apa adanya. Semua biaya — sewa, deposit, listrik, air, internet — sudah terhitung sebelum Anda datang survei.',
-      image: '/images/kos-1.jpg',
-      imageAlt: 'Kamar kos modern dengan tanaman hijau di dekat jendela',
+        'Fasad, atap, dan lingkungan sekitar rumah kos terlihat apa adanya sebelum Anda berangkat survei. Semua biaya — sewa, deposit, listrik, air, internet — sudah terhitung sejak awal.',
+      image: '/images/hero-kos-pagi.jpg',
+      imageAlt: 'Rumah kos berlantai satu dengan panel surya di atap, dilihat dari halaman depan pada pagi hari',
     },
     malam: {
       label: 'Malam',
-      caption: 'Kamar yang Anda tinggali',
+      caption: 'Saat penghuninya pulang',
       description:
         'Ketenangan malam ditentukan hal-hal kecil: ventilasi, keamanan, dan tetangga kamar. Ketersediaan yang dikonfirmasi pemilik membuat kamar ini benar-benar menunggu Anda.',
-      image: '/images/kos-6.jpg',
-      imageAlt: 'Kamar kos dengan pencahayaan lampu hangat pada malam hari',
+      image: '/images/hero-kos-malam.jpg',
+      imageAlt: 'Rumah kos yang sama pada malam hari, jendelanya menyala hangat di tengah kabut',
     },
   } satisfies Record<HeroSceneId, HeroScene>,
 }

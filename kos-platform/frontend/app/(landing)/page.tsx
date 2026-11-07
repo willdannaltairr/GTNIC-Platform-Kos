@@ -14,6 +14,7 @@ import StatsSection from '@/components/landing/stats-section'
 import AboutSection from '@/components/landing/about-section'
 import FaqSection from '@/components/landing/faq-section'
 import CtaSection from '@/components/landing/cta-section'
+import HouseSection from '@/components/landing/house-section'
 import MotionProvider from '@/components/motion/motion-provider'
 
 export const metadata: Metadata = {
@@ -69,6 +70,7 @@ export default function HomePage() {
       <AboutSection />
       <FaqSection />
       <CtaSection />
+      <HouseSection />
     </MotionProvider>
   )
 }

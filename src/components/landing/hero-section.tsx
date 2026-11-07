@@ -367,3 +367,4 @@ const HeroSection: FC = (): ReactNode => {
 }
 
 export default HeroSection
+
