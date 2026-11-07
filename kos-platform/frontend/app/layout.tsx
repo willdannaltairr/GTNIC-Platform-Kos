@@ -3,8 +3,8 @@ import './globals.css'
 
 export const metadata: Metadata = {
   title: {
-    default: 'Gridora — Cari & Sewa Kos dengan Biaya Transparan',
-    template: '%s · Gridora',
+    default: 'KosPlatform — Cari & Sewa Kos dengan Biaya Transparan',
+    template: '%s · KosPlatform',
   },
   description:
     'Platform pencarian dan pengelolaan kos yang berfokus pada transparansi biaya, kecocokan kebutuhan, dan kepercayaan antara calon penghuni dengan pemilik kos.',

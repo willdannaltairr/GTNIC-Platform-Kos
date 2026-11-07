@@ -4,8 +4,8 @@ import { LandingFooter } from '@/components/landing/landing-footer'
 /**
  * Chrome khusus landing page.
  *
- * Dipisahkan dari (site)/layout.tsx supaya desain landing bisa mengikuti
- * bahasa visual Gridora tanpa mengubah header dan footer halaman /kos,
+ * Dipisahkan dari (site)/layout.tsx supaya desain landing bisa memakai bahasa
+ * visualnya sendiri tanpa mengubah header dan footer halaman /kos,
  * /masuk, /daftar, dan /kredit.
  *
  * Kelas `landing-scope` menukar tipografi hanya di dalam pohon ini — di luar
