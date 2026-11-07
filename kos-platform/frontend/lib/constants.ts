@@ -190,7 +190,7 @@ export const FOOTER_LINKS = [
     title: 'Pemilik Kos',
     links: [
       { href: '/daftar', label: 'Daftar Sebagai Pemilik' },
-      { href: '/#manfaat-pemilik', label: 'Manfaat' },
+      { href: '/#manfaat', label: 'Manfaat' },
       { href: '/masuk', label: 'Masuk Dashboard' },
     ],
   },
