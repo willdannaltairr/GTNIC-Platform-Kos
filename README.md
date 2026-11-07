@@ -1,100 +1,122 @@
 # KosPlatform
 
-Marketplace dan sistem manajemen kos: platform pencarian dan pengelolaan kos yang
-mengutamakan transparansi biaya, kecocokan kebutuhan, dan kepercayaan antara calon
-penghuni dengan pemilik kos.
+**Cari kos dengan informasi yang bisa diperiksa, bukan sekadar harga sewa yang terpampang.**
 
-Repo ini (`GTNIC-UMKM`) hanya berisi satu proyek — monorepo `kos-platform` dengan
-frontend Next.js dan backend Express.
+KosPlatform adalah marketplace pencarian dan pengelolaan kos. Web-nya menyusun ulang
+informasi sewa supaya bisa dipercaya sebelum keputusan diambil: berapa total biayanya,
+seberapa jauh jaraknya, dan kapan kamarnya benar-benar tersedia.
 
-## Isi repo
+## Masalah yang dijawab
 
-```text
-GTNIC-UMKM/
-├── package.json          # jembatan perintah dev/build/start ke kos-platform/frontend
-└── kos-platform/         # monorepo (npm workspaces: frontend + backend)
-    ├── frontend/         # Next.js 16 App Router — web publik
-    ├── backend/          # Express 4 + Prisma 5 — REST API + PostgreSQL
-    ├── .env.example      # referensi seluruh environment variable
-    └── README.md         # dokumentasi teknis lengkap
-```
+Mencari kos jarang soal kurang pilihan, sering soal kurang kejelasan:
 
-## Menjalankan cepat
+- **Harga sewa hampir selalu bukan biaya sesungguhnya.** Ada deposit, listrik, air, internet,
+  kebersihan, dan biaya lain yang baru muncul belakangan.
+- **Ketersediaan kamar sering baru diketahui saat sampai di lokasi.**
+- **Jarak ke kampus atau kantor jadi pertimbangan terakhir**, padahal dampaknya terasa tiap hari.
 
-Prasyarat: Node.js 20.9+ (diuji pada Node 22.17), npm 10+, dan PostgreSQL 18
-untuk cluster dev lokal.
+Web ini memindahkan informasi itu ke depan, dan menyebutkan terus terang mana angka yang sudah
+dikonfirmasi pemilik dan mana yang masih perkiraan.
 
-```bash
-cd kos-platform
-npm install
-cp .env.example backend/.env      # isi minimal DATABASE_URL dan JWT_SECRET
-npm run db:local -- init          # cluster PostgreSQL 127.0.0.1:5433 (sekali saja)
-npm run db:migrate                # buat 46 tabel
-npm run db:seed                   # 8 akun demo + 6 properti contoh
-```
+## Untuk siapa
 
-Lalu jalankan kedua sisi di terminal terpisah:
+**Pencari kos** — mahasiswa, pekerja, atau siapa pun yang pindah ke kota baru. Bisa mencari,
+membandingkan, dan menyimpan kos tanpa akun; akun dibutuhkan saat ingin mengurus sewa.
 
-```bash
-npm run dev:api    # API → http://localhost:4000
-npm run dev:web    # web → http://localhost:3000
-```
+**Pemilik kos** — yang ingin propertinya dilihat calon penghuni dengan informasi yang jujur,
+sehingga percakapan saat survei tidak dimulai dari selisih angka.
 
-Masuk dengan salah satu akun demo (password semuanya `KosDemo123!`) — daftarnya ada
-di [`kos-platform/README.md`](kos-platform/README.md#akun-demo-seed).
+## Yang bisa dilakukan di web ini
 
-> Dari folder akar repo, `npm run dev|build|start` sama dengan perintah web di atas
-> karena `package.json` akar hanya menjembatani ke `kos-platform/frontend`. Backend
-> tidak dijembatani, jadi `dev:api` tetap dijalankan dari dalam `kos-platform`.
+### Mencari dan menyaring kos — `/kos`
 
-## Yang sudah jalan
+Masukkan nama kos atau wilayah, lalu saring menurut kota, kecamatan, tipe kos (putra, putri,
+campur), kamar mandi dalam atau luar, rentang harga bulanan, dan fasilitas — mulai dari Wi-Fi,
+AC, kasur, lemari, parkir, dapur bersama, laundry, CCTV, sampai penjaga kos. Hasilnya bisa
+diurutkan dari yang terbaru atau menurut harga.
 
-- Landing `/` dengan hero foto, marquee kawasan, kartu 3D rumah kos, dan panggilan aksi.
-- Pencarian `/kos` (filter kata kunci, kota, tipe kos, kamar mandi, harga, fasilitas,
-  urutan) dan detail `/kos/[slug]` — keduanya membaca endpoint publik properti.
-- Masuk `/masuk` dan daftar `/daftar` yang terhubung ke API autentikasi (JWT pada
-  cookie HttpOnly).
-- Kredit foto `/kredit`, halaman 404 dan error.
-- API: `health`, `auth` (register/login/logout/me), `users` (profil sendiri + daftar
-  untuk ADMIN), dan `properties` publik (daftar + detail).
-- Database: 46 tabel Prisma dengan data demo properti, kamar, fasilitas, aturan,
-  dan komponen biaya.
+Setiap pilihan filter ikut tertulis di alamat halaman, jadi hasil pencarian bisa disalin dan
+dibagikan persis seperti yang Anda lihat.
 
-## Yang belum
+### Melihat detail kos dan total biayanya — `/kos/[slug]`
 
-Booking, kontrak, pembayaran, notifikasi, review, dan peta masih berupa tabel di
-schema tanpa endpoint maupun UI. Kredensial Midtrans, Cloudinary, Resend, Sentry, dan
-Google Maps sudah disiapkan di `.env.example` tetapi belum dipakai kode. Belum ada test
-otomatis di repo ini.
+Halaman detail menampilkan kamar yang tersedia, fasilitas, aturan kos, dan rincian biaya:
+sewa bulanan, deposit, listrik, air, internet, kebersihan. **Deposit tidak dihitung sebagai
+biaya bulanan.** Estimasi ditampilkan untuk biaya masuk, bulanan, 3 bulan, 6 bulan, dan
+12 bulan, lengkap dengan rumus yang dipakai supaya bisa Anda periksa sendiri.
 
-## Alur branch
+Setiap rincian punya label kepercayaan:
 
-| Branch | Fungsi |
+| Label | Artinya |
 | --- | --- |
-| `main` | Rilis stabil — hanya menerima hasil yang sudah fix. |
-| `develop` | Integrasi — semua fitur digabung ke sini lebih dulu. Sekaligus tempat kerja perubahan non-fitur: dokumentasi, konfigurasi, dan perbaikan kecil. |
-| `feature/<nama>` | Satu cabang per **fitur website** (mis. `feature/kartu-3d-rumah-kos`), dibiarkan tetap ada setelah digabung supaya gampang dibuka dan diubah lagi. |
+| Biaya lengkap | Komponen utama sudah dikonfirmasi pemilik |
+| Biaya sebagian | Sebagian angka masih berupa perkiraan |
+| Perlu konfirmasi biaya | Ada komponen penting yang belum diketahui — sebaiknya ditanyakan saat survei |
 
-```bash
-git switch develop
-git switch -c feature/nama-fitur     # kerjakan fiturnya
-git commit -m "feat(scope): ringkasan perubahan"
-git push -u origin feature/nama-fitur
-```
+### Membuat akun — `/masuk` dan `/daftar`
 
-Setelah fitur selesai, gabungkan ke `develop`; `main` disentuh paling akhir saat
-sedang menyiapkan rilis.
+Mendaftar sebagai pencari kos atau sebagai pemilik kos. Sesi masuk disimpan dengan pengaturan
+keamanan yang membuatnya tidak bisa dibaca skrip lain di halaman.
 
-## Dokumentasi lain
+### Beranda — `/`
 
-- [`kos-platform/README.md`](kos-platform/README.md) — setup lengkap, daftar skrip,
-  peta rute, endpoint API, environment variable, dan fase pengembangan.
-- [`kos-platform/.env.example`](kos-platform/.env.example) — seluruh environment
-  variable beserta nilai contohnya.
-- Halaman `/kredit` dan [`kos-platform/frontend/public/images/CREDITS.md`](kos-platform/frontend/public/images/CREDITS.md)
-  — kredit foto pihak ketiga.
+Beranda menjelaskan cara kerja platform: foto bangunan kos saat pagi dan malam, kawasan yang
+bisa langsung dibuka pencariannya, penjelasan alat-alat yang disiapkan, langkah mencari kos
+dari menyaring sampai menempati kamar, manfaat untuk kedua sisi, tanya jawab, dan contoh kos
+terbaru yang bisa langsung diklik.
 
-## Keamanan
+### Kredit foto — `/kredit`
 
-Jangan pernah commit berkas `.env` asli; pakai `.env.example` sebagai referensi.
-`JWT_SECRET` wajib diganti sebelum dipakai di luar mesin lokal.
+Daftar foto pihak ketiga yang dipakai sebagai ilustrasi, lengkap dengan fotografer dan lisensi
+yang berlaku.
+
+## Alat yang sedang disiapkan
+
+Tiga alat ini sudah tampil di beranda dan sedang dikerjakan bertahap:
+
+- **KosMatch** — skor kecocokan untuk tiap kos, dipecah menjadi empat faktor berbobot: anggaran
+  35%, lokasi 30%, fasilitas 20%, dan preferensi kamar 15%. Setiap skor disertai alasannya,
+  bukan angka misterius. *Belum aktif — belum bisa dipakai di halaman pencarian.*
+- **Rute & Sekitar** — jarak dan estimasi waktu tempuh ke kampus, kantor, stasiun, atau terminal,
+  plus tempat penting di sekitar kos. *Belum aktif — koordinat properti sudah disiapkan.*
+- **Room Passport** — dokumentasi kondisi kamar saat masuk dan keluar masa sewa, lengkap dengan
+  foto dan catatan, disetujui kedua pihak. *Belum aktif.*
+
+## Prinsip yang dipegang
+
+- **Verifikasi dulu, baru tayang.** Kos hanya muncul di pencarian setelah diperiksa admin.
+- **Setiap angka membawa sumbernya.** Nilai yang dikonfirmasi pemilik dipisahkan dari nilai
+  perkiraan, sehingga tidak ada angka yang tampak pasti padahal belum dicek.
+- **Batasannya disebutkan.** Kalau ada komponen biaya yang belum diketahui, web ini
+  menuliskannya sebagai daftar pertanyaan untuk survei — bukan mengosongkannya.
+- **Ketersediaan yang lama tidak diperbarui ditandai**, bukan ditampilkan seolah pasti.
+- **Kami tidak menebak, kami mencatat.** Ulasan hanya dari penyewa yang punya transaksi sah.
+
+## Peta halaman
+
+| Halaman | Alamat | Isi |
+| --- | --- | --- |
+| Beranda | `/` | Penjelasan platform, contoh kos terbaru, kartu 3D bangunan kos |
+| Pencarian kos | `/kos` | Daftar kos terverifikasi dengan filter dan urutan |
+| Detail kos | `/kos/[slug]` | Kamar, fasilitas, aturan, dan rincian biaya |
+| Masuk | `/masuk` | Form masuk |
+| Daftar | `/daftar` | Form pendaftaran pencari kos atau pemilik kos |
+| Kredit foto | `/kredit` | Sumber dan lisensi foto yang dipakai |
+
+## Status saat ini
+
+**Sudah bisa dicoba:** jelajah beranda, pencarian beserta seluruh filternya, halaman detail
+dengan rincian biaya, serta pendaftaran dan masuk akun.
+
+**Belum ada:** skor KosMatch, peta jarak, halaman pengelolaan bagi pemilik kos, pemesanan dan
+pembayaran sewa, dokumentasi kamar (Room Passport), dan ulasan penghuni.
+
+> **Datanya masih contoh.** Yang tampil sekarang adalah 6 kos demo di 6 kota — Bandung, Depok,
+> Jakarta Selatan, Malang, Sleman, dan Surabaya — beserta kamar, fasilitas, aturan, dan komponen
+> biayanya. Semuanya fiktif dan dipakai supaya alur pencarian sampai rincian biaya bisa dicoba
+> apa adanya, bukan untuk menggambarkan harga pasar yang sebenarnya.
+
+## Ingin menjalankan atau mengembangkan web ini?
+
+Langkah pemasangan, daftar perintah, dan penjelasan teknisnya ada di
+[`kos-platform/README.md`](kos-platform/README.md).
