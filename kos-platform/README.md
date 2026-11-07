@@ -214,7 +214,13 @@ npm run db:local -- init     # buat cluster PostgreSQL di 127.0.0.1:5433 (sekali
 npm run db:setup             # buat seluruh tabel, lalu isi data demo
 ```
 
-Lalu dua terminal terpisah:
+Lalu satu perintah menyalakan keduanya — API di port 4000, web di port 3000:
+
+```bash
+npm run dev                  # API + web sekaligus di satu terminal
+```
+
+Bila ingin dipisah ke dua terminal (mis. untuk membaca log salah satu saja):
 
 ```bash
 npm run dev:api              # API  → http://localhost:4000
@@ -229,10 +235,11 @@ Semua perintah dijalankan dari folder `kos-platform`:
 
 | Perintah | Fungsi |
 | --- | --- |
-| `npm run dev` · `npm run dev:web` | Dev server frontend (Turbopack) — keduanya sama |
+| `npm run dev` | Nyalakan **frontend dan backend** sekaligus dalam satu terminal |
+| `npm run dev:web` | Hanya dev server frontend (Turbopack) |
 | `npm run build` · `npm run build:web` | Build produksi frontend (`next build`) |
 | `npm run start` | Jalankan hasil build frontend |
-| `npm run dev:api` | Dev server backend (ts-node, port 4000) |
+| `npm run dev:api` | Hanya dev server backend (ts-node, port 4000) |
 | `npm run build:api` | Type-check backend (`tsc --noEmit`, tanpa output) |
 | `npm run db:migrate` | Jalankan seluruh migration SQL ke database di `DATABASE_URL` |
 | `npm run db:seed` | Isi akun demo dan properti contoh |
