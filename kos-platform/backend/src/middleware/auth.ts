@@ -35,6 +35,33 @@ export const authenticate = (req: AuthRequest, _res: Response, next: NextFunctio
 }
 
 /**
+ * Seperti `authenticate`, tetapi tidak menolak permintaan tanpa token.
+ *
+ * Dipakai endpoint publik yang isinya berbeda untuk pemiliknya — misalnya
+ * daftar kamar, yang boleh dibaca siapa saja tetapi pemilik properti dan admin
+ * juga perlu melihat kamar yang belum dipublikasikan. Token yang rusak atau
+ * kedaluwarsa diperlakukan sebagai tamu, bukan error, karena endpoint-nya
+ * memang boleh diakses tanpa login.
+ */
+export const optionalAuthenticate = (
+  req: AuthRequest,
+  _res: Response,
+  next: NextFunction,
+): void => {
+  const token = req.cookies?.access_token
+
+  if (token) {
+    try {
+      req.user = authService.verifyToken(token)
+    } catch {
+      // Token tidak berlaku: lanjut sebagai tamu.
+    }
+  }
+
+  next()
+}
+
+/**
  * Role-Based Access Control. Role selalu dibaca dari token yang sudah
  * diverifikasi server — bukan dari input pengguna.
  */
