@@ -326,23 +326,6 @@
     }
   }
 
-  @keyframes kos-fog-drift {
-    0% {
-      transform: translate(-6%);
-    }
-    100% {
-      transform: translate(6%);
-    }
-  }
-
-  .hero-fog {
-    animation: kos-fog-drift 26s ease-in-out infinite alternate;
-  }
-
-  .hero-fog-slow {
-    animation: kos-fog-drift 38s ease-in-out infinite alternate-reverse;
-  }
-
   @keyframes kos-twinkle {
     0%,
     100% {
@@ -358,8 +341,6 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .hero-fog,
-    .hero-fog-slow,
     .hero-star {
       animation: none;
     }
