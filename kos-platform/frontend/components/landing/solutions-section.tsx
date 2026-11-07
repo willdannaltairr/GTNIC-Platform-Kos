@@ -119,7 +119,7 @@ const SolutionsSection: FC = (): ReactNode => {
           >
             <div className="max-w-xl pb-4 lg:flex lg:w-[21rem] lg:max-w-none lg:shrink-0 lg:flex-col lg:justify-between lg:py-2">
               <p className="text-base leading-relaxed text-muted-foreground lg:text-lg">
-                Gridora menggantikan tumpukan tangkapan layar, pesan WhatsApp yang tercecer, dan angka
+                KosPlatform menggantikan tumpukan tangkapan layar, pesan WhatsApp yang tercecer, dan angka
                 yang dihitung ulang di catatan pribadi. Setiap alat menjawab satu pertanyaan, lalu
                 menyerahkan jawabannya ke alat berikutnya.
               </p>

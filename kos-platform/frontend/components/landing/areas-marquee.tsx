@@ -6,9 +6,9 @@ import { AREA_LINKS } from '@/lib/landing'
 /**
  * Marquee kawasan populer.
  *
- * Bentuknya mengikuti strip pelanggan Gridora: teks polos tanpa kotak, dengan
- * ikon di kiri dan peredupan di tepi. Bedanya, setiap butir di sini adalah
- * tautan yang membuka pencarian kota tersebut.
+ * Bentuknya teks polos tanpa kotak, dengan ikon di kiri dan peredupan di tepi.
+ * Bedanya, setiap butir di sini adalah tautan yang membuka pencarian kota
+ * tersebut.
  *
  * Dua salinan daftar yang identik digeser tepat setengah trek, sehingga
  * perulangannya mulus tanpa mengukur lebar di JavaScript. Saat pengunjung

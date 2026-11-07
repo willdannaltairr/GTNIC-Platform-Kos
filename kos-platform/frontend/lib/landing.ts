@@ -102,7 +102,7 @@ export interface AreaLink {
  * Kawasan yang bisa langsung dibuka lewat pencarian — dipakai marquee di bawah
  * hero.
  *
- * Ikonnya sengaja seragam: di Gridora ikon variatif itu logo perusahaan,
+ * Ikonnya sengaja seragam: ikon variatif biasanya dipakai untuk logo mitra,
  * sedangkan di sini yang ditampilkan nama tempat. Ikon Wi-Fi atau kunci di
  * sebelah nama kota akan terbaca sebagai klaim fasilitas yang tidak pernah
  * kita maksud.
@@ -263,7 +263,7 @@ export const ABOUT = {
   mission: 'Membuat informasi kos bisa dipercaya sebelum uang berpindah tangan.',
   title: 'Dibangun karena mencari kos seharusnya tidak menebak-nebak.',
   description:
-    'Gridora dimulai dari percakapan dengan penghuni kos dan pemiliknya: harga sewa hampir selalu bukan biaya sesungguhnya, dan ketersediaan kamar sering baru diketahui saat sampai di lokasi. Platform ini menyusun ulang informasi itu supaya bisa diperiksa sebelum keputusan diambil.',
+    'KosPlatform dimulai dari percakapan dengan penghuni kos dan pemiliknya: harga sewa hampir selalu bukan biaya sesungguhnya, dan ketersediaan kamar sering baru diketahui saat sampai di lokasi. Platform ini menyusun ulang informasi itu supaya bisa diperiksa sebelum keputusan diambil.',
 }
 
 export interface RouteStop {
