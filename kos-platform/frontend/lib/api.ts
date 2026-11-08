@@ -271,10 +271,10 @@ async function postAuth<T>(path: string, body: unknown): Promise<T> {
 }
 
 export async function registerAccount(payload: RegisterPayload) {
-  return postAuth<{ id: string; full_name: string; email: string; role: string }>(
-    '/auth/register',
-    payload,
-  )
+  return postAuth<{
+    user: { id: string; full_name: string; email: string; role: string }
+    verifyToken?: string
+  }>('/auth/register', payload)
 }
 
 export async function loginAccount(payload: LoginPayload) {
@@ -297,4 +297,25 @@ export async function forgotPassword(payload: { email: string }) {
 
 export async function resetPassword(payload: { token: string; password: string }) {
   return postAuth<null>('/auth/reset-password', payload)
+}
+
+/**
+ * Pakai tautan verifikasi email.
+ *
+ * Endpoint ini tidak menuntut sesi, karena tautannya sering dibuka dari
+ * aplikasi email di perangkat lain. Yang dibuktikan adalah kepemilikan atas
+ * alamat emailnya, dan itu sudah dibuktikan tokennya sendiri.
+ */
+export async function verifyEmail(payload: { token: string }) {
+  return postAuth<null>('/auth/verify-email', payload)
+}
+
+/**
+ * Kirim ulang tautan verifikasi ke email akun yang sedang masuk.
+ *
+ * Alamatnya ditentukan server dari sesi, bukan dari isi permintaan, jadi
+ * endpoint ini tidak bisa dipakai mengirim email ke sembarang orang.
+ */
+export async function resendEmailVerification() {
+  return postAuth<{ devToken?: string } | null>('/auth/resend-verification', {})
 }

@@ -16,6 +16,14 @@ router.post('/login', authLimiter, asyncHandler(authController.login))
 router.post('/forgot-password', authLimiter, asyncHandler(authController.forgotPassword))
 router.post('/reset-password', authLimiter, asyncHandler(authController.resetPassword))
 /**
+ * Verifikasi email dan kirim ulang tautannya.
+ *
+ * Keduanya ikut `authLimiter` karena sama-sama memakai token yang bisa ditebak
+ * dan sama-sama memicu pengiriman email ke alamat orang lain bila disalahgunakan.
+ */
+router.post('/verify-email', authLimiter, asyncHandler(authController.verifyEmail))
+router.post('/resend-verification', authLimiter, authenticate, asyncHandler(authController.resendVerification))
+/**
  * Perpanjangan sesi tidak dibatasi `authLimiter`.
  *
  * Endpoint ini dipanggil otomatis setiap halaman dimuat saat access token
