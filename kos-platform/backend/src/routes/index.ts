@@ -5,6 +5,7 @@ import bookingsRoutes from '../modules/bookings/bookings.routes'
 import dashboardRoutes from '../modules/dashboard/dashboard.routes'
 import favoritesRoutes from '../modules/favorites/favorites.routes'
 import notificationsRoutes from '../modules/notifications/notifications.routes'
+import ownerVerificationRoutes from '../modules/owner-verification/owner-verification.routes'
 import placesRoutes from '../modules/places/places.routes'
 import propertiesRoutes from '../modules/properties/properties.routes'
 import roomsRoutes from '../modules/rooms/rooms.routes'
@@ -32,5 +33,6 @@ apiRouter.use('/bookings', bookingsRoutes)
 apiRouter.use('/properties', propertiesRoutes)
 apiRouter.use('/rooms', roomsRoutes)
 apiRouter.use('/places', placesRoutes)
+apiRouter.use('/owner-verification', ownerVerificationRoutes)
 
 export default apiRouter
