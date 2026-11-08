@@ -103,6 +103,28 @@ const PUBLIKASI: Record<string, Label> = {
   ARCHIVED: { label: 'Diarsipkan', nada: 'netral' },
 }
 
+/**
+ * Status akun pengguna.
+ *
+ * PENDING_VERIFICATION tetap ada meski pendaftaran saat ini langsung
+ * mengaktifkan akun: nilai itu masih ada di enum database dan bisa muncul pada
+ * akun lama. Status yang belum ada di kamus akan tampil apa adanya dengan nada
+ * netral, dan itu justru menyembunyikan bahwa ada keadaan akun yang belum
+ * ditangani di sini.
+ */
+const AKUN: Record<string, Label> = {
+  ACTIVE: { label: 'Aktif', nada: 'sukses' },
+  PENDING_VERIFICATION: { label: 'Belum terverifikasi', nada: 'peringatan' },
+  SUSPENDED: { label: 'Ditangguhkan', nada: 'peringatan' },
+  BANNED: { label: 'Diblokir', nada: 'bahaya' },
+}
+
+const PERAN: Record<string, Label> = {
+  TENANT: { label: 'Pencari kos', nada: 'info' },
+  OWNER: { label: 'Pemilik kos', nada: 'netral' },
+  ADMIN: { label: 'Admin', nada: 'peringatan' },
+}
+
 const KAMUS = {
   booking: BOOKING,
   invoice: INVOICE,
@@ -112,6 +134,8 @@ const KAMUS = {
   kunjungan: KUNJUNGAN,
   verifikasi: VERIFIKASI,
   publikasi: PUBLIKASI,
+  akun: AKUN,
+  peran: PERAN,
 } as const
 
 export type JenisStatus = keyof typeof KAMUS

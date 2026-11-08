@@ -3,11 +3,12 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
-import { ChevronDown, Compass, Heart, Home, LayoutDashboard, MapPin, Menu, Search, Sparkles, X } from 'lucide-react'
+import { ChevronDown, Compass, Heart, Home, LayoutDashboard, MapPin, Menu, Search, ShieldCheck, Sparkles, X } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { Logo } from '@/components/landing/logo'
 import { NotificationBell } from '@/components/notifications/notification-bell'
 import { AccountActions } from '@/components/session/account-actions'
+import { useSession } from '@/components/session/session-provider'
 import { LOCATIONS } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 
@@ -85,6 +86,20 @@ const LINKS: { label: string; href: string; icon: LucideIcon }[] = [
 ]
 
 /**
+ * Tautan panel admin, hanya untuk akun berperan ADMIN.
+ *
+ * Peran dibaca dari sesi yang sudah divalidasi ke API, bukan dari keadaan di
+ * peramban. Yang tampil di sini hanya kemudahan; server tetap menolak siapa
+ * pun yang bukan admin, dan menyembunyikan tautannya tidak pernah menjadi
+ * batas keamanan.
+ */
+const LINK_ADMIN: { label: string; href: string; icon: LucideIcon } = {
+  label: 'Panel admin',
+  href: '/admin',
+  icon: ShieldCheck,
+}
+
+/**
  * Menu dianggap aktif bila alamatnya sama persis, atau merupakan halaman anak
  * dari menu tersebut, sehingga /kos/[slug] tetap menandai "Cari Kos".
  *
@@ -109,6 +124,7 @@ const LINK_CLASS =
  */
 export function AppNavbar() {
   const pathname = usePathname()
+  const { user } = useSession()
   const [terbuka, setTerbuka] = useState<string | null>(null)
   const [menuPonsel, setMenuPonsel] = useState(false)
   const navRef = useRef<HTMLElement>(null)
@@ -154,7 +170,7 @@ export function AppNavbar() {
         </Link>
 
         <nav aria-label="Navigasi utama" className="ml-4 hidden items-center gap-1 lg:flex">
-          {LINKS.map((link) => {
+          {(user?.role === 'ADMIN' ? [...LINKS, LINK_ADMIN] : LINKS).map((link) => {
             const Icon = link.icon
             const active = isActive(pathname, link.href)
 
@@ -254,7 +270,7 @@ export function AppNavbar() {
         <div className="border-t border-border bg-background lg:hidden">
           <nav aria-label="Navigasi utama" className="mx-auto max-w-7xl px-4 py-3 sm:px-6">
             <ul className="space-y-1">
-              {LINKS.map((link) => {
+              {(user?.role === 'ADMIN' ? [...LINKS, LINK_ADMIN] : LINKS).map((link) => {
                 const Icon = link.icon
                 return (
                   <li key={link.href}>
