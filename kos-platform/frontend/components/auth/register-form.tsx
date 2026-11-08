@@ -1,8 +1,8 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { useState } from 'react'
-import { Check, Loader2 } from 'lucide-react'
+import { Check, Loader2, MailCheck } from 'lucide-react'
 import { AuthField } from '@/components/auth/auth-field'
 import { registerAccount, type ApiError } from '@/lib/api'
 
@@ -39,13 +39,13 @@ const PASSWORD_RULES = [{ label: 'Minimal 8 karakter', met: (value: string) => v
  * Tautan pindah ke halaman masuk ada di kaki kolom (AuthShell), bukan di sini.
  */
 export function RegisterForm() {
-  const router = useRouter()
   const [role, setRole] = useState<'TENANT' | 'OWNER'>('TENANT')
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<ApiError | null>(null)
+  const [terdaftar, setTerdaftar] = useState<{ email: string; devToken: string | null } | null>(null)
 
   const submit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -54,8 +54,12 @@ export function RegisterForm() {
     setError(null)
 
     try {
-      await registerAccount({ fullName, email, password, role })
-      router.push('/masuk')
+      const hasil = await registerAccount({ fullName, email, password, role })
+
+      // Tidak langsung dilempar ke halaman masuk: pendaftar perlu tahu bahwa
+      // ada tautan verifikasi menunggu di emailnya, dan itu satu-satunya saat
+      // ia masih ingat alamat mana yang baru dipakai.
+      setTerdaftar({ email, devToken: hasil?.verifyToken ?? null })
     } catch (caught) {
       setError(caught as ApiError)
     } finally {
@@ -65,6 +69,51 @@ export function RegisterForm() {
 
   const fieldError = (name: string) =>
     error?.fields.find((entry) => entry.field === name)?.message
+
+  if (terdaftar) {
+    return (
+      <div className="flex flex-col gap-5">
+        <div className="flex flex-col items-center gap-3 text-center">
+          <span className="grid size-12 place-items-center rounded-full bg-accent text-primary">
+            <MailCheck className="h-6 w-6" aria-hidden="true" />
+          </span>
+          <h1 className="font-heading text-3xl font-bold tracking-tight">Akun dibuat</h1>
+          <p className="text-sm text-balance text-muted-foreground">
+            Kami sudah mengirim tautan verifikasi ke{' '}
+            <span className="font-medium text-foreground">{terdaftar.email}</span>. Buka
+            tautannya supaya pemberitahuan booking, tagihan, dan atur ulang sandi sampai ke
+            kotak masuk Anda. Tautannya berlaku 24 jam.
+          </p>
+        </div>
+
+        {terdaftar.devToken && (
+          <div className="rounded-xl bg-amber-50 px-3 py-2.5 text-xs leading-relaxed text-amber-800 ring-1 ring-amber-200">
+            <p className="font-semibold">Mode pengembangan</p>
+            <p className="mt-1">
+              Email tidak dikirim karena kunci penyedia email belum diisi. Tautannya:
+            </p>
+            <Link
+              href={`/verifikasi-email?token=${encodeURIComponent(terdaftar.devToken)}`}
+              className="mt-1 block break-all font-medium underline"
+            >
+              /verifikasi-email?token={terdaftar.devToken}
+            </Link>
+          </div>
+        )}
+
+        <Link
+          href="/masuk"
+          className="inline-flex w-full items-center justify-center rounded-xl bg-primary px-4 py-3.5 text-xs font-bold uppercase tracking-[0.12em] text-primary-foreground transition-colors hover:bg-primary-strong"
+        >
+          Masuk ke akun
+        </Link>
+
+        <p className="text-center text-xs leading-relaxed text-muted-foreground">
+          Belum menerima emailnya? Setelah masuk, halaman profil punya tombol kirim ulang.
+        </p>
+      </div>
+    )
+  }
 
   return (
     <form onSubmit={submit} className="flex flex-col gap-5">

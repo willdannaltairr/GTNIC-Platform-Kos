@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { Loader2 } from 'lucide-react'
 import { useSession } from '@/components/session/session-provider'
+import { resendEmailVerification } from '@/lib/api'
 import { fetchProfile, updateProfile, type SessionProfile } from '@/lib/session'
 import { formatTanggal } from '@/lib/format'
 
@@ -47,6 +48,8 @@ export default function ProfilPage() {
   const [telepon, setTelepon] = useState('')
   const [simpan, setSimpan] = useState(false)
   const [pesan, setPesan] = useState<{ nada: 'sukses' | 'bahaya'; teks: string } | null>(null)
+  const [mengirimVerifikasi, setMengirimVerifikasi] = useState(false)
+  const [pesanVerifikasi, setPesanVerifikasi] = useState<string | null>(null)
 
   useEffect(() => {
     let aktif = true
@@ -98,6 +101,26 @@ export default function ProfilPage() {
       })
     } finally {
       setSimpan(false)
+    }
+  }
+
+  /**
+   * Kirim ulang tautan verifikasi email ke alamat akun yang sedang masuk.
+   *
+   * Alamatnya tidak ikut dikirim dari sini: server mengambilnya dari sesi, jadi
+   * tidak ada cara memakai tombol ini untuk mengirim email ke orang lain.
+   */
+  const kirimVerifikasi = async (): Promise<void> => {
+    setMengirimVerifikasi(true)
+    setPesanVerifikasi(null)
+
+    try {
+      await resendEmailVerification()
+      setPesanVerifikasi('Tautan verifikasi sudah dikirim ke email di atas. Tautannya berlaku 24 jam.')
+    } catch (error) {
+      setPesanVerifikasi(error instanceof Error ? error.message : 'Tautan tidak terkirim, coba lagi.')
+    } finally {
+      setMengirimVerifikasi(false)
     }
   }
 
@@ -181,7 +204,39 @@ export default function ProfilPage() {
             </dt>
             <dd className="mt-1 text-sm">{formatTanggal(profil.last_login_at)}</dd>
           </div>
+
+          <div>
+            <dt className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+              Email terverifikasi
+            </dt>
+            <dd className="mt-1 text-sm">
+              {profil.email_verified_at
+                ? formatTanggal(profil.email_verified_at)
+                : 'Belum diverifikasi'}
+            </dd>
+          </div>
         </dl>
+
+        {/* Tautan verifikasi hanya masuk akal selama emailnya belum dipastikan,
+            jadi tombolnya tidak ditampilkan sama sekali setelah terverifikasi.
+            Alamatnya ditentukan server dari sesi, bukan dari isian di sini. */}
+        {!profil.email_verified_at && (
+          <div className="mt-5 flex flex-wrap items-center gap-3 border-t border-border pt-5">
+            <button
+              type="button"
+              onClick={kirimVerifikasi}
+              disabled={mengirimVerifikasi}
+              className="inline-flex h-11 items-center gap-2 rounded-xl border border-border bg-background px-5 text-sm font-semibold transition-colors hover:border-primary/40 disabled:opacity-70"
+            >
+              {mengirimVerifikasi && <Loader2 className="size-4 animate-spin" aria-hidden="true" />}
+              {mengirimVerifikasi ? 'Mengirim...' : 'Kirim tautan verifikasi'}
+            </button>
+            <p className="text-xs leading-relaxed text-muted-foreground">
+              {pesanVerifikasi ??
+                'Kami kirim tautan ke alamat email di atas untuk memastikan alamatnya benar.'}
+            </p>
+          </div>
+        )}
       </section>
 
       <section className="mt-6 rounded-2xl border border-border bg-card p-5">
