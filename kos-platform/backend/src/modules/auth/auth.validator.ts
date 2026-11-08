@@ -23,7 +23,12 @@ export const resetPasswordSchema = z.object({
   password: z.string().min(8, 'Password minimal 8 karakter'),
 })
 
+export const verifyEmailSchema = z.object({
+  token: z.string().min(10, 'Token verifikasi email tidak valid'),
+})
+
 export type RegisterInput = z.infer<typeof registerSchema>
 export type LoginInput = z.infer<typeof loginSchema>
 export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>
 export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>
+export type VerifyEmailInput = z.infer<typeof verifyEmailSchema>

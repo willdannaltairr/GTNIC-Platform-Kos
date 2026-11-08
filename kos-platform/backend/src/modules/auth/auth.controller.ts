@@ -3,17 +3,24 @@ import { env } from '../../config/env'
 import { HttpError } from '../../lib/httpError'
 import type { AuthRequest } from '../../middleware/auth'
 import { usersService } from '../users/users.service'
-import { buildResetUrl, sendPasswordResetEmail } from './auth.mailer'
+import {
+  buildResetUrl,
+  buildVerifyUrl,
+  sendEmailVerificationEmail,
+  sendPasswordResetEmail,
+} from './auth.mailer'
 import { authService, type TokenPayload, type VerifiedTokenPayload } from './auth.service'
 import {
   forgotPasswordSchema,
   loginSchema,
   registerSchema,
   resetPasswordSchema,
+  verifyEmailSchema,
   type ForgotPasswordInput,
   type LoginInput,
   type RegisterInput,
   type ResetPasswordInput,
+  type VerifyEmailInput,
 } from './auth.validator'
 
 const COOKIE_OPTIONS = {
@@ -46,10 +53,26 @@ export const authController = {
       role: data.role,
     })
 
+    // Tautan verifikasi ikut dikirim saat mendaftar, bukan menunggu pengunjung
+    // mencarinya sendiri: alamat email hanya bisa dipastikan benar saat
+    // pendaftarannya masih segar di ingatannya.
+    const token = await authService.createEmailVerificationToken(user.id)
+
+    await sendEmailVerificationEmail({
+      to: user.email,
+      fullName: user.full_name,
+      verifyUrl: buildVerifyUrl(token),
+    })
+
     res.status(201).json({
       success: true,
       message: 'Registrasi berhasil',
-      data: user,
+      data: {
+        user,
+        // Token mentah hanya untuk pengembangan, sama seperti alur lupa sandi,
+        // supaya alurnya bisa dicoba tanpa penyedia email.
+        ...(env.NODE_ENV !== 'production' ? { verifyToken: token } : {}),
+      },
     })
   },
 
@@ -143,6 +166,55 @@ export const authController = {
     res.json({
       success: true,
       message: 'Sandi berhasil diperbarui, silakan masuk dengan sandi baru',
+    })
+  },
+
+  /**
+   * Pakai tautan verifikasi dari email.
+   *
+   * Tanpa sesi, karena tautannya sering dibuka dari aplikasi email di perangkat
+   * lain, tempat pengunjung belum tentu masih masuk. Yang dibuktikan endpoint
+   * ini adalah kepemilikan atas alamat emailnya, dan itu sudah dibuktikan oleh
+   * tokennya sendiri.
+   */
+  async verifyEmail(req: Request, res: Response): Promise<void> {
+    const data: VerifyEmailInput = verifyEmailSchema.parse(req.body)
+
+    await authService.verifyEmail(data.token)
+
+    res.json({
+      success: true,
+      message: 'Email berhasil diverifikasi',
+    })
+  },
+
+  /**
+   * Kirim ulang tautan verifikasi ke email pemilik sesi.
+   *
+   * Alamatnya diambil dari sesi, bukan dari isi permintaan: kalau alamatnya
+   * boleh ditentukan pengirim, endpoint ini berubah menjadi alat mengirim email
+   * ke sembarang orang atas nama platform.
+   */
+  async resendVerification(req: Request, res: Response): Promise<void> {
+    const userId = (req as AuthRequest).user!.userId
+    const user = await usersService.getProfile(userId)
+
+    if (user.email_verified_at) {
+      throw new HttpError(400, 'Email akun ini sudah diverifikasi')
+    }
+
+    const token = await authService.createEmailVerificationToken(user.id)
+
+    await sendEmailVerificationEmail({
+      to: user.email,
+      fullName: user.full_name,
+      verifyUrl: buildVerifyUrl(token),
+    })
+
+    res.json({
+      success: true,
+      message: 'Tautan verifikasi sudah dikirim ulang ke email Anda',
+      ...(env.NODE_ENV !== 'production' ? { data: { devToken: token } } : {}),
     })
   },
 

@@ -169,6 +169,85 @@ export const authService = {
     })
   },
 
+  /**
+   * Terbitkan token verifikasi email baru.
+   *
+   * Sebentuk dengan token atur ulang sandi: satu baris per akun, token disimpan
+   * sebagai hash, dan permintaan kedua menimpa baris yang ada. Bedanya hanya
+   * masa berlaku, 24 jam, karena tautan verifikasi wajar dibuka beberapa jam
+   * setelah emailnya masuk, bukan dalam hitungan menit seperti tautan sandi.
+   */
+  async createEmailVerificationToken(userId: string): Promise<string> {
+    const token = crypto.randomBytes(32).toString('base64url')
+
+    await query(
+      `INSERT INTO email_verification_tokens (user_id, token, expires_at)
+       VALUES ($1, $2, now() + interval '24 hours')
+       ON CONFLICT (user_id) DO UPDATE
+       SET token = EXCLUDED.token,
+           expires_at = EXCLUDED.expires_at,
+           used_at = NULL,
+           created_at = now()`,
+      [userId, hashToken(token)],
+    )
+
+    return token
+  },
+
+  /**
+   * Tandai email pemilik token sebagai terverifikasi.
+   *
+   * Tautan yang sudah dipakai tetap dijawab sukses selama emailnya memang sudah
+   * terverifikasi. Dua sebab: halaman yang dimuat ulang setelah verifikasi
+   * berhasil tidak boleh berubah menjadi pesan gagal, dan React menjalankan
+   * efek dua kali saat pengembangan sehingga panggilan kedua untuk token yang
+   * sama pasti datang. Yang dilaporkan adalah keadaan akhirnya, bukan berapa
+   * kali tautannya dibuka.
+   *
+   * `email_verified_at IS NULL` menjaga waktunya tidak bergeser: yang dicatat
+   * adalah kapan email itu pertama kali dipastikan, bukan kapan tautannya
+   * terakhir diklik.
+   */
+  async verifyEmail(token: string): Promise<void> {
+    const row = await queryOne<{
+      id: string
+      user_id: string
+      used_at: Date | null
+      kedaluwarsa: boolean
+      email_verified_at: Date | null
+    }>(
+      `SELECT t.id, t.user_id, t.used_at, t.expires_at <= now() AS kedaluwarsa,
+              u.email_verified_at
+       FROM email_verification_tokens t
+       JOIN users u ON u.id = t.user_id
+       WHERE t.token = $1`,
+      [hashToken(token)],
+    )
+
+    if (!row || row.kedaluwarsa) {
+      throw new HttpError(400, 'Tautan verifikasi email tidak berlaku atau sudah kedaluwarsa')
+    }
+
+    if (row.used_at) {
+      if (row.email_verified_at) return
+
+      throw new HttpError(400, 'Tautan verifikasi email tidak berlaku atau sudah kedaluwarsa')
+    }
+
+    await withTransaction(async (client) => {
+      await client.query(
+        `UPDATE users
+         SET email_verified_at = now(), updated_at = now()
+         WHERE id = $1 AND email_verified_at IS NULL`,
+        [row.user_id],
+      )
+
+      await client.query(`UPDATE email_verification_tokens SET used_at = now() WHERE id = $1`, [
+        row.id,
+      ])
+    })
+  },
+
   async validateUser(email: string, password: string) {
     const user = await queryOne<UserRow>(
       `SELECT id, full_name, email, role, account_status, password_hash, created_at
