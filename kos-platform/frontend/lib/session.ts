@@ -6,7 +6,7 @@
  * bercampur antara "mengambil data publik" dan "mengurus identitas pengunjung".
  *
  * Semuanya memakai `credentials: 'include'` karena token sesi hidup di cookie
- * HttpOnly — tidak ada satu pun nilainya yang bisa dibaca kode di browser.
+ * HttpOnly, tidak ada satu pun nilainya yang bisa dibaca kode di browser.
  */
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000'
@@ -22,7 +22,7 @@ export interface SessionUser {
  * Sesi yang sedang berlaku, atau `null` bila belum masuk.
  *
  * Endpoint ini menuntut access token yang masih hidup (15 menit), jadi
- * jawabannya `null` juga ketika tokennya sekadar kedaluwarsa — bukan hanya
+ * jawabannya `null` juga ketika tokennya sekadar kedaluwarsa, bukan hanya
  * ketika pengunjung memang belum pernah masuk. Pemanggil yang butuh tahu
  * bedanya memakai `refreshSession()` sebagai langkah kedua.
  */
@@ -81,6 +81,67 @@ export async function logoutAccount(): Promise<void> {
       credentials: 'include',
     })
   } catch {
-    // Diabaikan dengan sengaja — lihat penjelasan di atas.
+    // Diabaikan dengan sengaja, lihat penjelasan di atas.
   }
+}
+
+/**
+ * Profil lengkap pengguna yang sedang masuk.
+ *
+ * Berbeda dari `fetchSession` yang hanya membawa identitas dasar untuk header:
+ * halaman profil juga menampilkan nomor telepon, status akun, dan tanggal
+ * pendaftaran, dan data itu tidak perlu dibawa ke setiap halaman.
+ */
+export interface SessionProfile {
+  id: string
+  full_name: string
+  email: string
+  phone_number: string | null
+  avatar_url: string | null
+  role: string
+  account_status: string
+  email_verified_at: string | null
+  last_login_at: string | null
+  created_at: string
+}
+
+export async function fetchProfile(): Promise<SessionProfile | null> {
+  try {
+    const response = await fetch(`${API_BASE}/api/v1/auth/me`, {
+      credentials: 'include',
+      cache: 'no-store',
+    })
+
+    if (!response.ok) return null
+
+    const payload = (await response.json()) as { data: { user: SessionProfile } }
+    return payload.data.user
+  } catch {
+    return null
+  }
+}
+
+/** Perbarui nama dan nomor telepon; melempar pesan server bila ditolak. */
+export async function updateProfile(payload: {
+  fullName?: string
+  phoneNumber?: string
+}): Promise<SessionProfile> {
+  const response = await fetch(`${API_BASE}/api/v1/users/me`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify(payload),
+  })
+
+  const data = (await response.json().catch(() => null)) as
+    | { data?: { user: SessionProfile }; message?: string; errors?: { message: string }[] }
+    | null
+
+  if (!response.ok) {
+    const pesan =
+      data?.errors?.[0]?.message ?? data?.message ?? 'Perubahan profil tidak tersimpan'
+    throw new Error(pesan)
+  }
+
+  return data!.data!.user
 }
