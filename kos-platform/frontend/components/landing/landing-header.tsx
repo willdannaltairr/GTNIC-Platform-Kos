@@ -1,12 +1,8 @@
 'use client'
 
-import type { FC, ReactNode } from 'react'
-
-import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { useEffect, useState } from 'react'
 import { ArrowRight, Menu, X } from 'lucide-react'
-import { AccountActions } from '@/components/session/account-actions'
-import { useSession } from '@/components/session/session-provider'
 import { Logo } from '@/components/landing/logo'
 import { cn } from '@/lib/utils'
 import { LANDING_NAV, LANDING_CTA } from '@/lib/landing'
@@ -17,22 +13,19 @@ const NAV_LINK_CLASS =
 /**
  * Header landing.
  *
+ * Tidak ada kontrol akun di sini. Landing page adalah halaman untuk pengunjung
+ * yang belum punya akun, dan pengunjung yang sudah masuk dialihkan ke beranda
+ * oleh LandingGate di layout. Satu-satunya tombol aksi adalah CTA menuju
+ * halaman masuk.
+ *
  * Di atas hero header tampil tanpa latar agar foto terlihat penuh; setelah
  * halaman digulir ia berubah menjadi pil putih dengan bayangan, sehingga tetap
  * terbaca di atas bagian apa pun. Nilai `night` membuat header mengikuti skema
  * gelap saat hero sedang menampilkan suasana malam.
  */
-export const LandingHeader: FC = (): ReactNode => {
+export function LandingHeader() {
   const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
-  const { user, status } = useSession()
-
-  // Slot akun di menu ponsel mengikuti keadaan sesi. Selama statusnya masih
-  // "memuat", yang tampil tombol masuk — bukan kerangka kosong, karena menu ini
-  // muncul setelah pengunjung menekan tombol dan kedipan di situ mengganggu.
-  const masuk = status === 'masuk' && user !== null
-  const akunHref = masuk ? '/beranda' : '/masuk'
-  const akunLabel = masuk ? (user?.full_name ?? 'Beranda') : 'Masuk'
 
   useEffect(() => {
     const onScroll = (): void => setScrolled(window.scrollY > 24)
@@ -59,7 +52,7 @@ export const LandingHeader: FC = (): ReactNode => {
         >
           <Link
             href="/"
-            aria-label="KosPlatform — beranda"
+            aria-label="KosPlatform, beranda"
             className="rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <Logo />
@@ -80,11 +73,6 @@ export const LandingHeader: FC = (): ReactNode => {
           <span aria-hidden="true" className="hidden h-px flex-1 bg-forest/15 lg:block" />
 
           <div className="flex items-center gap-2">
-            {/* Satu komponen untuk tamu maupun pengunjung yang sudah masuk:
-                dulu tombol "Masuk" di sini tidak tahu ada sesi berjalan, jadi
-                pengunjung yang sudah login tetap ditawari masuk lagi. */}
-            <AccountActions variant="landing" />
-
             <Link
               href={LANDING_CTA.href}
               className="hidden h-10 items-center gap-1.5 rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:inline-flex"
@@ -125,15 +113,7 @@ export const LandingHeader: FC = (): ReactNode => {
             ))}
           </ul>
 
-          <div className="mt-2 grid gap-2">
-            <Link
-              href={akunHref}
-              onClick={() => setOpen(false)}
-              className="flex h-11 items-center justify-center rounded-xl border border-border text-sm font-medium text-foreground"
-            >
-              {akunLabel}
-            </Link>
-
+          <div className="mt-2">
             <Link
               href={LANDING_CTA.href}
               onClick={() => setOpen(false)}

@@ -26,7 +26,7 @@ const SessionContext = createContext<SessionValue | null>(null)
  * Selang perpanjangan sesi otomatis.
  *
  * Access token berumur 15 menit. Sepuluh menit memberi jarak aman sebelum
- * kedaluwarsa, sehingga tab yang dibiarkan terbuka tetap punya sesi hidup —
+ * kedaluwarsa, sehingga tab yang dibiarkan terbuka tetap punya sesi hidup -
  * pengunjung tidak sedang menatap layar saat tokennya mati, dan permintaan
  * berikutnya tidak perlu gagal dulu.
  */
@@ -36,15 +36,15 @@ const REFRESH_INTERVAL_MS = 10 * 60 * 1000
  * Sesi pengunjung untuk seluruh halaman.
  *
  * Kenapa ada di sisi klien, bukan dibaca sekali di server: sesi berubah tanpa
- * halaman dimuat ulang — pengunjung masuk lewat formulir, keluar lewat tombol,
+ * halaman dimuat ulang, pengunjung masuk lewat formulir, keluar lewat tombol,
  * dan tokennya diperpanjang sendiri saat mereka kembali keesokan hari. Satu
  * sumber kebenaran di klien membuat header, sidebar, dan formulir tidak pernah
  * menampilkan keadaan yang berbeda-beda.
  *
  * Urutan pemulihannya sengaja dua langkah: coba token yang ada lebih dulu
  * (murah, tidak menulis apa pun), baru minta perpanjangan. Cookie access yang
- * sudah habis adalah keadaan normal bagi pengunjung yang kembali besok — bukan
- * tanda mereka sudah keluar — jadi perpanjangan di sini yang membedakan
+ * sudah habis adalah keadaan normal bagi pengunjung yang kembali besok, bukan
+ * tanda mereka sudah keluar, jadi perpanjangan di sini yang membedakan
  * "belum pernah masuk" dari "sesinya tinggal diperpanjang".
  */
 export function SessionProvider({ children }: { children: React.ReactNode }) {
@@ -117,6 +117,9 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
 
     setUser(null)
     setStatus('tamu')
+    // Landing page adalah pintu masuk platform, jadi sesi yang baru berakhir
+    // berhenti di sana alih-alih tertinggal di halaman yang butuh akun.
+    router.push('/')
     // Halaman server component masih memegang data milik sesi lama; refresh
     // memastikan tidak ada sisa nama atau properti yang tertinggal di layar.
     router.refresh()
@@ -133,7 +136,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
 /**
  * Keadaan sesi dari provider terdekat.
  *
- * Melempar bila dipakai di luar `SessionProvider` — pemakaian yang salah itu
+ * Melempar bila dipakai di luar `SessionProvider`, pemakaian yang salah itu
  * lebih baik ketahuan saat pengembangan daripada diam-diam menampilkan
  * "belum masuk" kepada pengunjung yang sebenarnya sudah masuk.
  */
