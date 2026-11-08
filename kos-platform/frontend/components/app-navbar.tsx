@@ -114,7 +114,7 @@ const isActive = (pathname: string, href: string): boolean => {
 }
 
 const LINK_CLASS =
-  'inline-flex h-9 items-center gap-2 rounded-lg px-3 text-sm font-medium transition-colors'
+  'inline-flex h-9 items-center gap-2 whitespace-nowrap rounded-lg px-3 text-sm font-medium transition-colors'
 
 /**
  * Navbar aplikasi.
@@ -170,7 +170,12 @@ export function AppNavbar() {
           <Logo />
         </Link>
 
-        <nav aria-label="Navigasi utama" className="ml-4 hidden items-center gap-1 lg:flex">
+        {/* Navigasi mendatar baru muncul di layar lebar (xl). Sebelumnya di
+            layar sedang, tujuh menu ditambah lonceng dan nama akun tidak lagi
+            muat sebaris, dan label seperti "Cari Kos" terpotong jadi dua baris
+            sehingga tinggi navbar ikut berubah. Di bawah xl semuanya masuk ke
+            menu ponsel. */}
+        <nav aria-label="Navigasi utama" className="ml-4 hidden items-center gap-1 xl:flex">
           {(user?.role === 'ADMIN' ? [...LINKS, LINK_ADMIN] : LINKS).map((link) => {
             const Icon = link.icon
             const active = isActive(pathname, link.href)
@@ -256,7 +261,7 @@ export function AppNavbar() {
             onClick={() => setMenuPonsel((nilai) => !nilai)}
             aria-expanded={menuPonsel}
             aria-label={menuPonsel ? 'Tutup menu' : 'Buka menu'}
-            className="grid size-10 place-items-center rounded-lg border border-border lg:hidden"
+            className="grid size-10 place-items-center rounded-lg border border-border xl:hidden"
           >
             {menuPonsel ? (
               <X className="size-5" aria-hidden="true" />
@@ -268,7 +273,7 @@ export function AppNavbar() {
       </div>
 
       {menuPonsel && (
-        <div className="border-t border-border bg-background lg:hidden">
+        <div className="border-t border-border bg-background xl:hidden">
           <nav aria-label="Navigasi utama" className="mx-auto max-w-7xl px-4 py-3 sm:px-6">
             <ul className="space-y-1">
               {(user?.role === 'ADMIN' ? [...LINKS, LINK_ADMIN] : LINKS).map((link) => {
