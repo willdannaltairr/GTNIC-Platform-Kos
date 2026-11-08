@@ -1,0 +1,339 @@
+import { query, queryOne } from '../../lib/db'
+import { HttpError } from '../../lib/httpError'
+import type { AuthUser } from '../../middleware/auth'
+import { notificationsService } from '../notifications/notifications.service'
+import type {
+  ChecklistInput,
+  CreateVisitInput,
+  ListVisitsQuery,
+  UpdateVisitInput,
+  VisitNoteInput,
+} from './visits.validator'
+
+interface KunjunganRow {
+  id: string
+  tenant_id: string
+  property_id: string
+  owner_id: string
+  property_name: string
+  property_slug: string
+  room_number: string | null
+  scheduled_at: Date | null
+  visit_status: string
+  notes: string | null
+  created_at: Date
+  tenant_name: string
+}
+
+const KOLOM = `
+  v.id, v.tenant_id, v.property_id, p.name AS property_name, p.slug AS property_slug,
+  p.owner_id, r.room_number, v.scheduled_at, v.visit_status, v.notes, v.created_at,
+  u.full_name AS tenant_name
+`
+
+/**
+ * Ambil satu kunjungan beserta propertinya, atau menolak.
+ *
+ * Pemeriksaan hak akses ada di sini, bukan di controller, karena hanya di sini
+ * id pemilik properti sudah tersedia. Pengunjung boleh melihat kunjungannya
+ * sendiri, pemilik boleh melihat kunjungan ke propertinya, admin melihat semua.
+ * Selain itu dijawab 404, bukan 403: membedakan keduanya memberi tahu
+ * penyerang bahwa kunjungan dengan id itu memang ada.
+ */
+const ambil = async (user: AuthUser, id: string): Promise<KunjunganRow> => {
+  const row = await queryOne<KunjunganRow>(
+    `SELECT ${KOLOM}
+     FROM visits v
+     JOIN properties p ON p.id = v.property_id
+     JOIN users u ON u.id = v.tenant_id
+     LEFT JOIN rooms r ON r.id = v.room_id
+     WHERE v.id = $1`,
+    [id],
+  )
+
+  if (!row) throw new HttpError(404, 'Kunjungan tidak ditemukan')
+
+  const boleh =
+    user.role === 'ADMIN' || row.tenant_id === user.userId || row.owner_id === user.userId
+
+  if (!boleh) throw new HttpError(404, 'Kunjungan tidak ditemukan')
+
+  return row
+}
+
+/** Bentuk kunjungan untuk daftar dan detail. */
+const keBentuk = (row: KunjunganRow) => ({
+  id: row.id,
+  propertyId: row.property_id,
+  propertyName: row.property_name,
+  propertySlug: row.property_slug,
+  roomNumber: row.room_number,
+  scheduledAt: row.scheduled_at === null ? null : row.scheduled_at.toISOString(),
+  status: row.visit_status,
+  notes: row.notes,
+  tenantName: row.tenant_name,
+  createdAt: row.created_at.toISOString(),
+})
+
+export const visitsService = {
+  async list(user: AuthUser, params: ListVisitsQuery) {
+    // Pemilik melihat kunjungan ke propertinya, penghuni melihat kunjungannya
+    // sendiri. Penyaringnya dipilih dari peran di token, bukan dari parameter
+    // yang bisa dikirim klien.
+    const pemilik = user.role === 'OWNER' || user.role === 'ADMIN'
+    const conditions = [pemilik ? 'p.owner_id = $1' : 'v.tenant_id = $1']
+    const values: unknown[] = [user.userId]
+
+    if (params.status) {
+      values.push(params.status)
+      conditions.push(`v.visit_status = $${values.length}`)
+    }
+
+    const where = `WHERE ${conditions.join(' AND ')}`
+
+    const countRow = await queryOne<{ total: number }>(
+      `SELECT count(*)::int AS total
+       FROM visits v
+       JOIN properties p ON p.id = v.property_id
+       ${where}`,
+      values,
+    )
+
+    const offset = (params.page - 1) * params.limit
+    values.push(params.limit, offset)
+
+    const rows = await query<KunjunganRow>(
+      `SELECT ${KOLOM}
+       FROM visits v
+       JOIN properties p ON p.id = v.property_id
+       JOIN users u ON u.id = v.tenant_id
+       LEFT JOIN rooms r ON r.id = v.room_id
+       ${where}
+       ORDER BY v.scheduled_at DESC NULLS LAST, v.created_at DESC
+       LIMIT $${values.length - 1} OFFSET $${values.length}`,
+      values,
+    )
+
+    const total = countRow?.total ?? 0
+
+    return {
+      items: rows.map(keBentuk),
+      meta: {
+        page: params.page,
+        limit: params.limit,
+        total,
+        totalPages: Math.max(1, Math.ceil(total / params.limit)),
+      },
+    }
+  },
+
+  async detail(user: AuthUser, id: string) {
+    const kunjungan = await ambil(user, id)
+
+    // Ketiganya digabung dalam satu Promise.all: isinya kecil dan selalu
+    // ditampilkan bersamaan di halaman detail.
+    const [checklist, catatan] = await Promise.all([
+      query<{ id: string; checklist_item: string; is_checked: boolean; notes: string | null }>(
+        `SELECT id, checklist_item, is_checked, notes
+         FROM visit_checklists
+         WHERE visit_id = $1
+         ORDER BY created_at ASC`,
+        [id],
+      ),
+      query<{ id: string; category: string; content: string; created_at: Date }>(
+        `SELECT id, category, content, created_at
+         FROM visit_notes
+         WHERE visit_id = $1
+         ORDER BY created_at DESC`,
+        [id],
+      ),
+    ])
+
+    return {
+      ...keBentuk(kunjungan),
+      checklist: checklist.map((item) => ({
+        id: item.id,
+        item: item.checklist_item,
+        checked: item.is_checked,
+        notes: item.notes,
+      })),
+      catatan: catatan.map((note) => ({
+        id: note.id,
+        category: note.category,
+        content: note.content,
+        createdAt: note.created_at.toISOString(),
+      })),
+    }
+  },
+
+  async create(user: AuthUser, input: CreateVisitInput) {
+    const properti = await queryOne<{ id: string; owner_id: string; name: string }>(
+      `SELECT id, owner_id, name FROM properties
+       WHERE id = $1
+         AND deleted_at IS NULL
+         AND publication_status = 'PUBLISHED'
+         AND verification_status = 'VERIFIED'`,
+      [input.propertyId],
+    )
+
+    if (!properti) throw new HttpError(404, 'Properti tidak ditemukan')
+
+    if (input.roomId) {
+      const kamar = await queryOne<{ id: string }>(
+        `SELECT id FROM rooms WHERE id = $1 AND property_id = $2`,
+        [input.roomId, input.propertyId],
+      )
+
+      // Kamar yang bukan milik properti itu membuat kunjungan menunjuk kamar
+      // di gedung lain, dan jadwalnya jadi tidak berarti apa-apa.
+      if (!kamar) throw new HttpError(400, 'Kamar itu bukan milik properti ini')
+    }
+
+    const row = await queryOne<KunjunganRow>(
+      `WITH baru AS (
+         INSERT INTO visits (tenant_id, property_id, room_id, scheduled_at, notes)
+         VALUES ($1, $2, $3, $4, $5)
+         RETURNING *
+       )
+       SELECT ${KOLOM}
+       FROM baru v
+       JOIN properties p ON p.id = v.property_id
+       JOIN users u ON u.id = v.tenant_id
+       LEFT JOIN rooms r ON r.id = v.room_id`,
+      [user.userId, input.propertyId, input.roomId ?? null, input.scheduledAt, input.catatan ?? null],
+    )
+
+    if (!row) throw new HttpError(500, 'Kunjungan gagal disimpan')
+
+    await notificationsService.create({
+      userId: properti.owner_id,
+      jenis: 'NEW_BOOKING',
+      judul: 'Ada permintaan kunjungan',
+      pesan: `${row.tenant_name} ingin melihat ${properti.name}.`,
+      entityType: 'visit',
+      entityId: row.id,
+    })
+
+    return keBentuk(row)
+  },
+
+  async update(user: AuthUser, id: string, input: UpdateVisitInput) {
+    const kunjungan = await ambil(user, id)
+
+    // Jadwal hanya boleh diubah penghuni, dan hanya selama kunjungannya belum
+    // berlangsung. Setelah statusnya final, menggeser jadwalnya membuat
+    // catatan kunjungan menunjuk waktu yang tidak pernah terjadi.
+    if (input.scheduledAt !== undefined) {
+      if (kunjungan.tenant_id !== user.userId) {
+        throw new HttpError(403, 'Hanya penghuni yang bisa mengubah jadwal')
+      }
+
+      if (kunjungan.visit_status !== 'SCHEDULED') {
+        throw new HttpError(409, 'Kunjungan yang sudah selesai tidak bisa dijadwalkan ulang')
+      }
+    }
+
+    const potongan: string[] = []
+    const values: unknown[] = []
+
+    if (input.scheduledAt !== undefined) {
+      values.push(input.scheduledAt)
+      potongan.push(`scheduled_at = $${values.length}`)
+    }
+
+    if (input.status !== undefined) {
+      values.push(input.status)
+      potongan.push(`visit_status = $${values.length}`)
+    }
+
+    if (input.catatan !== undefined) {
+      values.push(input.catatan)
+      potongan.push(`notes = $${values.length}`)
+    }
+
+    values.push(id)
+
+    await query(
+      `UPDATE visits SET ${potongan.join(', ')} WHERE id = $${values.length}`,
+      values,
+    )
+
+    return keBentuk(await ambil(user, id))
+  },
+
+  async remove(user: AuthUser, id: string) {
+    const kunjungan = await ambil(user, id)
+
+    if (kunjungan.tenant_id !== user.userId) {
+      throw new HttpError(403, 'Hanya penghuni yang bisa menghapus jadwal kunjungannya')
+    }
+
+    // Jadwal yang sudah berlangsung adalah catatan, bukan rencana; menghapusnya
+    // menghilangkan riwayat bahwa kunjungan itu pernah terjadi.
+    if (kunjungan.visit_status !== 'SCHEDULED') {
+      throw new HttpError(409, 'Kunjungan yang sudah berlangsung tidak bisa dihapus')
+    }
+
+    await query(`DELETE FROM visits WHERE id = $1`, [id])
+
+    return { id }
+  },
+
+  async addChecklist(user: AuthUser, id: string, input: ChecklistInput) {
+    await ambil(user, id)
+
+    await query(
+      `INSERT INTO visit_checklists (visit_id, checklist_item, is_checked, notes)
+       SELECT $1, item, checked, catatan
+       FROM unnest($2::text[], $3::boolean[], $4::text[]) AS t(item, checked, catatan)`,
+      [
+        id,
+        input.items.map((i) => i.item),
+        input.items.map((i) => i.checked),
+        input.items.map((i) => i.catatan ?? null),
+      ],
+    )
+
+    return this.detail(user, id)
+  },
+
+  async toggleChecklist(
+    user: AuthUser,
+    id: string,
+    itemId: string,
+    checked: boolean,
+    catatan?: string,
+  ) {
+    await ambil(user, id)
+
+    const rows = await query<{ id: string }>(
+      `UPDATE visit_checklists
+       SET is_checked = $1, notes = COALESCE($2, notes)
+       WHERE id = $3 AND visit_id = $4
+       RETURNING id`,
+      [checked, catatan ?? null, itemId, id],
+    )
+
+    if (rows.length === 0) throw new HttpError(404, 'Butir periksa tidak ditemukan')
+
+    return { id: itemId, checked }
+  },
+
+  async addNote(user: AuthUser, id: string, input: VisitNoteInput) {
+    await ambil(user, id)
+
+    const row = await queryOne<{ id: string; category: string; content: string; created_at: Date }>(
+      `INSERT INTO visit_notes (visit_id, category, content)
+       VALUES ($1, $2, $3)
+       RETURNING id, category, content, created_at`,
+      [id, input.kategori, input.isi],
+    )
+
+    return {
+      id: row!.id,
+      category: row!.category,
+      content: row!.content,
+      createdAt: row!.created_at.toISOString(),
+    }
+  },
+}
