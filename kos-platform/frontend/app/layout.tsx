@@ -4,7 +4,7 @@ import './globals.css'
 
 export const metadata: Metadata = {
   title: {
-    default: 'KosPlatform — Cari & Sewa Kos dengan Biaya Transparan',
+    default: 'KosPlatform, Cari & Sewa Kos dengan Biaya Transparan',
     template: '%s · KosPlatform',
   },
   description:
@@ -15,7 +15,7 @@ export const metadata: Metadata = {
  * Shell dokumen bersama untuk seluruh rute.
  *
  * Hanya memuat <html>, <head>, dan <body>. Header serta footer dipasang per
- * route group — landing punya chrome sendiri, sementara halaman lain memakai
+ * route group, landing punya chrome sendiri, sementara halaman lain memakai
  * header dan footer situs yang sudah ada.
  */
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -23,7 +23,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="id">
       <head>
         {/* Font dimuat lewat <link>, bukan next/font, karena next/font
-            mengunduh berkasnya saat build — build akan gagal di mesin tanpa
+            mengunduh berkasnya saat build, build akan gagal di mesin tanpa
             jaringan. Plus Jakarta Sans untuk halaman situs; DM Sans, Space
             Grotesk, dan JetBrains Mono untuk landing page (lihat
             .landing-scope di globals.css). */}
@@ -40,7 +40,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="flex min-h-screen flex-col">
         {/* Provider dipasang di akar, bukan per route group, supaya landing,
-            halaman situs, dan halaman auth membaca sesi yang sama — dan
+            halaman situs, dan halaman auth membaca sesi yang sama, dan
             perpanjangan token hanya berjalan sekali, bukan sekali per group. */}
         <SessionProvider>{children}</SessionProvider>
       </body>

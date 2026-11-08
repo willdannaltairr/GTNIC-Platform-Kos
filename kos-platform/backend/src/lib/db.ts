@@ -13,12 +13,12 @@ import { env } from '../config/env'
  * Susun konfigurasi pool dari connection string.
  *
  * Sambungan ke Supabase wajib terenkripsi, dan sertifikatnya tidak ada di
- * daftar tepercaya bawaan Node — jadi TLS dinyalakan di sini dengan
+ * daftar tepercaya bawaan Node, jadi TLS dinyalakan di sini dengan
  * `rejectUnauthorized: false`: lalu lintas tetap terenkripsi, tetapi sertifikat
  * server tidak diverifikasi. Perhatikan dua hal:
  *
  *  1. Jika `sslmode` (atau `sslrootcert`/`sslcert`/`sslkey`) ikut tertulis di
- *     connection string, node-postgres akan MENGGANTI objek `ssl` di bawah —
+ *     connection string, node-postgres akan MENGGANTI objek `ssl` di bawah -
  *     pengaturan di kode ini jadi tidak berpengaruh. Karena itu parameter itu
  *     dibuang dulu dari URL sebelum diserahkan ke Pool.
  *  2. Untuk verifikasi sertifikat penuh, setel `NODE_EXTRA_CA_CERTS` ke berkas
@@ -42,7 +42,7 @@ const buildPoolConfig = (): PoolConfig => {
     connectionString: url.toString(),
     // Pooler Supabase tidak mendukung prepared statement bernama; pg hanya
     // memakainya bila query diberi `name`, dan di proyek ini tidak ada yang
-    // memakainya — jadi tidak perlu pengaturan khusus.
+    // memakainya, jadi tidak perlu pengaturan khusus.
     max: 10,
     idleTimeoutMillis: 30_000,
     connectionTimeoutMillis: 15_000,
@@ -81,7 +81,7 @@ export const queryOne = async <T extends QueryResultRow = QueryResultRow>(
   return rows[0] ?? null
 }
 
-/** Koneksi tunggal di dalam transaksi — hanya bisa menjalankan query. */
+/** Koneksi tunggal di dalam transaksi, hanya bisa menjalankan query. */
 export interface DbClient {
   query: <R extends QueryResultRow = QueryResultRow>(text: string, params?: unknown[]) => Promise<R[]>
 }

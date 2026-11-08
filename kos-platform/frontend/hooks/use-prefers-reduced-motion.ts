@@ -6,7 +6,7 @@ const QUERY = '(prefers-reduced-motion: reduce)'
  * Aman untuk SSR: mulai dari `false` di server dan render klien pertama, lalu
  * membaca pengaturan pengunjung setelah mount dan mengikuti perubahannya.
  *
- * Nilai awal `false` disengaja — animasi tetap dirender, hanya digerakkan oleh
+ * Nilai awal `false` disengaja, animasi tetap dirender, hanya digerakkan oleh
  * JS setelah hidrasi, sehingga markup server dan klien identik.
  */
 export const usePrefersReducedMotion = (): boolean => {

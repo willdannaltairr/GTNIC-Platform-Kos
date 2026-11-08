@@ -22,7 +22,7 @@ interface ParsedValue {
 
 /**
  * Memisahkan awalan, angka, dan akhiran dari sebuah string agar hanya bagian
- * angkanya yang dianimasikan — "96,4%" tetap menjadi "96,4%" di akhir.
+ * angkanya yang dianimasikan, "96,4%" tetap menjadi "96,4%" di akhir.
  */
 const parseValue = (val: string): ParsedValue | null => {
   const match = val.match(/^([^0-9.-]*)([0-9.,-]+)(.*)$/)
@@ -45,7 +45,7 @@ const parseValue = (val: string): ParsedValue | null => {
  * Menghitung angka naik dari nol saat pertama kali masuk layar.
  *
  * Server merender nilai akhirnya, jadi tanpa JavaScript (dan untuk mesin
- * pencari) angka yang benar tetap terlihat — bukan nol.
+ * pencari) angka yang benar tetap terlihat, bukan nol.
  */
 const CountUp: FC<CountUpProps> = ({ value, className, duration = 1.8 }): ReactNode => {
   const ref = useRef<HTMLSpanElement>(null)

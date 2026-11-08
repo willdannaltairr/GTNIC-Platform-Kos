@@ -3,7 +3,7 @@ import { z } from 'zod'
 /**
  * Query daftar properti publik.
  *
- * Semua filter di sini benar-benar diterapkan pada query database —
+ * Semua filter di sini benar-benar diterapkan pada query database -
  * bukan hanya di frontend.
  */
 
@@ -25,7 +25,7 @@ export const listPropertiesQuerySchema = z
     /**
      * Titik pengunjung, dipakai fitur "kos di sekitar saya".
      *
-     * Tidak wajib berpasangan di tingkat field — pasangannya diperiksa di
+     * Tidak wajib berpasangan di tingkat field, pasangannya diperiksa di
      * `superRefine` di bawah supaya pesannya menyebut sebabnya, bukan sekadar
      * "nilai tidak sah".
      */
@@ -51,7 +51,7 @@ export const listPropertiesQuerySchema = z
     // Dua titik yang saling melengkapi diperiksa di sini, bukan dengan
     // `required` berpasangan: satu koordinat tanpa pasangannya hampir pasti
     // salah ketik, dan kalau dibiarkan permintaannya jalan dengan jarak yang
-    // tidak dihitung — hasilnya tampak wajar padahal bukan yang diminta.
+    // tidak dihitung, hasilnya tampak wajar padahal bukan yang diminta.
     const separuh = (lat?: number, lng?: number): boolean =>
       (lat === undefined) !== (lng === undefined)
 

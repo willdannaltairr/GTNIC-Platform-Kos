@@ -17,7 +17,7 @@ const DEMO_PASSWORD = 'KosDemo123!'
  * Formulir masuk.
  *
  * Dipisahkan dari page.tsx supaya halamannya tetap server component dan bisa
- * memasang judul dokumennya sendiri — yang butuh state hanya formulir ini,
+ * memasang judul dokumennya sendiri, yang butuh state hanya formulir ini,
  * bukan tata letaknya. Tautan pindah ke halaman daftar ada di kaki kolom
  * (AuthShell), bukan di sini.
  *
@@ -43,7 +43,7 @@ export function LoginForm() {
     try {
       await loginAccount({ email, password })
       setDone(true)
-      // Beranda adalah halaman pertama yang isinya rekomendasi — kos terdekat,
+      // Beranda adalah halaman pertama yang isinya rekomendasi, kos terdekat,
       // rute lokasi ke lokasi, dan area terpopuler. Pengunjung yang baru masuk
       // melanjutkan di sana, bukan dilempar kembali ke landing page.
       router.push('/beranda')

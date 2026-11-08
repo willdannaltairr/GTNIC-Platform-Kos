@@ -1,5 +1,5 @@
 /**
- * TrueCost Simulator — perhitungan estimasi biaya kos.
+ * TrueCost Simulator, perhitungan estimasi biaya kos.
  *
  * Aturan yang dipegang (per `tempelan-1.txt` 4.4):
  * - Deposit BUKAN biaya bulanan dan tidak dihitung sebagai pengeluaran hilang.

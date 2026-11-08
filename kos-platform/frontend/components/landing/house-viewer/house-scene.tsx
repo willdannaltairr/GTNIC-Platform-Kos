@@ -234,7 +234,7 @@ const HouseModel: FC = (): ReactNode => {
         rotation={[0, Math.PI / 2, 0]}
       />
 
-      {/* Tanaman rendah di depan teras — pengisi ruang agar bangunan tidak
+      {/* Tanaman rendah di depan teras, pengisi ruang agar bangunan tidak
           tampak melayang di bidang kosong. */}
       {[
         [-2.7, 0.28, 2.75],

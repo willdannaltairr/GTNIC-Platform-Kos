@@ -37,7 +37,7 @@ export const authenticate = (req: AuthRequest, _res: Response, next: NextFunctio
 /**
  * Seperti `authenticate`, tetapi tidak menolak permintaan tanpa token.
  *
- * Dipakai endpoint publik yang isinya berbeda untuk pemiliknya — misalnya
+ * Dipakai endpoint publik yang isinya berbeda untuk pemiliknya, misalnya
  * daftar kamar, yang boleh dibaca siapa saja tetapi pemilik properti dan admin
  * juga perlu melihat kamar yang belum dipublikasikan. Token yang rusak atau
  * kedaluwarsa diperlakukan sebagai tamu, bukan error, karena endpoint-nya
@@ -63,7 +63,7 @@ export const optionalAuthenticate = (
 
 /**
  * Role-Based Access Control. Role selalu dibaca dari token yang sudah
- * diverifikasi server — bukan dari input pengguna.
+ * diverifikasi server, bukan dari input pengguna.
  */
 export const authorize = (...roles: string[]) => {
   return (req: AuthRequest, _res: Response, next: NextFunction): void => {

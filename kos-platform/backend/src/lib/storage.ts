@@ -4,7 +4,7 @@ import { HttpError } from './httpError'
 /**
  * Penyimpanan foto di Supabase Storage.
  *
- * Backend yang memegang kunci rahasia dan yang mengunggah — browser tidak
+ * Backend yang memegang kunci rahasia dan yang mengunggah, browser tidak
  * pernah menerima kunci itu, dan tidak ada jalur unggah langsung dari klien.
  * Konsekuensinya seluruh berkas melewati validasi di sini lebih dulu.
  */
@@ -61,10 +61,10 @@ const apiBase = (): string => env.SUPABASE_URL.replace(/\/+$/, '')
  * Tiga bentuk `storage_path` diperlakukan berbeda, karena ketiganya memang ada
  * di database:
  *
- *   * `https://…`  — URL lengkap (dipakai sebagian data lama) → diteruskan apa adanya.
- *   * `/images/…`  — path publik frontend (dipakai data seed yang menunjuk
+ *   * `https://…` , URL lengkap (dipakai sebagian data lama) → diteruskan apa adanya.
+ *   * `/images/…` , path publik frontend (dipakai data seed yang menunjuk
  *                    berkas di `frontend/public`) → diteruskan apa adanya.
- *   * sisanya      — path objek di dalam bucket → disusun jadi URL publik.
+ *   * sisanya     , path objek di dalam bucket → disusun jadi URL publik.
  *
  * Mengembalikan `null` bila URL tidak bisa disusun, supaya pemanggil bisa
  * menampilkan tempat kosong alih-alih gambar rusak.

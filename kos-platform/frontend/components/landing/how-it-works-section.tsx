@@ -132,7 +132,7 @@ const HowItWorksSection: FC = (): ReactNode => {
           eyebrow="Cara kerja"
           align="center"
           title="Dari pencarian sampai kunci di tangan."
-          description="Empat langkah, masing-masing meninggalkan catatan yang bisa Anda buka kembali — termasuk dokumentasi kondisi kamar saat masuk dan keluar."
+          description="Empat langkah, masing-masing meninggalkan catatan yang bisa Anda buka kembali, termasuk dokumentasi kondisi kamar saat masuk dan keluar."
         />
 
         <div ref={ref} className="relative mx-auto mt-16 max-w-5xl sm:mt-20">

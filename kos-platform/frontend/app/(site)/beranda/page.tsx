@@ -26,11 +26,11 @@ function KartuSkeleton() {
 }
 
 /**
- * Beranda aplikasi — halaman pertama setelah pengunjung masuk ke platform.
+ * Beranda aplikasi, halaman pertama setelah pengunjung masuk ke platform.
  *
  * Berbeda dari landing page: di sini navigasinya sidebar, dan isinya langsung
  * rekomendasi yang bergantung pada lokasi, bukan cerita tentang produk.
- * Karena itu "Beranda" di sidebar menunjuk ke sini, bukan ke landing page —
+ * Karena itu "Beranda" di sidebar menunjuk ke sini, bukan ke landing page -
  * pengunjung yang sudah berada di dalam platform tidak dilempar balik ke
  * halaman pemasaran setiap kali menekan menu pertama.
  */

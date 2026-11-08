@@ -4,7 +4,7 @@ import { z } from 'zod'
  * Validasi untuk modul places (acuan peta lokasi).
  *
  * Modul ini hanya membaca: daftar kampus dan daerah beserta jumlah kos di
- * sekitarnya. Tidak ada endpoint tulis — isinya data acuan yang diisi lewat
+ * sekitarnya. Tidak ada endpoint tulis, isinya data acuan yang diisi lewat
  * seed, bukan oleh pengguna aplikasi.
  */
 
@@ -36,7 +36,7 @@ export const listCampusesQuerySchema = z
   })
   .superRefine((data, ctx) => {
     // Satu koordinat tanpa pasangannya hampir pasti salah ketik. Dibiarkan
-    // lewat, permintaannya tetap dijawab 200 dengan `distanceKm` null — dan
+    // lewat, permintaannya tetap dijawab 200 dengan `distanceKm` null, dan
     // pemanggil tidak punya cara tahu jaraknya tidak jadi dihitung.
     if ((data.nearLat === undefined) !== (data.nearLng === undefined)) {
       ctx.addIssue({

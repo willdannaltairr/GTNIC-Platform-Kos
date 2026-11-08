@@ -7,7 +7,7 @@ import { fetchProperties } from '@/lib/api'
  * Kos terbaru dari API.
  *
  * Data diambil dari properti terverifikasi yang sudah dipublikasikan. Bila API
- * tidak dapat dihubungi, bagian ini menjelaskan keadaannya — tidak mengarang
+ * tidak dapat dihubungi, bagian ini menjelaskan keadaannya, tidak mengarang
  * daftar kos contoh, karena kartu properti di sini akan diklik orang.
  *
  * Kartu di bagian ini memakai mode `gated`: foto dan namanya tetap tampil

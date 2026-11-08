@@ -19,7 +19,7 @@ export const LandingFooter: FC = (): ReactNode => {
           <div className="max-w-sm">
             <Link
               href="/"
-              aria-label="KosPlatform — beranda"
+              aria-label="KosPlatform, beranda"
               className="inline-flex rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf"
             >
               <Logo tone="light" />

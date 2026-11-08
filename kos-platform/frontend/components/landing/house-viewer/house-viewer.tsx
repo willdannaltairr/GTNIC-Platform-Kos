@@ -27,14 +27,14 @@ const DRAG_PITCH = 0.004
 /**
  * Pengganti scene 3D saat WebGL belum siap atau tidak tersedia.
  *
- * Memakai foto hero yang sama, sehingga peralihan dari foto ke model — dan
- * sebaliknya di perangkat tanpa WebGL — tidak terasa seperti gambar yang
+ * Memakai foto hero yang sama, sehingga peralihan dari foto ke model, dan
+ * sebaliknya di perangkat tanpa WebGL, tidak terasa seperti gambar yang
  * tertukar.
  */
 const PhotoFallback: FC = (): ReactNode => {
   return (
     // Pembungkus `relative` sendiri, karena komponen ini juga dipakai sebagai
-    // fallback di dalam <Canvas> — di sana induknya bukan elemen berposisi.
+    // fallback di dalam <Canvas>, di sana induknya bukan elemen berposisi.
     <div className="relative h-full w-full">
       <Image
         src="/images/hero-kos-pagi.jpg"

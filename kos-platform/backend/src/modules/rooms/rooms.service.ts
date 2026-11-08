@@ -21,7 +21,7 @@ import type {
  * Kamar tanpa relasi N+1.
  *
  * Fasilitas, jumlah foto, dan foto utamanya dihitung lewat subquery di dalam
- * satu SELECT. Satu halaman hasil karenanya tetap satu query — bukan satu query
+ * satu SELECT. Satu halaman hasil karenanya tetap satu query, bukan satu query
  * tambahan per kamar, yang jumlahnya bisa puluhan.
  *
  * Daftar kolomnya eksplisit, tidak ada `SELECT *`: kolom sensitif atau kolom
@@ -95,7 +95,7 @@ interface OwnedRoom {
 /**
  * `pg` mengembalikan kolom numeric sebagai string supaya tidak kehilangan
  * ketelitian. Klien mengharapkan angka JSON, jadi konversinya dilakukan di
- * sini — satu tempat, bukan tersebar di setiap pemakaian.
+ * sini, satu tempat, bukan tersebar di setiap pemakaian.
  */
 const toRoom = (row: RoomRow) => ({
   id: row.id,
@@ -136,7 +136,7 @@ const isPgError = (error: unknown, code: string): boolean =>
 /**
  * Syarat visibilitas kamar, ditulis sebagai klausa SQL.
  *
- * Tamu hanya melihat kamar properti yang sudah terbit dan terverifikasi —
+ * Tamu hanya melihat kamar properti yang sudah terbit dan terverifikasi -
  * sama seperti daftar properti publik. Admin melihat semuanya. Pemilik properti
  * melihat seluruh kamar propertinya, termasuk yang masih draf: ia perlu
  * menyiapkan kamar sebelum propertinya dipublikasikan.
@@ -169,7 +169,7 @@ const visibilitySql = (user: AuthUser | undefined, values: unknown[]): string =>
  *
  * Dijalankan di dalam transaksi supaya kepemilikan tidak berubah antara
  * pemeriksaan dan penulisan. Kamar yang tidak ada menghasilkan 404, kamar
- * milik orang lain 403 — pemanggil perlu membedakan keduanya, dan urutannya
+ * milik orang lain 403, pemanggil perlu membedakan keduanya, dan urutannya
  * tidak boleh dibalik supaya keberadaan kamar orang lain tidak bocor.
  */
 const findOwnedRoom = async (
@@ -200,7 +200,7 @@ const findOwnedRoom = async (
 /**
  * Tulis ulang fasilitas kamar: yang lama dihapus, yang baru dimasukkan.
  *
- * Pendekatan ganti-semua, bukan selisih per baris — daftarnya pendek (dibatasi
+ * Pendekatan ganti-semua, bukan selisih per baris, daftarnya pendek (dibatasi
  * 30 oleh validator) dan hasilnya pasti sama dengan yang dikirim klien, tanpa
  * risiko menyisakan fasilitas lama yang sudah tidak dicentang.
  */
@@ -236,7 +236,7 @@ const replaceFacilities = async (
  * Sinkronkan jumlah kamar properti.
  *
  * `properties.total_rooms` tidak diurus trigger, jadi nilainya dihitung ulang
- * dari tabel `rooms` — bukan ditambah/dikurangi satu. Cara itu tetap benar
+ * dari tabel `rooms`, bukan ditambah/dikurangi satu. Cara itu tetap benar
  * meski ada perubahan yang gagal di tengah atau data lama yang sudah melenceng.
  */
 const syncTotalRooms = async (client: DbClient, propertyId: string): Promise<void> => {
@@ -322,7 +322,7 @@ export const roomsService = {
     const offset = (params.page - 1) * params.limit
 
     // `sort` sudah dibatasi enum di validator dan di sini hanya dipakai sebagai
-    // kunci peta tetap — teksnya tidak pernah berasal dari permintaan klien.
+    // kunci peta tetap, teksnya tidak pernah berasal dari permintaan klien.
     // `r.id` jadi penentu terakhir supaya urutan halaman stabil ketika banyak
     // kamar punya harga atau tanggal yang sama; tanpa itu, kamar yang sama bisa
     // muncul dua kali di halaman berbeda.
@@ -418,7 +418,7 @@ export const roomsService = {
       const room = await findOwnedRoom(client, id, actor)
 
       // Hanya kolom yang benar-benar dikirim yang diubah. Pemetaannya ditulis
-      // tetap — nama kolom tidak pernah ditentukan oleh input pengguna.
+      // tetap, nama kolom tidak pernah ditentukan oleh input pengguna.
       const assignments: string[] = []
       const values: unknown[] = []
       const set = (column: string, value: unknown): void => {
@@ -467,7 +467,7 @@ export const roomsService = {
     const storagePaths = await withTransaction(async (client) => {
       const room = await findOwnedRoom(client, id, actor)
 
-      // Path fotonya dikumpulkan sebelum barisnya ikut terhapus oleh CASCADE —
+      // Path fotonya dikumpulkan sebelum barisnya ikut terhapus oleh CASCADE -
       // setelah kamarnya hilang, tidak ada lagi yang menunjuk berkas di bucket.
       const photos = await client.query<{ storage_path: string }>(
         `SELECT storage_path FROM room_images WHERE room_id = $1`,

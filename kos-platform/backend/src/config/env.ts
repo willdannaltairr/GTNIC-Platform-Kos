@@ -13,7 +13,7 @@ const required = (key: string): string => {
 /**
  * Origin frontend yang diizinkan mengakses API.
  *
- * Boleh lebih dari satu, dipisah koma — mis. ketika dev server web jatuh ke
+ * Boleh lebih dari satu, dipisah koma, mis. ketika dev server web jatuh ke
  * port lain karena 3000 sudah dipakai. Browser memblokir permintaan
  * lintas-origin yang tidak terdaftar di sini, termasuk login dan daftar.
  */
@@ -32,7 +32,7 @@ export const env = {
   /**
    * Mode TLS ke database.
    *
-   * `auto` (default) menyalakan TLS hanya untuk host non-lokal — Supabase wajib
+   * `auto` (default) menyalakan TLS hanya untuk host non-lokal, Supabase wajib
    * terenkripsi, sedangkan cluster PostgreSQL di mesin sendiri umumnya tidak
    * menyediakan TLS. Isi `disable` atau `require` untuk memaksa salah satunya.
    */
@@ -45,7 +45,7 @@ export const env = {
    * Penyimpanan foto (Supabase Storage).
    *
    * Boleh kosong: seluruh endpoint selain unggah foto tetap bekerja, dan
-   * unggahan gagal dengan pesan yang menyebut variabel mana yang belum diisi —
+   * unggahan gagal dengan pesan yang menyebut variabel mana yang belum diisi -
    * bukan dengan galat samar dari driver.
    */
   SUPABASE_URL: process.env.SUPABASE_URL ?? '',

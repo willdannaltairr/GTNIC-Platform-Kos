@@ -209,7 +209,7 @@ export async function fetchProperty(slug: string): Promise<PropertyDetail | null
 /**
  * Daftar kampus acuan.
  *
- * `nearLat`/`nearLng` hanya memengaruhi `distanceKm` — jumlah kos di sekitar
+ * `nearLat`/`nearLng` hanya memengaruhi `distanceKm`, jumlah kos di sekitar
  * kampus tetap dihitung dari koordinat kampus itu sendiri, bukan dari lokasi
  * pengunjung.
  */

@@ -5,7 +5,7 @@ import type { ListUsersQuery, UpdateProfileInput } from './users.validator'
 /**
  * Kolom profil yang boleh dibaca klien.
  *
- * Daftarnya eksplisit — tidak ada `SELECT *` — supaya kolom sensitif seperti
+ * Daftarnya eksplisit, tidak ada `SELECT *`, supaya kolom sensitif seperti
  * password_hash tidak ikut terkirim hanya karena ada penambahan kolom baru.
  */
 const PROFILE_COLUMNS = `

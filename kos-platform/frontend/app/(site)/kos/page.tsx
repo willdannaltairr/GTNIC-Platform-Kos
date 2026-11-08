@@ -8,7 +8,7 @@ import { fetchProperties } from '@/lib/api'
 export const metadata: Metadata = {
   title: 'Cari Kos',
   description:
-    'Cari kos berdasarkan kota, kecamatan, rentang harga, tipe kamar, dan fasilitas — dengan estimasi biaya dan status ketersediaan yang jelas.',
+    'Cari kos berdasarkan kota, kecamatan, rentang harga, tipe kamar, dan fasilitas, dengan estimasi biaya dan status ketersediaan yang jelas.',
 }
 
 type SearchParams = Record<string, string | string[] | undefined>

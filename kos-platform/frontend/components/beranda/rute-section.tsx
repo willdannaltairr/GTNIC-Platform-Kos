@@ -24,7 +24,7 @@ type Hasil =
 /**
  * Daftar titik yang bisa dipilih, digabung dari kampus dan daerah.
  *
- * Hanya titik yang punya koordinat yang ikut — tanpa koordinat, jaraknya tidak
+ * Hanya titik yang punya koordinat yang ikut, tanpa koordinat, jaraknya tidak
  * bisa dihitung dan pilihannya hanya akan menghasilkan hasil kosong tanpa
  * penjelasan.
  */
@@ -32,7 +32,7 @@ const titikDari = (campuses: CampusPlace[], regions: RegionPlace[]): Titik[] => 
   const dariKampus: Titik[] = campuses
     .filter((campus) => campus.latitude !== null && campus.longitude !== null)
     .map((campus) => ({
-      label: `${campus.abbreviation ?? campus.name} — ${campus.city}`,
+      label: `${campus.abbreviation ?? campus.name}, ${campus.city}`,
       lat: campus.latitude as number,
       lng: campus.longitude as number,
     }))
@@ -158,7 +158,7 @@ export function RuteSection({
         Dari lokasi mana ke lokasi mana
       </h2>
       <p className="mt-1.5 max-w-2xl text-sm text-muted-foreground">
-        Pilih titik asal dan tujuan — misalnya dari rumah Anda sekarang ke kampus tujuan. Kos yang
+        Pilih titik asal dan tujuan, misalnya dari rumah Anda sekarang ke kampus tujuan. Kos yang
         tampil adalah yang berada dalam radius {RADIUS_TUJUAN_KM} km dari tujuan, dan tiap kartu
         menyebut jaraknya dari kedua titik.
       </p>
@@ -243,7 +243,7 @@ export function RuteSection({
         <>
           <p className="mt-4 text-sm text-muted-foreground">
             Dari <span className="font-medium text-foreground">{hasil.asal}</span> ke{' '}
-            <span className="font-medium text-foreground">{hasil.tujuan}</span> —{' '}
+            <span className="font-medium text-foreground">{hasil.tujuan}</span> -{' '}
             {hasil.total} kos dalam radius {RADIUS_TUJUAN_KM} km dari tujuan.
           </p>
 

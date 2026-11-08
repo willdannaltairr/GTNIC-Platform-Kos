@@ -26,10 +26,10 @@ export interface KosFilterState {
  * Panel filter pencarian kos.
  *
  * Nilai awal datang dari URL (server component membacanya), dan saat
- * diterapkan seluruh pilihan ditulis kembali ke URL — sehingga hasil
+ * diterapkan seluruh pilihan ditulis kembali ke URL, sehingga hasil
  * pencarian bisa dibagikan atau dibuka ulang persis sama.
  *
- * Susunannya melebar mengikuti halaman — bukan satu kolom sempit di samping
+ * Susunannya melebar mengikuti halaman, bukan satu kolom sempit di samping
  * hasil. Filter adalah hal pertama yang dicari pengunjung, dan sebagai satu
  * blok selebar halaman ia muat tanpa memakan lebar yang dibutuhkan kartu kos.
  * Urutan barisnya sengaja tetap: kata kunci (paling sering dipakai) di baris

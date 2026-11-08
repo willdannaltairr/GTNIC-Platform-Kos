@@ -21,7 +21,7 @@ interface AuthFieldProps {
 
 /**
  * Satu isian pada formulir autentikasi: label kecil di atas, kotak isian
- * berbentuk pil, dan — khusus password — tombol lihat/sembunyikan.
+ * berbentuk pil, dan, khusus password, tombol lihat/sembunyikan.
  *
  * Dipakai bersama oleh formulir masuk dan daftar supaya keduanya mustahil
  * berbeda gaya. Isiannya diberi latar kartu tanpa garis tepi: di atas latar

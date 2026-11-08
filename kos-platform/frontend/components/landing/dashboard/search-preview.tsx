@@ -19,8 +19,8 @@ const CONFIDENCE_CLASS: Record<string, string> = {
 /**
  * Pratinjau layar pencarian.
  *
- * Meniru susunan halaman /kos — bilah pencarian, saringan, lalu kartu hasil
- * dengan skor KosMatch dan label kepercayaan biaya — supaya pengunjung melihat
+ * Meniru susunan halaman /kos, bilah pencarian, saringan, lalu kartu hasil
+ * dengan skor KosMatch dan label kepercayaan biaya, supaya pengunjung melihat
  * bentuk produknya sebelum membuka halaman pencarian yang sebenarnya.
  *
  * Seluruh angka di sini ilustrasi tampilan dan tidak diambil dari API.

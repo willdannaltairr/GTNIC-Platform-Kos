@@ -8,7 +8,7 @@ import { LANDING_FAQS } from '@/lib/landing'
 /**
  * Tanya jawab memakai elemen <details>, jadi tetap berfungsi tanpa JavaScript.
  *
- * Ikon plus memutar 45 derajat saat terbuka — satu-satunya gerakan di sini,
+ * Ikon plus memutar 45 derajat saat terbuka, satu-satunya gerakan di sini,
  * karena daftar akordeon dibuka-tutup jauh lebih sering daripada bagian lain.
  */
 const FaqSection: FC = (): ReactNode => {

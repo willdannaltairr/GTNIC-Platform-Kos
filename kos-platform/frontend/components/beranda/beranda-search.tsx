@@ -37,7 +37,7 @@ export function BerandaSearch() {
           name="q"
           value={q}
           onChange={(event) => setQ(event.target.value)}
-          placeholder="Cari kos, kampus, atau daerah — mis. dekat UI"
+          placeholder="Cari kos, kampus, atau daerah, mis. dekat UI"
           className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
         />
 

@@ -22,7 +22,7 @@ type Keadaan =
  * Pesan galat dari Geolocation API.
  *
  * Kode 1 (ditolak) dipisahkan dari kode 2 dan 3 karena hanya yang pertama butuh
- * tindakan pengunjung — membuka setelan izin situs. Dua sisanya soal sinyal dan
+ * tindakan pengunjung, membuka setelan izin situs. Dua sisanya soal sinyal dan
  * biasanya berhasil kalau dicoba lagi di tempat lain; menyuruh orang membuka
  * setelan untuk keduanya hanya membuang waktunya.
  */
@@ -39,7 +39,7 @@ const pesanGalat = (error: GeolocationPositionError): string => {
  *
  * Izin lokasi tidak pernah diminta otomatis saat halaman dibuka: peramban
  * menampilkan kotak izin begitu saja, dan pengunjung yang belum tahu halaman
- * ini butuh apa cenderung menolaknya — penolakan itu lalu menempel untuk
+ * ini butuh apa cenderung menolaknya, penolakan itu lalu menempel untuk
  * seluruh situs. Tombolnya dulu yang ditekan, baru izinnya diminta.
  *
  * Pengecualiannya bila izin sudah pernah diberikan: di situ lokasinya langsung
@@ -85,7 +85,7 @@ export function NearbySection() {
           resolve()
         },
         // Akurasi tinggi tidak diminta: untuk mencari kos dalam radius
-        // kilometer, perkiraan dari jaringan sudah memadai — dan GPS presisi
+        // kilometer, perkiraan dari jaringan sudah memadai, dan GPS presisi
         // tinggi membuat pengunjung menunggu lebih lama di dalam ruangan.
         { enableHighAccuracy: false, timeout: 10000, maximumAge: 5 * 60 * 1000 },
       )
@@ -147,7 +147,7 @@ export function NearbySection() {
         <p className="mt-5 rounded-2xl border border-dashed border-border bg-card p-6 text-sm leading-relaxed text-muted-foreground">
           Tekan <span className="font-medium text-foreground">Gunakan lokasi saya</span> dan
           peramban akan meminta izin lokasi. Izin ini dipakai sekali untuk menghitung jarak ke
-          tiap kos — posisinya tidak disimpan di server maupun dibagikan ke pemilik kos.
+          tiap kos, posisinya tidak disimpan di server maupun dibagikan ke pemilik kos.
         </p>
       )}
 
@@ -166,7 +166,7 @@ export function NearbySection() {
               <Link href="/kos" className="font-medium text-primary hover:text-primary-strong">
                 halaman Cari Kos
               </Link>{' '}
-              — kota dan kecamatan bisa diisi manual.
+             , kota dan kecamatan bisa diisi manual.
             </p>
           </div>
         </div>

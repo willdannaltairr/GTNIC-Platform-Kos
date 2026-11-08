@@ -25,7 +25,7 @@ const actor = (req: Request): AuthUser => {
  * Parameter id wajib UUID.
  *
  * Tanpa pemeriksaan di sini, id seperti "bukan-uuid" diteruskan apa adanya ke
- * PostgreSQL dan ditolak di sana sebagai galat sintaks — yang sampai ke klien
+ * PostgreSQL dan ditolak di sana sebagai galat sintaks, yang sampai ke klien
  * sebagai 500, seolah server yang rusak, padahal permintaannya yang salah
  * bentuk. Divalidasi di batas masuk supaya jawabannya 400 dengan pesan jelas.
  */

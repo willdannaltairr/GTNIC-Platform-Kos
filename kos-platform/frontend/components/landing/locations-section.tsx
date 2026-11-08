@@ -23,7 +23,7 @@ const LocationsSection: FC = (): ReactNode => {
           id="lokasi-title"
           eyebrow="Lokasi"
           title="Mulai dari kawasan yang dekat dengan keseharian Anda."
-          description="Setiap kota punya hasil pencarian yang sudah tersaring — bukan halaman contoh. Masuk dengan akun Anda untuk membukanya."
+          description="Setiap kota punya hasil pencarian yang sudah tersaring, bukan halaman contoh. Masuk dengan akun Anda untuk membukanya."
         />
 
         <ul className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

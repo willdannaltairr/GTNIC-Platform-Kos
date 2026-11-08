@@ -13,7 +13,7 @@ const router = Router()
  *
  * Berkasnya langsung diteruskan ke Supabase Storage, jadi menuliskannya ke
  * disk lebih dulu hanya menambah satu salinan sementara yang harus dibersihkan
- * — termasuk ketika prosesnya gagal di tengah jalan. Batas 8 MB membuat
+ *, termasuk ketika prosesnya gagal di tengah jalan. Batas 8 MB membuat
  * pemakaian memorinya terbatas dan sebanding dengan ukuran foto kamar.
  */
 const upload = multer({
@@ -45,8 +45,8 @@ const singlePhoto = (req: Request, res: Response, next: NextFunction): void => {
   })
 }
 
-// Endpoint baca boleh diakses tanpa login; token yang ikut dikirim — misalnya
-// dari dashboard pemilik — hanya memperluas isinya, tidak diwajibkan.
+// Endpoint baca boleh diakses tanpa login; token yang ikut dikirim, misalnya
+// dari dashboard pemilik, hanya memperluas isinya, tidak diwajibkan.
 router.get('/', optionalAuthenticate, asyncHandler(roomsController.list))
 router.get('/:id', optionalAuthenticate, asyncHandler(roomsController.detail))
 

@@ -7,7 +7,7 @@ import { formatNumber } from '@/lib/format'
  * Area dengan kos terbanyak.
  *
  * Urutannya sudah ditentukan database (jumlah kos terbanyak lebih dulu), jadi
- * komponen ini tidak mengurutkan ulang — angka yang tampil dan urutannya
+ * komponen ini tidak mengurutkan ulang, angka yang tampil dan urutannya
  * berasal dari sumber yang sama.
  *
  * Kotak daerah dibedakan dari kecamatan karena keduanya disaring dengan kolom

@@ -147,7 +147,7 @@ const HeroSection: FC = (): ReactNode => {
               )}
             >
               {/* Scrim atas menutup area judul sampai subjudul, lalu melepas
-                  supaya fotonya tetap terbaca — bukan menutupi seluruh bagian tengah. */}
+                  supaya fotonya tetap terbaca, bukan menutupi seluruh bagian tengah. */}
               <div className="absolute inset-x-0 top-0 h-[36%] bg-gradient-to-b from-[#efede1]/90 via-[#efede1]/40 to-transparent" />
               {/* Scrim bawah lebih tinggi dan lebih pekat: deskripsi dan
                   formulir pencarian perlu latar yang tenang untuk terbaca. */}
@@ -287,7 +287,7 @@ const HeroSection: FC = (): ReactNode => {
                 </p>
               </div>
 
-              {/* Pencarian langsung dari hero — hasilnya dibuka di /kos. */}
+              {/* Pencarian langsung dari hero, hasilnya dibuka di /kos. */}
               <form
                 onSubmit={submit}
                 className={cn(

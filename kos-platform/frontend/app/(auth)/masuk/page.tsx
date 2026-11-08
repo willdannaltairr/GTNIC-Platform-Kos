@@ -13,8 +13,8 @@ export const metadata: Metadata = {
 /**
  * Halaman masuk: dua kolom penuh, formulir di kiri dan foto kamar di kanan.
  *
- * Halaman ini adalah pintu masuk seluruh situs — semua tautan yang meninggalkan
- * landing page mendarat di sini — jadi tata letaknya dibuat lapang dan hanya
+ * Halaman ini adalah pintu masuk seluruh situs, semua tautan yang meninggalkan
+ * landing page mendarat di sini, jadi tata letaknya dibuat lapang dan hanya
  * berisi satu hal yang perlu dikerjakan.
  */
 export default function MasukPage() {

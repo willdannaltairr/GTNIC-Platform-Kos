@@ -196,7 +196,7 @@ export default async function PropertyDetailPage({
                       <td className="hidden px-4 py-3 text-muted-foreground sm:table-cell">
                         {room.areaWidth && room.areaLength
                           ? `${room.areaWidth}×${room.areaLength} m²`
-                          : '—'}
+                          : '-'}
                       </td>
                       <td className="px-4 py-3">
                         <span

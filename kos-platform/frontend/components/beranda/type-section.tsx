@@ -6,7 +6,7 @@ import { fetchProperties } from '@/lib/api'
 /**
  * Satu baris rekomendasi untuk satu tipe kos.
  *
- * Dipakai dua kali di beranda — kos putra dan kos putri — dengan penyaring
+ * Dipakai dua kali di beranda, kos putra dan kos putri, dengan penyaring
  * tipe yang berbeda. Dibuat satu komponen supaya keduanya tidak pernah
  * berbeda perilaku hanya karena ditulis dua kali.
  *

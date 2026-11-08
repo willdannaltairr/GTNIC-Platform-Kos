@@ -9,7 +9,7 @@ import { LANDING_STATS, LANDING_TRUST } from '@/lib/landing'
  * Angka yang bisa diperiksa, lalu janji yang menopangnya.
  *
  * Semua angka di sini berasal dari cara kerja produk (bobot KosMatch, rentang
- * proyeksi biaya, jumlah label biaya) — bukan hasil survei yang tidak bisa
+ * proyeksi biaya, jumlah label biaya), bukan hasil survei yang tidak bisa
  * ditelusuri asalnya.
  */
 const StatsSection: FC = (): ReactNode => {

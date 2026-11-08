@@ -16,7 +16,7 @@ interface CostVisualProps {
  *
  * Dipakai di bagian solusi dan di panel besar. Setiap baris membawa label
  * keterangannya sendiri, sehingga angka perkiraan tidak pernah tampil seolah
- * sudah pasti — inilah janji produk yang harus terlihat di komponennya.
+ * sudah pasti, inilah janji produk yang harus terlihat di komponennya.
  */
 const CostVisual: FC<CostVisualProps> = ({
   name,

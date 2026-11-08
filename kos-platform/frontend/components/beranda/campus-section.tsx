@@ -7,7 +7,7 @@ import { formatJarak, formatNumber } from '@/lib/format'
  * Kampus di Indonesia beserta jumlah kos terverifikasi di sekitarnya.
  *
  * Angka di tiap kampus adalah kos dalam radius tertentu dari kampus itu
- * sendiri — bukan dari lokasi pengunjung. Karena itu kampus tetap punya angka
+ * sendiri, bukan dari lokasi pengunjung. Karena itu kampus tetap punya angka
  * walaupun pengunjung belum mengizinkan akses lokasi.
  *
  * Tautannya menuju pencarian per kota, bukan per kampus: pencarian properti

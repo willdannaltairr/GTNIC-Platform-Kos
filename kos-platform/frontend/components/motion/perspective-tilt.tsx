@@ -13,11 +13,11 @@ interface PerspectiveTiltProps {
 
 /**
  * Meletakkan isinya mundur dalam ruang 3D lalu menegakkannya saat halaman
- * digulir — panel seolah "duduk" saat masuk ke layar.
+ * digulir, panel seolah "duduk" saat masuk ke layar.
  *
  * Penjaga `still` diperlukan di sini secara eksplisit: nilai dari useTransform
  * dipasang lewat `style`, dan MotionConfig reducedMotion hanya mematikan
- * animasi berbasis target (animate/whileInView) — nilai yang terikat langsung
+ * animasi berbasis target (animate/whileInView), nilai yang terikat langsung
  * ke style tetap bergerak mengikuti gulir.
  */
 const PerspectiveTilt: FC<PerspectiveTiltProps> = ({ children, className }): ReactNode => {

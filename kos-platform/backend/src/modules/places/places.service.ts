@@ -6,7 +6,7 @@ import type { ListCampusesQuery, ListRegionsQuery } from './places.validator'
  * Acuan peta lokasi: kampus dan daerah, beserta jumlah kos di sekitarnya.
  *
  * Kedua daftar dihitung dalam SATU query masing-masing. Jumlah kosnya dihitung
- * lewat agregat di dalam database — bukan dengan menjalankan satu query hitung
+ * lewat agregat di dalam database, bukan dengan menjalankan satu query hitung
  * per baris, karena daftar ini bisa memuat puluhan daerah dan kampus sekaligus.
  *
  * Tidak ada satu pun nilai yang disisipkan ke dalam teks SQL; semuanya parameter.
@@ -58,13 +58,13 @@ export const placesService = {
     const values: unknown[] = []
 
     // Radius didaftarkan lebih dulu karena dipakai di dalam subquery penghitung,
-    // dan nomor parameter ditentukan urutan pendaftaran — bukan urutan
+    // dan nomor parameter ditentukan urutan pendaftaran, bukan urutan
     // pemakaian di teks SQL.
     values.push(params.radiusKm)
     const radiusParam = `$${values.length}`
 
     // Jarak ke pemanggil. Bila titiknya tidak dikirim, ekspresinya `NULL` dan
-    // kolomnya tetap ada berisi null — bentuk responsnya tidak berubah-ubah.
+    // kolomnya tetap ada berisi null, bentuk responsnya tidak berubah-ubah.
     const jarakPemanggil = distanceFromPoint(values, titik, {
       lat: 'c.latitude',
       lng: 'c.longitude',
@@ -115,7 +115,7 @@ export const placesService = {
     // Pencocokan daerah ke properti bergantung pada jenisnya: kota dicocokkan ke
     // kolom `city`, kecamatan ke kolom `district`. Ditulis sebagai satu `CASE`
     // di dalam subquery supaya kedua jenis tetap terhitung dalam satu kali
-    // jalan — memisahkannya menjadi dua query lalu menggabungkan hasilnya di
+    // jalan, memisahkannya menjadi dua query lalu menggabungkan hasilnya di
     // kode akan kehilangan urutan yang jadi tanggung jawab database.
     //
     // Perbandingannya tanpa memperhatikan besar-kecil huruf: data lama ada yang

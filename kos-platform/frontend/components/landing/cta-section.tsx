@@ -9,7 +9,7 @@ import Magnetic from '@/components/motion/magnetic'
  *
  * Dua jalur yang jelas: mencari kos (tujuan utama) dan mendaftar sebagai
  * pemilik. Tanpa formulir, karena formulir hanya menarik kalau tujuannya sudah
- * pasti — di sini tujuannya masih bercabang.
+ * pasti, di sini tujuannya masih bercabang.
  */
 const CtaSection: FC = (): ReactNode => {
   return (

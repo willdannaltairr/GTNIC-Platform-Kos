@@ -32,7 +32,7 @@ const PlatformSection: FC = (): ReactNode => {
           tone="dark"
           align="center"
           title="Satu tempat untuk semua pertanyaan sebelum menyewa."
-          description="Kecocokan, biaya total, dan jarak disusun berdampingan, sehingga keputusan diambil dengan angka yang sama — bukan dari ingatan atau kira-kira."
+          description="Kecocokan, biaya total, dan jarak disusun berdampingan, sehingga keputusan diambil dengan angka yang sama, bukan dari ingatan atau kira-kira."
         />
 
         <PerspectiveTilt className="mt-14">

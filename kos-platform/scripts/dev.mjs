@@ -8,7 +8,7 @@
  *
  * Aturan saat salah satu proses mati: yang lain dibiarkan hidup dan
  * penyebabnya dicetak besar. Dev server web adalah yang dipakai untuk melihat
- * hasil kerja, jadi kegagalan di sisi API tidak boleh ikut mematikannya —
+ * hasil kerja, jadi kegagalan di sisi API tidak boleh ikut mematikannya -
  * tetapi juga tidak boleh lewat tanpa suara, karena halaman yang tampil tanpa
  * API akan menampilkan daftar kos yang kosong dan itu menyesatkan.
  *

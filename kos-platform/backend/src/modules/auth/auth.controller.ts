@@ -11,14 +11,14 @@ const COOKIE_OPTIONS = {
   secure: env.NODE_ENV === 'production',
   sameSite: 'lax' as const,
   path: '/',
-  maxAge: 15 * 60 * 1000, // 15 menit — samakan dengan JWT_ACCESS_EXPIRES_IN
+  maxAge: 15 * 60 * 1000, // 15 menit, samakan dengan JWT_ACCESS_EXPIRES_IN
 }
 
 /**
  * Masa berlaku cookie refresh.
  *
  * Cookie access yang cuma 15 menit membuat sesi terasa "hilang" setiap kali
- * pengunjung menutup tab lalu kembali — padahal refresh token-nya masih sah.
+ * pengunjung menutup tab lalu kembali, padahal refresh token-nya masih sah.
  * Nilai di sini harus sejalan dengan JWT_REFRESH_EXPIRES_IN; kalau lebih
  * pendek, cookie-nya mati lebih dulu daripada token yang dibawanya dan
  * pengunjung diminta masuk lagi tanpa alasan.
@@ -58,7 +58,7 @@ export const authController = {
       role: user.role,
     }
 
-    // Token dikirim hanya lewat cookie HttpOnly — tidak dikembalikan di body
+    // Token dikirim hanya lewat cookie HttpOnly, tidak dikembalikan di body
     // agar tidak tergoda disimpan di localStorage oleh klien.
     res.cookie('access_token', authService.generateAccessToken(tokenPayload), COOKIE_OPTIONS)
     res.cookie('refresh_token', authService.generateRefreshToken(tokenPayload), {
@@ -84,7 +84,7 @@ export const authController = {
    * Perpanjang sesi memakai cookie refresh.
    *
    * Tanpa endpoint ini, cookie access yang berumur 15 menit membuat pengunjung
-   * diminta masuk lagi hanya karena menutup tab sebentar — padahal refresh
+   * diminta masuk lagi hanya karena menutup tab sebentar, padahal refresh
    * token-nya masih berlaku berhari-hari dan tidak ada yang memakainya.
    *
    * Kedua cookie disetel ulang dengan masa berlaku penuh, sehingga sesi yang

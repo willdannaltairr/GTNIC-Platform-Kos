@@ -3,7 +3,7 @@ import { z } from 'zod'
 /**
  * Validasi untuk modul kamar.
  *
- * Semua filter di sini benar-benar diterapkan pada query database — bukan
+ * Semua filter di sini benar-benar diterapkan pada query database, bukan
  * hanya disaring di frontend. Nilainya selalu lewat parameter, tidak ada yang
  * disisipkan ke dalam teks SQL.
  */
@@ -23,7 +23,7 @@ export const BATHROOM_TYPES = ['private', 'shared'] as const
 export const listRoomsQuerySchema = z.object({
   /** Batasi ke satu properti tertentu. */
   propertyId: z.string().uuid('ID properti tidak valid').optional(),
-  /** Batasi ke properti dengan slug tertentu — dipakai halaman detail kos. */
+  /** Batasi ke properti dengan slug tertentu, dipakai halaman detail kos. */
   slug: z.string().trim().min(1).optional(),
   availabilityStatus: z.enum(ROOM_AVAILABILITY).optional(),
   bathroomType: z.enum(BATHROOM_TYPES).optional(),
@@ -69,7 +69,7 @@ export const createRoomSchema = z.object({
  * sehingga permintaan yang hanya ingin mengubah harga ikut menimpa nomor kamar
  * dan status ketersediaannya.
  *
- * `propertyId` tidak bisa diubah — memindahkan kamar ke properti lain sama
+ * `propertyId` tidak bisa diubah, memindahkan kamar ke properti lain sama
  * dengan membuat kamar baru, dan riwayat sewa yang menunjuk kamar itu jadi
  * menyesatkan.
  */
@@ -98,7 +98,7 @@ export const uploadPhotoMetaSchema = z.object({
    * Ditulis sebagai transformasi dari string, bukan `z.coerce.boolean()`.
    *
    * `coerce.boolean()` memakai aturan truthiness JavaScript: string apa pun
-   * yang tidak kosong menjadi true — termasuk "false". Akibatnya
+   * yang tidak kosong menjadi true, termasuk "false". Akibatnya
    * `?isPrimary=false` justru diminta sebagai foto utama, dan foto yang sudah
    * ada tergeser dari urutan 0 tanpa diminta.
    */

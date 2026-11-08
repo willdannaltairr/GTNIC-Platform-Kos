@@ -18,13 +18,13 @@ interface AuthShellProps {
  *
  * Dipakai bersama halaman masuk dan daftar supaya keduanya tidak bisa berbeda
  * tata letak saat salah satunya diubah. Tidak ada header maupun footer situs di
- * sini — navigasi ke halaman lain di tengah pengisian formulir hanya
+ * sini, navigasi ke halaman lain di tengah pengisian formulir hanya
  * mengalihkan pandangan. Yang tersedia hanya logo di atas dan tombol tutup di
  * atas foto, keduanya menuju beranda.
  *
  * Kolom formulirnya `overflow-y-auto` dan formulirnya ditengahkan dengan
  * `m-auto`, bukan `items-center`: pada layar pendek isinya lebih tinggi
- * daripada layar, dan perataan flex akan memotong bagian atasnya — bagian yang
+ * daripada layar, dan perataan flex akan memotong bagian atasnya, bagian yang
  * tidak bisa dicapai dengan menggulir. `m-auto` menyusut jadi nol saat ruangnya
  * kurang, sehingga formulir selalu utuh dan tetap bisa dijangkau.
  *
@@ -38,7 +38,7 @@ export function AuthShell({ image, formWidth = 'max-w-sm', footer, children }: A
       <div className="flex min-h-0 flex-col overflow-y-auto bg-background px-6 py-8 sm:px-10">
         <Link
           href="/"
-          aria-label="KosPlatform — beranda"
+          aria-label="KosPlatform, beranda"
           className="inline-flex shrink-0 self-start rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           <Logo />

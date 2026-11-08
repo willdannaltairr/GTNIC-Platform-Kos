@@ -12,7 +12,7 @@ router.post('/login', authLimiter, asyncHandler(authController.login))
  * Perpanjangan sesi tidak dibatasi `authLimiter`.
  *
  * Endpoint ini dipanggil otomatis setiap halaman dimuat saat access token
- * sudah habis — jauh lebih sering daripada login, tetapi tidak pernah
+ * sudah habis, jauh lebih sering daripada login, tetapi tidak pernah
  * diketik manusia, jadi tidak perlu dibatasi seketat percobaan login.
  */
 router.post('/refresh', asyncHandler(authController.refresh))

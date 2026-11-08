@@ -48,7 +48,7 @@ const visuals: Record<string, ReactNode> = {
 const SolutionsSection: FC = (): ReactNode => {
   const still = usePrefersReducedMotion()
   // Pergeseran horizontal hanya berlaku saat bagian ini tersemat, yaitu pada
-  // layar `lg` ke atas. Di bawah itu kartunya ditumpuk biasa — kalau
+  // layar `lg` ke atas. Di bawah itu kartunya ditumpuk biasa, kalau
   // transformasinya tetap dipasang, kartu ikut tergeser keluar layar.
   const desktop = useMediaQuery('(min-width: 1024px)')
   const sectionRef = useRef<HTMLElement>(null)

@@ -26,7 +26,7 @@ export interface GeoPoint {
  *     MENGABAIKAN NULL: bila salah satu koordinat kosong, `greatest(-1, NULL)`
  *     menghasilkan -1, `acos(-1)` menghasilkan π, dan jaraknya menjadi
  *     ≈ 20.015 km. Tanpa `CASE` ini, properti yang belum punya koordinat justru
- *     tampak sebagai yang paling jauh — bukan sebagai "jarak tidak diketahui".
+ *     tampak sebagai yang paling jauh, bukan sebagai "jarak tidak diketahui".
  *  2. `least(1, greatest(-1, …))` menahan galat pembulatan: cosinus yang
  *     meleset sedikit di luar rentang −1..1 membuat `acos` mengembalikan NaN,
  *     dan satu nilai NaN sudah cukup merusak seluruh hasil pengurutan.
@@ -62,7 +62,7 @@ export const roundedDistanceSql = (ekspresi: string): string =>
  * terhadap kolom yang ditunjuk.
  *
  * Penomoran `$n` diserahkan ke fungsi ini supaya pemanggil tidak perlu menghitung
- * sendiri posisi parameternya — di query yang filternya berubah-ubah, nomor
+ * sendiri posisi parameternya, di query yang filternya berubah-ubah, nomor
  * yang ditulis manual adalah sumber salah yang paling mudah terjadi.
  *
  * Mengembalikan `NULL` (teks SQL) bila titiknya tidak diminta, sehingga kolom
@@ -77,8 +77,8 @@ export const distanceFromPoint = (
 
   // Cast eksplisit ke `double precision` bukan hiasan: tanpa itu, PostgreSQL
   // menolak seluruh query dengan "could not determine data type of parameter
-  // $n". `radians()` punya dua kelebihan beban — `double precision` dan
-  // `numeric` — dan parameter yang tidak bertipe membuat pemilih fungsi
+  // $n". `radians()` punya dua kelebihan beban, `double precision` dan
+  // `numeric`, dan parameter yang tidak bertipe membuat pemilih fungsi
   // menyerah sebelum sempat melihat kolom di sisi lain rumusnya.
   values.push(point.lat)
   const lat = `$${values.length}::double precision`

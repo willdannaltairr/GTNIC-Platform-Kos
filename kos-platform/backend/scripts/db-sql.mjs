@@ -15,7 +15,7 @@
  * DATABASE_URL dibaca dari backend/.env (atau dari environment bila sudah ada),
  * jadi berkas ini tidak bergantung pada perintah shell tertentu.
  * Tls mengikuti aturan yang sama dengan aplikasi: menyala untuk host non-lokal,
- * mati untuk localhost — kecuali DB_SSL diisi eksplisit.
+ * mati untuk localhost, kecuali DB_SSL diisi eksplisit.
  */
 import { readFileSync, readdirSync, existsSync } from 'node:fs'
 import { createRequire } from 'node:module'

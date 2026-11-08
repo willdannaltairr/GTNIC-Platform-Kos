@@ -4,7 +4,7 @@ import { placesController } from './places.controller'
 
 const router = Router()
 
-// Keduanya endpoint publik dan hanya membaca data acuan — tidak ada jalur tulis
+// Keduanya endpoint publik dan hanya membaca data acuan, tidak ada jalur tulis
 // di modul ini, karena isinya diisi lewat seed, bukan oleh pengguna aplikasi.
 //
 // Pembatas lajunya TIDAK dipasang lagi di sini: `apiLimiter` sudah dipasang

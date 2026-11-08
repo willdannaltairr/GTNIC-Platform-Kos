@@ -18,7 +18,7 @@ interface MagneticProps {
  *
  * Hanya pointer jenis mouse yang diikuti; sentuhan dan pena diabaikan supaya
  * tombol tetap berperilaku biasa di perangkat layar sentuh. Saat pengunjung
- * memilih reduced motion, tarikannya dimatikan sama sekali — tombol yang
+ * memilih reduced motion, tarikannya dimatikan sama sekali, tombol yang
  * bergeser sendiri ke arah kursor justru jenis gerakan yang ingin dihindari.
  */
 const Magnetic: FC<MagneticProps> = ({ children, strength = 0.3, className }): ReactNode => {

@@ -13,13 +13,13 @@ import {
 
 /**
  * Kartu properti untuk daftar pencarian dan rekomendasi di beranda.
- * Semua angka berasal dari API — tidak ada nilai yang di-hardcode.
+ * Semua angka berasal dari API, tidak ada nilai yang di-hardcode.
  *
  * `gated` dipakai oleh rekomendasi di landing page: di sana kartu belum boleh
  * membuka detail properti, karena pengunjung belum tentu punya akun. Kartu di
- * halaman /kos tidak memakai ini — di sana pengunjung memang sudah masuk.
+ * halaman /kos tidak memakai ini, di sana pengunjung memang sudah masuk.
  *
- * Jarak hanya muncul bila API mengirimkannya — yaitu ketika pencarian menyertakan
+ * Jarak hanya muncul bila API mengirimkannya, yaitu ketika pencarian menyertakan
  * titik koordinat. Di halaman /kos tanpa koordinat, kartunya sama seperti dulu.
  */
 export function PropertyCard({

@@ -11,7 +11,7 @@ import { usePrefersReducedMotion } from '@/hooks/use-prefers-reduced-motion'
 /**
  * Kartu penutup sebelum footer: model bangunan kos yang bisa diputar.
  *
- * Bentuknya judul, keterangan, lalu panel yang menyatu saat digulir — tetapi
+ * Bentuknya judul, keterangan, lalu panel yang menyatu saat digulir, tetapi
  * modelnya rumah kos, bukan deret panel surya.
  *
  * Catatan kejujuran: model ini gambaran umum tipe bangunan, bukan properti
@@ -38,7 +38,7 @@ const HouseSection: FC = (): ReactNode => {
             id="model-bangunan-title"
             eyebrow="Tampilan 3D"
             title="Lihat bangunannya dari segala sisi, bukan hanya dari satu foto."
-            description="Foto pemasaran selalu diambil dari sudut terbaiknya. Putar model ini untuk melihat bentuk atap, sisi samping, dan bagian belakang yang jarang masuk daftar — hal yang biasanya baru ketahuan saat Anda tiba di lokasi."
+            description="Foto pemasaran selalu diambil dari sudut terbaiknya. Putar model ini untuk melihat bentuk atap, sisi samping, dan bagian belakang yang jarang masuk daftar, hal yang biasanya baru ketahuan saat Anda tiba di lokasi."
             align="center"
           />
         </div>

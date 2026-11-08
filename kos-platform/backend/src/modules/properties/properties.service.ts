@@ -18,7 +18,7 @@ const daysSince = (date: Date | null): number | null => {
  *
  * Validator sudah menolak koordinat yang datang tidak berpasangan, tetapi
  * penolong ini tetap diperlukan karena tipe `ListPropertiesQuery` membuat
- * keduanya opsional — tanpa penyatuan di sini, setiap pemakaian harus memeriksa
+ * keduanya opsional, tanpa penyatuan di sini, setiap pemakaian harus memeriksa
  * `undefined` sendiri dan mudah terlewat di salah satunya.
  */
 const titik = (lat?: number, lng?: number): GeoPoint | undefined =>
@@ -37,7 +37,7 @@ const KOLOM_KOORDINAT = { lat: 'p.latitude', lng: 'p.longitude' }
  * Susun klausa WHERE untuk pencarian publik.
  *
  * Seluruh filter benar-benar diterapkan di database. Nilai selalu lewat
- * parameter ($1, $2, …) — tidak ada satu pun yang disisipkan ke dalam teks SQL,
+ * parameter ($1, $2, …), tidak ada satu pun yang disisipkan ke dalam teks SQL,
  * sehingga tidak ada celah injeksi meski jumlah filternya berubah-ubah.
  */
 const buildWhere = (params: ListPropertiesQuery) => {
@@ -117,7 +117,7 @@ const buildWhere = (params: ListPropertiesQuery) => {
     }
   }
 
-  // Penyaringan jarak mendaftarkan parameternya sendiri, dan hanya di sini —
+  // Penyaringan jarak mendaftarkan parameternya sendiri, dan hanya di sini -
   // sehingga `values` selalu berisi tepat parameter yang benar-benar dirujuk
   // `whereSql`. Itu bukan kerapian belaka: query hitung (`SELECT count(*)`)
   // memakai `values` yang sama, dan satu parameter yang terdaftar tanpa dirujuk
@@ -184,7 +184,7 @@ const toListItem = (row: ListRow) => {
     facilitySlugs: row.facility_slugs,
     availabilityConfirmedDaysAgo: days,
     isAvailabilityStale: days === null || days > AVAILABILITY_STALE_DAYS,
-    // Keduanya selalu ada di hasil, bernilai null bila titiknya tidak diminta —
+    // Keduanya selalu ada di hasil, bernilai null bila titiknya tidak diminta -
     // supaya bentuk itemnya tidak berubah-ubah dan frontend tidak perlu
     // memeriksa keberadaan kolomnya lebih dulu.
     distanceKm: row.distance_km === null ? null : Number(row.distance_km),
@@ -198,7 +198,7 @@ const toListItem = (row: ListRow) => {
  * urutan id yang diminta.
  *
  * Agregat kamar, fasilitas, dan foto dihitung di database lewat subquery,
- * sehingga satu halaman hasil hanya butuh satu query — bukan satu query per
+ * sehingga satu halaman hasil hanya butuh satu query, bukan satu query per
  * properti.
  *
  * Titik koordinatnya didaftarkan ulang di sini, bukan memakai ulang nomor
@@ -290,7 +290,7 @@ export const propertiesService = {
     // jadi query hitung di atas tidak terpengaruh.
     //
     // `NULLS LAST` wajib di sini: tanpa itu, kos yang belum punya koordinat
-    // (jaraknya NULL) akan menempati urutan paling atas pada PostgreSQL — justru
+    // (jaraknya NULL) akan menempati urutan paling atas pada PostgreSQL, justru
     // tampil paling dekat padahal jaraknya tidak diketahui.
     const idValues = [...values]
 

@@ -6,7 +6,7 @@ import TestimonialCarousel from '@/components/landing/testimonial-carousel'
 import { TESTIMONIALS } from '@/lib/landing'
 
 /**
- * Bagian testimoni — menggantikan bagian "Tentang" yang dulu ada di sini.
+ * Bagian testimoni, menggantikan bagian "Tentang" yang dulu ada di sini.
  *
  * Isinya kutipan dari penghuni dan pemilik, jadi yang tampil adalah suara
  * mereka, bukan penjelasan platform tentang dirinya sendiri. Kutipannya
@@ -31,7 +31,7 @@ const TestimonialSection: FC = (): ReactNode => {
             id="testimoni-title"
             eyebrow="Kata penghuni dan pemilik"
             title="Yang mereka temukan setelah informasi kosnya terbuka."
-            description="Kutipan di bawah adalah contoh dari data demo platform — bukan ulasan pengguna sungguhan."
+            description="Kutipan di bawah adalah contoh dari data demo platform, bukan ulasan pengguna sungguhan."
             align="center"
           />
         </div>

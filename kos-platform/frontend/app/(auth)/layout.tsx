@@ -7,7 +7,7 @@
  * jalan kembali ke beranda.
  *
  * Tingginya dikunci ke tinggi layar (`h-svh`) dan potongan lubernya disembunyikan,
- * supaya halaman ini tidak ikut tergulir saat pengunjung memindahkan pandangan —
+ * supaya halaman ini tidak ikut tergulir saat pengunjung memindahkan pandangan -
  * isi formulir dan warnanya tetap di tempat. Kapasitas gulirnya diserahkan ke
  * kolom formulir masing-masing halaman (lihat masuk/page.tsx).
  */

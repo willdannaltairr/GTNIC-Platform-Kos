@@ -38,7 +38,7 @@ export const authService = {
     const passwordHash = await this.hashPassword(data.password)
 
     // Keunikan email dijaga indeks unik di database, bukan oleh pemeriksaan
-    // terpisah — supaya dua permintaan yang datang bersamaan tidak bisa
+    // terpisah, supaya dua permintaan yang datang bersamaan tidak bisa
     // sama-sama lolos.
     try {
       const rows = await query<{

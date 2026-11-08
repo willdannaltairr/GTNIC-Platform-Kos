@@ -22,7 +22,7 @@ const ROLE_OPTIONS = [
 /**
  * Syarat password yang ditampilkan di bawah isiannya.
  *
- * Hanya syarat yang benar-benar diperiksa server yang ditulis di sini —
+ * Hanya syarat yang benar-benar diperiksa server yang ditulis di sini -
  * `registerSchema` di backend menuntut minimal 8 karakter. Menampilkan syarat
  * seperti "harus ada karakter khusus" hanya akan membuat pengunjung menyusun
  * password yang lebih rumit, lalu tetap diterima tanpa syarat itu.
@@ -34,7 +34,7 @@ const PASSWORD_RULES = [{ label: 'Minimal 8 karakter', met: (value: string) => v
  *
  * Dipisahkan dari page.tsx supaya halamannya tetap server component dan bisa
  * memasang judul dokumennya sendiri. Susunannya sengaja dibuat sebentuk dengan
- * LoginForm — termasuk isiannya yang memakai AuthField yang sama — supaya
+ * LoginForm, termasuk isiannya yang memakai AuthField yang sama, supaya
  * berpindah antara masuk dan daftar tidak terasa seperti berpindah aplikasi.
  * Tautan pindah ke halaman masuk ada di kaki kolom (AuthShell), bukan di sini.
  */
@@ -165,7 +165,7 @@ export function RegisterForm() {
           onChange={setPassword}
         >
           {/* Titik penandanya menyala hijau begitu syaratnya terpenuhi, jadi
-              pengunjung tahu sebelum menekan tombol — bukan setelah ditolak. */}
+              pengunjung tahu sebelum menekan tombol, bukan setelah ditolak. */}
           <ul className="mt-2.5 grid gap-1.5">
             {PASSWORD_RULES.map((rule) => {
               const met = rule.met(password)
@@ -184,7 +184,7 @@ export function RegisterForm() {
                     }`}
                   />
                   {rule.label}
-                  <span className="sr-only">{met ? ' — terpenuhi' : ' — belum terpenuhi'}</span>
+                  <span className="sr-only">{met ? ', terpenuhi' : ', belum terpenuhi'}</span>
                 </li>
               )
             })}

@@ -19,7 +19,7 @@ const EASE = [0.22, 1, 0.36, 1] as const
  *
  * Kutipan dipecah per kata dan muncul berurutan. Kata-katanya tetap satu
  * kalimat di mata pembaca layar karena seluruhnya berada dalam satu
- * `<blockquote>` — yang bergerak hanya tampilannya, bukan struktur teksnya.
+ * `<blockquote>`, yang bergerak hanya tampilannya, bukan struktur teksnya.
  */
 const TestimonialCarousel: FC<{ items: Testimonial[] }> = ({ items }): ReactNode => {
   const [index, setIndex] = useState(0)
@@ -48,7 +48,7 @@ const TestimonialCarousel: FC<{ items: Testimonial[] }> = ({ items }): ReactNode
     }
   }
 
-  // Pergantian otomatis berhenti saat pengunjung memilih reduced motion —
+  // Pergantian otomatis berhenti saat pengunjung memilih reduced motion -
   // teks yang berganti sendiri sulit dibaca oleh sebagian orang, dan pilihan
   // itu memang ada untuk dihormati.
   const [auto, setAuto] = useState(false)
@@ -121,7 +121,7 @@ const TestimonialCarousel: FC<{ items: Testimonial[] }> = ({ items }): ReactNode
               {aktif.author}
             </span>
             <span className="mt-0.5 block font-mono text-[11px] uppercase tracking-widest text-muted-foreground">
-              {aktif.role} — {aktif.company}
+              {aktif.role}, {aktif.company}
             </span>
           </motion.div>
         </AnimatePresence>

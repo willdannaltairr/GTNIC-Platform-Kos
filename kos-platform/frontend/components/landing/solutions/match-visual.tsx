@@ -59,7 +59,7 @@ const MatchVisual: FC<MatchVisualProps> = ({ factors, className }): ReactNode =>
       </ul>
 
       <p className="mt-5 border-t border-border pt-4 text-xs leading-relaxed text-muted-foreground">
-        Skor adalah estimasi kecocokan berdasarkan bobot di atas — bukan jaminan kualitas kos.
+        Skor adalah estimasi kecocokan berdasarkan bobot di atas, bukan jaminan kualitas kos.
       </p>
     </div>
   )
