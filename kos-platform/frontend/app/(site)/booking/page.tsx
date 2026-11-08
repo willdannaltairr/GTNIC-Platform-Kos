@@ -192,6 +192,13 @@ export default function BookingPage() {
                     <StatusBadge status={item.status} jenis="booking" />
                   </div>
 
+                  <Link
+                    href={`/booking/${item.id}`}
+                    className="mt-2 inline-block text-xs font-semibold text-primary hover:text-primary-strong"
+                  >
+                    Lihat detail dan perjalanan pengajuan
+                  </Link>
+
                   {/* Tombol perpanjangan status, bukan peta aturan lengkap.
                       Backend tetap menolak perpindahan yang tidak sah, dan
                       pesannya ditampilkan di atas. */}
