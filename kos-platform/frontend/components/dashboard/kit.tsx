@@ -80,6 +80,29 @@ const KUNJUNGAN: Record<string, Label> = {
   NO_SHOW: { label: 'Tidak hadir', nada: 'bahaya' },
 }
 
+/**
+ * Status verifikasi properti.
+ *
+ * PENDING diterjemahkan "Belum diajukan", bukan "Menunggu": properti baru
+ * lahir dengan status ini dan pemiliknya masih harus menekan tombol pengajuan
+ * sendiri. Menulisnya "Menunggu" membuat pemilik menunggu di tempat, padahal
+ * tidak ada yang sedang menunggu apa pun.
+ */
+const VERIFIKASI: Record<string, Label> = {
+  PENDING: { label: 'Belum diajukan', nada: 'netral' },
+  UNDER_REVIEW: { label: 'Ditinjau admin', nada: 'info' },
+  VERIFIED: { label: 'Terverifikasi', nada: 'sukses' },
+  REJECTED: { label: 'Ditolak', nada: 'bahaya' },
+  SUSPENDED: { label: 'Ditangguhkan', nada: 'bahaya' },
+}
+
+const PUBLIKASI: Record<string, Label> = {
+  DRAFT: { label: 'Draf', nada: 'netral' },
+  PUBLISHED: { label: 'Terbit', nada: 'sukses' },
+  UNPUBLISHED: { label: 'Tidak terbit', nada: 'peringatan' },
+  ARCHIVED: { label: 'Diarsipkan', nada: 'netral' },
+}
+
 const KAMUS = {
   booking: BOOKING,
   invoice: INVOICE,
@@ -87,6 +110,8 @@ const KAMUS = {
   prioritas: PRIORITAS,
   kontrak: KONTRAK,
   kunjungan: KUNJUNGAN,
+  verifikasi: VERIFIKASI,
+  publikasi: PUBLIKASI,
 } as const
 
 export type JenisStatus = keyof typeof KAMUS
