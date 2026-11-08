@@ -112,6 +112,25 @@ export default function AdminDashboardPage() {
         <p className="mt-2 text-sm text-muted-foreground">
           Ringkasan platform, properti yang menunggu ditinjau, dan aktivitas terakhir.
         </p>
+
+        {/* Navigasi antar bagian panel: ketiganya pekerjaan yang berbeda, dan
+            tanpa daftar ini bagian yang tidak disebut di halaman ini hanya bisa
+            ditemukan dari mengingat alamatnya. */}
+        <nav aria-label="Bagian panel admin" className="mt-4 flex flex-wrap gap-2">
+          {[
+            { label: 'Moderasi properti', href: '/admin/properti' },
+            { label: 'Verifikasi pemilik', href: '/admin/pemilik' },
+            { label: 'Pengguna', href: '/admin/pengguna' },
+          ].map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="inline-flex h-9 items-center rounded-lg border border-border px-3 text-sm font-medium transition-colors hover:bg-muted"
+            >
+              {item.label}
+            </Link>
+          ))}
+        </nav>
       </header>
 
       {ringkasan === null ? (

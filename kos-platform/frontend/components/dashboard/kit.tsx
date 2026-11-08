@@ -125,6 +125,28 @@ const PERAN: Record<string, Label> = {
   ADMIN: { label: 'Admin', nada: 'peringatan' },
 }
 
+/**
+ * Status verifikasi pemilik kos.
+ *
+ * NOT_SUBMITTED ditulis "Belum diajukan", bukan "Belum terverifikasi": yang
+ * perlu diketahui pemilik adalah apakah dia sudah mengirim pengajuannya atau
+ * belum, dan itu beda hal dengan sudah ditolak atau belum diputuskan.
+ */
+const VERIFIKASI_PEMILIK: Record<string, Label> = {
+  NOT_SUBMITTED: { label: 'Belum diajukan', nada: 'netral' },
+  UNDER_REVIEW: { label: 'Menunggu tinjauan', nada: 'info' },
+  VERIFIED: { label: 'Terverifikasi', nada: 'sukses' },
+  REJECTED: { label: 'Ditolak', nada: 'bahaya' },
+}
+
+/** Status satu dokumen verifikasi yang sudah diunggah. */
+const DOKUMEN: Record<string, Label> = {
+  PENDING: { label: 'Terunggah', nada: 'netral' },
+  UNDER_REVIEW: { label: 'Menunggu tinjauan', nada: 'info' },
+  VERIFIED: { label: 'Diterima', nada: 'sukses' },
+  REJECTED: { label: 'Ditolak', nada: 'bahaya' },
+}
+
 const KAMUS = {
   booking: BOOKING,
   invoice: INVOICE,
@@ -136,6 +158,8 @@ const KAMUS = {
   publikasi: PUBLIKASI,
   akun: AKUN,
   peran: PERAN,
+  pemilik: VERIFIKASI_PEMILIK,
+  dokumen: DOKUMEN,
 } as const
 
 export type JenisStatus = keyof typeof KAMUS
