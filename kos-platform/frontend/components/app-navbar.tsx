@@ -3,9 +3,10 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
-import { ChevronDown, Compass, Home, LayoutDashboard, MapPin, Menu, Search, Sparkles, X } from 'lucide-react'
+import { ChevronDown, Compass, Heart, Home, LayoutDashboard, MapPin, Menu, Search, Sparkles, X } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { Logo } from '@/components/landing/logo'
+import { NotificationBell } from '@/components/notifications/notification-bell'
 import { AccountActions } from '@/components/session/account-actions'
 import { LOCATIONS } from '@/lib/constants'
 import { cn } from '@/lib/utils'
@@ -60,6 +61,17 @@ const GROUPS: NavGroup[] = [
       { label: 'KosMatch', href: '/#kosmatch', hint: 'Segera' },
       { label: 'Simulasi Biaya', href: '/#truecost', hint: 'Aktif' },
       { label: 'Rute & Sekitar', href: '/#campusroute', hint: 'Segera' },
+    ],
+  },
+  {
+    label: 'Saya',
+    href: '/favorit',
+    icon: Heart,
+    items: [
+      { label: 'Kos favorit', href: '/favorit', hint: 'Yang Anda simpan' },
+      { label: 'Booking', href: '/booking', hint: 'Pengajuan sewa' },
+      { label: 'Jadwal kunjungan', href: '/kunjungan', hint: 'Survei kos' },
+      { label: 'Notifikasi', href: '/notifikasi', hint: 'Pemberitahuan' },
     ],
   },
 ]
@@ -218,6 +230,7 @@ export function AppNavbar() {
         </nav>
 
         <div className="ml-auto flex items-center gap-2">
+          <NotificationBell />
           <AccountActions />
 
           <button
