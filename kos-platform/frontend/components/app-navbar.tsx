@@ -71,6 +71,7 @@ const GROUPS: NavGroup[] = [
       { label: 'Kos favorit', href: '/favorit', hint: 'Yang Anda simpan' },
       { label: 'Booking', href: '/booking', hint: 'Pengajuan sewa' },
       { label: 'Jadwal kunjungan', href: '/kunjungan', hint: 'Survei kos' },
+      { label: 'Properti saya', href: '/properti', hint: 'Kelola kos Anda' },
       { label: 'Notifikasi', href: '/notifikasi', hint: 'Pemberitahuan' },
     ],
   },
