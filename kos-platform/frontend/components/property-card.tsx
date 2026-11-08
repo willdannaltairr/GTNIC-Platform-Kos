@@ -1,6 +1,8 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { BedDouble, MapPin, Navigation, Users } from 'lucide-react'
+import { FavoriteButton } from '@/components/favorites/favorite-button'
+import { cn } from '@/lib/utils'
 import type { PropertyListItem } from '@/lib/api'
 import {
   COST_CONFIDENCE_CLASS,
@@ -44,7 +46,7 @@ export function PropertyCard({
         : 'KM belum diisi'
 
   return (
-    <article className="group flex flex-col overflow-hidden rounded-xl border border-border bg-card transition-shadow hover:shadow-md">
+    <article className="group relative flex flex-col overflow-hidden rounded-xl border border-border bg-card transition-shadow hover:shadow-md">
       <Link
         href={gated ? '/masuk' : `/kos/${property.slug}`}
         className="relative block aspect-[4/3] overflow-hidden bg-muted"
@@ -74,6 +76,20 @@ export function PropertyCard({
           </span>
         )}
       </Link>
+
+      {/* Tombol favorit di luar tautan kartu, bukan di dalamnya: tombol di
+          dalam <a> akan ikut membuka halaman properti setiap kali ditekan,
+          dan pembatalan lewat event di situ mudah terlewat di salah satu
+          peramban. */}
+      {!gated && (
+        <FavoriteButton
+          propertyId={property.id}
+          className={cn(
+            'absolute z-10',
+            property.distanceKm !== null ? 'right-3 top-12' : 'right-3 top-3',
+          )}
+        />
+      )}
 
       <div className="flex flex-1 flex-col gap-3 p-4">
         <div>
