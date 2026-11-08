@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import Link from 'next/link'
 import { Loader2 } from 'lucide-react'
 import { AuthField } from '@/components/auth/auth-field'
 import { loginAccount, type ApiError } from '@/lib/api'
@@ -21,10 +22,10 @@ const DEMO_PASSWORD = 'KosDemo123!'
  * bukan tata letaknya. Tautan pindah ke halaman daftar ada di kaki kolom
  * (AuthShell), bukan di sini.
  *
- * Tidak ada tautan "lupa kata sandi" dan tidak ada tombol masuk lewat penyedia
- * lain, meski acuan desainnya memakai keduanya: platform ini belum punya alur
- * setel ulang kata sandi maupun OAuth. Tombol yang tidak menuju ke mana pun
- * hanya menjanjikan sesuatu yang tidak ada, dan pengunjung akan menekannya.
+ * Tautan "lupa kata sandi" ada di sini karena alurnya kini tersedia: permintaan
+ * tautan lewat email dan halaman pembuatan sandi baru. Tombol masuk lewat
+ * penyedia lain masih sengaja tidak ada, platform ini belum punya OAuth, dan
+ * tombol yang tidak menuju ke mana pun hanya menjanjikan sesuatu yang tidak ada.
  */
 export function LoginForm() {
   const router = useRouter()
@@ -88,7 +89,13 @@ export function LoginForm() {
             required
             value={password}
             onChange={setPassword}
-          />
+          >
+            <p className="mt-1.5 text-right">
+              <Link href="/lupa-sandi" className="text-xs font-medium text-primary hover:text-primary-strong">
+                Lupa sandi?
+              </Link>
+            </p>
+          </AuthField>
         </div>
 
         {error && (
