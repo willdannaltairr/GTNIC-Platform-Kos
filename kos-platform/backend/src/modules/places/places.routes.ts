@@ -13,5 +13,6 @@ const router = Router()
 // efektif endpoint ini jadi separuh dari endpoint lain tanpa alasan.
 router.get('/campuses', asyncHandler(placesController.campuses))
 router.get('/regions', asyncHandler(placesController.regions))
+router.get('/facilities', asyncHandler(placesController.facilities))
 
 export default router

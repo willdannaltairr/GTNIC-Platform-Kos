@@ -154,4 +154,29 @@ export const placesService = {
       propertyCount: row.property_count,
     }))
   },
+
+  /**
+   * Daftar fasilitas yang bisa dipilih untuk kamar atau properti.
+   *
+   * Isinya data acuan yang diisi lewat seed, sama seperti kampus dan daerah,
+   * tetapi tidak dihitung jumlah kosnya: halaman yang memakainya sedang mengisi
+   * formulir, dan angka di sebelah centang hanya mengalihkan pandangan dari
+   * yang sedang dikerjakan.
+   */
+  async listFacilities(kategori?: 'PROPERTY' | 'ROOM') {
+    const rows = await query<{ id: string; name: string; slug: string; category: string }>(
+      `SELECT id, name, slug, category
+       FROM facilities
+       ${kategori ? 'WHERE category = $1' : ''}
+       ORDER BY category ASC, name ASC`,
+      kategori ? [kategori] : [],
+    )
+
+    return rows.map((row) => ({
+      id: row.id,
+      name: row.name,
+      slug: row.slug,
+      category: row.category,
+    }))
+  },
 }
