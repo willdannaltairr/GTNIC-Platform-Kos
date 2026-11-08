@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { cache } from 'react'
 import { AlertTriangle, CheckCircle2, MapPin, ShieldCheck, UserRound } from 'lucide-react'
+import { BookingPanel } from '@/components/kos/booking-panel'
 import { fetchProperty } from '@/lib/api'
 import {
   BATHROOM_LABEL,
@@ -243,6 +244,20 @@ export default async function PropertyDetailPage({
 
         {/* Kolom kanan: biaya, ketersediaan, pemilik */}
         <aside className="space-y-5 lg:sticky lg:top-20 lg:self-start">
+          {/* Pengajuan ditaruh paling atas: pengunjung memutuskan setelah
+              membaca rincian biaya, dan panel yang terkubur di bawah pemilik
+              hampir tidak pernah ditemukan. */}
+          <BookingPanel
+            propertyId={property.id}
+            rooms={property.rooms
+              .filter((room) => room.availabilityStatus === 'AVAILABLE')
+              .map((room) => ({
+                id: room.id,
+                roomNumber: room.roomNumber,
+                monthlyPrice: room.monthlyPrice,
+              }))}
+          />
+
           {/* Simulasi biaya */}
           <div className="rounded-2xl border border-border bg-card p-5">
             <div className="flex items-start justify-between gap-3">
