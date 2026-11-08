@@ -1,4 +1,5 @@
 import { Router } from 'express'
+import adminRoutes from '../modules/admin/admin.routes'
 import authRoutes from '../modules/auth/auth.routes'
 import bookingsRoutes from '../modules/bookings/bookings.routes'
 import dashboardRoutes from '../modules/dashboard/dashboard.routes'
@@ -21,6 +22,7 @@ apiRouter.get('/health', (_req, res) => {
 })
 
 apiRouter.use('/auth', authRoutes)
+apiRouter.use('/admin', adminRoutes)
 apiRouter.use('/users', usersRoutes)
 apiRouter.use('/dashboard', dashboardRoutes)
 apiRouter.use('/favorites', favoritesRoutes)
