@@ -11,9 +11,9 @@ export const formatRupiah = (value: number | null | undefined): string => {
   return rupiah.format(value)
 }
 
-/** Ringkas untuk kartu: Rp1,85 jt — hanya untuk tampilan pendek. */
+/** Ringkas untuk kartu: Rp1,85 jt, hanya untuk tampilan pendek. */
 export const formatRupiahRingkas = (value: number | null | undefined): string => {
-  if (value === null || value === undefined) return '—'
+  if (value === null || value === undefined) return '-'
   if (value >= 1_000_000) {
     const millions = value / 1_000_000
     return `Rp${millions.toFixed(millions >= 10 ? 0 : 2).replace('.', ',')} jt`
@@ -29,11 +29,11 @@ export const formatNumber = (value: number): string => new Intl.NumberFormat('id
 /**
  * Jarak untuk ditampilkan: "800 m" di bawah satu kilometer, "4,3 km" di atasnya.
  *
- * Di bawah 1 km, "0,8 km" menyembunyikan hal yang justru paling menentukan —
+ * Di bawah 1 km, "0,8 km" menyembunyikan hal yang justru paling menentukan -
  * bahwa kosnya bisa dicapai jalan kaki.
  */
 export const formatJarak = (km: number | null | undefined): string => {
-  if (km === null || km === undefined) return '—'
+  if (km === null || km === undefined) return '-'
   if (km < 1) return `${formatNumber(Math.round(km * 1000))} m`
   return `${km.toFixed(1).replace('.', ',')} km`
 }
@@ -69,10 +69,24 @@ export const COST_CONFIDENCE_CLASS: Record<string, string> = {
   NEEDS_CONFIRMATION: 'bg-rose-50 text-rose-700 ring-rose-200',
 }
 
-/** "Diperbarui 2 hari lalu" — null berarti pemilik belum pernah mengonfirmasi. */
+/** "Diperbarui 2 hari lalu", null berarti pemilik belum pernah mengonfirmasi. */
 export const formatLastConfirmed = (days: number | null): string => {
   if (days === null) return 'Belum pernah dikonfirmasi pemilik'
   if (days <= 0) return 'Dikonfirmasi hari ini'
   if (days === 1) return 'Dikonfirmasi kemarin'
   return `Dikonfirmasi ${days} hari lalu`
+}
+
+/** Tanggal ringkas untuk daftar: "8 Nov 2026". */
+const tanggal = new Intl.DateTimeFormat('id-ID', {
+  day: 'numeric',
+  month: 'short',
+  year: 'numeric',
+})
+
+export const formatTanggal = (value: string | null | undefined): string => {
+  if (!value) return '-'
+  const waktu = new Date(value)
+  if (Number.isNaN(waktu.getTime())) return '-'
+  return tanggal.format(waktu)
 }
