@@ -1,8 +1,16 @@
-import { query, queryOne } from '../../lib/db'
+import { randomUUID } from 'node:crypto'
+
+import { query, queryOne, withTransaction } from '../../lib/db'
 import { distanceFromPoint, roundedDistanceSql, type GeoPoint } from '../../lib/geo'
 import { HttpError } from '../../lib/httpError'
+import type { AuthUser } from '../../middleware/auth'
 import { buildCostSummary, type CostComponentInput } from './cost-summary'
-import type { ListPropertiesQuery } from './properties.validator'
+import type {
+  CreatePropertyInput,
+  ListMyPropertiesQuery,
+  ListPropertiesQuery,
+  UpdatePropertyInput,
+} from './properties.validator'
 
 /** Kos dianggap perlu konfirmasi ulang bila ketersediaan belum diperbarui 14 hari. */
 const AVAILABILITY_STALE_DAYS = 14
@@ -194,6 +202,160 @@ const toListItem = (row: ListRow) => {
 }
 
 /**
+ * Bentuk baris properti untuk halaman pengelolaan pemilik.
+ *
+ * Ditulis sebagai alias tipe, bukan `interface`, karena pg mensyaratkan
+ * `QueryResultRow` dan hanya alias tipe objek yang mendapat index signature
+ * implisit.
+ */
+type PropertiKelolaRow = {
+  id: string
+  owner_id: string
+  name: string
+  slug: string
+  description: string | null
+  address: string
+  province: string
+  city: string
+  district: string
+  subdistrict: string | null
+  postal_code: string | null
+  latitude: string | null
+  longitude: string | null
+  property_type: string
+  gender_policy: string
+  verification_status: string
+  publication_status: string
+  cost_confidence: string
+  created_at: Date
+  updated_at: Date
+  total_kamar: number
+  kamar_tersedia: number
+  kamar_terisi: number
+  harga_terendah: string | null
+  primary_photo_url: string | null
+}
+
+/** Kolom properti untuk pengelolaan, dipakai bersama oleh daftar dan detail. */
+const KOLOM_KELOLA = `
+  p.id, p.owner_id, p.name, p.slug, p.description, p.address, p.province, p.city,
+  p.district, p.subdistrict, p.postal_code, p.latitude, p.longitude, p.property_type,
+  p.gender_policy, p.verification_status, p.publication_status, p.cost_confidence,
+  p.created_at, p.updated_at,
+  COALESCE(k.total_kamar, 0)::int AS total_kamar,
+  COALESCE(k.kamar_tersedia, 0)::int AS kamar_tersedia,
+  COALESCE(k.kamar_terisi, 0)::int AS kamar_terisi,
+  k.harga_terendah,
+  img.image_url AS primary_photo_url
+`
+
+/**
+ * Sumber data pengelolaan.
+ *
+ * Agregat kamar dan foto utama dihitung di database, jadi satu halaman daftar
+ * tetap satu query meski propertinya banyak.
+ */
+const DARI_KELOLA = `
+  FROM properties p
+  LEFT JOIN (
+    SELECT property_id,
+           count(*) AS total_kamar,
+           count(*) FILTER (WHERE availability_status = 'AVAILABLE') AS kamar_tersedia,
+           count(*) FILTER (WHERE availability_status = 'OCCUPIED') AS kamar_terisi,
+           min(monthly_price) AS harga_terendah
+    FROM rooms
+    GROUP BY property_id
+  ) k ON k.property_id = p.id
+  LEFT JOIN LATERAL (
+    SELECT pi.image_url
+    FROM property_images pi
+    WHERE pi.property_id = p.id
+    ORDER BY pi.display_order ASC
+    LIMIT 1
+  ) img ON true
+`
+
+const toPropertiKelola = (row: PropertiKelolaRow) => ({
+  id: row.id,
+  name: row.name,
+  slug: row.slug,
+  description: row.description,
+  address: row.address,
+  province: row.province,
+  city: row.city,
+  district: row.district,
+  subdistrict: row.subdistrict,
+  postalCode: row.postal_code,
+  latitude: row.latitude === null ? null : Number(row.latitude),
+  longitude: row.longitude === null ? null : Number(row.longitude),
+  propertyType: row.property_type,
+  genderPolicy: row.gender_policy,
+  verificationStatus: row.verification_status,
+  publicationStatus: row.publication_status,
+  costConfidence: row.cost_confidence,
+  totalRooms: row.total_kamar,
+  availableRooms: row.kamar_tersedia,
+  occupiedRooms: row.kamar_terisi,
+  minMonthlyPrice: row.harga_terendah === null ? null : Number(row.harga_terendah),
+  primaryPhotoUrl: row.primary_photo_url,
+  createdAt: row.created_at,
+  updatedAt: row.updated_at,
+})
+
+/**
+ * Ambil properti dan pastikan pemanggilnya berhak mengelolanya.
+ *
+ * Properti milik orang lain dijawab 404, bukan 403. Jawaban 403 mengonfirmasi
+ * bahwa properti dengan id itu memang ada, dan itu sudah cukup bagi orang yang
+ * menebak-nebak id untuk memetakan properti siapa saja yang terdaftar.
+ *
+ * Admin dilewatkan: admin memang bertugas meninjau properti orang lain.
+ */
+const pastikanPemilik = async (user: AuthUser, propertyId: string): Promise<PropertiKelolaRow> => {
+  const row = await queryOne<PropertiKelolaRow>(
+    `SELECT ${KOLOM_KELOLA} ${DARI_KELOLA}
+     WHERE p.id = $1 AND p.deleted_at IS NULL`,
+    [propertyId],
+  )
+
+  if (!row) {
+    throw new HttpError(404, 'Properti tidak ditemukan')
+  }
+
+  if (user.role !== 'ADMIN' && row.owner_id !== user.userId) {
+    throw new HttpError(404, 'Properti tidak ditemukan')
+  }
+
+  return row
+}
+
+/**
+ * Alamat halaman yang unik untuk properti baru.
+ *
+ * Nama dijadikan slug supaya alamatnya bisa dibaca, lalu dipastikan belum
+ * dipakai lewat query. Kalau sudah dipakai, potongan id ditambahkan: nama kos
+ * yang sama di kota yang sama memang sering muncul, dan menolak simpan hanya
+ * karena namanya kembar akan menyulitkan pemilik yang tidak bersalah.
+ */
+const slugUnik = async (nama: string, id: string): Promise<string> => {
+  const dasar =
+    nama
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .slice(0, 60) || 'kos'
+
+  const terpakai = await queryOne<{ ada: boolean }>(
+    `SELECT true AS ada FROM properties WHERE slug = $1 LIMIT 1`,
+    [dasar],
+  )
+
+  return terpakai ? `${dasar}-${id.slice(0, 8)}` : dasar
+}
+
+/**
  * Ambil data lengkap untuk sekumpulan id properti, lalu kembalikan sesuai
  * urutan id yang diminta.
  *
@@ -360,6 +522,281 @@ export const propertiesService = {
   async listPublicByIds(ids: string[]) {
     const rows = await fetchListRows(ids, undefined, undefined, true)
     return rows.map(toListItem)
+  },
+
+  /**
+   * Properti milik satu pemilik, termasuk yang masih draf.
+   *
+   * Berbeda dari daftar publik yang hanya memuat properti terverifikasi dan
+   * terbit: halaman pengelolaan justru harus memperlihatkan properti yang belum
+   * lolos verifikasi. Kalau tidak, pemilik yang baru menambahkan properti akan
+   * melihat halaman kosong dan mengira datanya hilang.
+   */
+  async listMine(userId: string, params: ListMyPropertiesQuery) {
+    const countRow = await queryOne<{ total: number }>(
+      `SELECT count(*)::int AS total
+       FROM properties p
+       WHERE p.owner_id = $1 AND p.deleted_at IS NULL`,
+      [userId],
+    )
+
+    const offset = (params.page - 1) * params.limit
+
+    const rows = await query<PropertiKelolaRow>(
+      `SELECT ${KOLOM_KELOLA} ${DARI_KELOLA}
+       WHERE p.owner_id = $1 AND p.deleted_at IS NULL
+       ORDER BY p.created_at DESC
+       LIMIT $2 OFFSET $3`,
+      [userId, params.limit, offset],
+    )
+
+    const total = countRow?.total ?? 0
+
+    return {
+      items: rows.map(toPropertiKelola),
+      meta: {
+        page: params.page,
+        limit: params.limit,
+        total,
+        totalPages: Math.max(1, Math.ceil(total / params.limit)),
+      },
+    }
+  },
+
+  /** Tambah properti baru sebagai draf milik pemilik yang sedang masuk. */
+  async create(user: AuthUser, input: CreatePropertyInput) {
+    const id = randomUUID()
+
+    // Slug dibuat dari nama, bukan diminta ke pemilik: nama properti sudah
+    // cukup untuk alamat halaman, dan menambah satu isian lagi hanya menambah
+    // satu kesempatan salah isi.
+    const slug = await slugUnik(input.name, id)
+
+    // Hasilnya dibaca ulang lewat `pastikanPemilik`, bukan dari `RETURNING`.
+    // Daftar kolom pengelolaan dipakai bersama oleh daftar, detail, dan
+    // formulir, dan menyalinnya ke dalam `RETURNING` berarti satu tempat lagi
+    // yang harus ikut berubah setiap kali kolomnya bertambah. Yang lupa
+    // disalin tidak error, hanya muncul sebagai kolom hilang di respons.
+    await query(
+      `INSERT INTO properties (
+         id, owner_id, name, slug, description, address, province, city, district,
+         subdistrict, postal_code, latitude, longitude, property_type, gender_policy,
+         verification_status, publication_status
+       )
+       VALUES (
+         $1, $2, $3, $4, $5, $6, $7, $8, $9,
+         $10, $11, $12, $13, $14, $15,
+         'PENDING', 'DRAFT'
+       )`,
+      [
+        id,
+        user.userId,
+        input.name,
+        slug,
+        input.description ?? null,
+        input.address,
+        input.province,
+        input.city,
+        input.district,
+        input.subdistrict ?? null,
+        input.postalCode ?? null,
+        input.latitude ?? null,
+        input.longitude ?? null,
+        input.propertyType,
+        input.genderPolicy,
+      ],
+    )
+
+    return toPropertiKelola(await pastikanPemilik(user, id))
+  },
+
+  /** Ubah properti milik sendiri. Kepemilikan diperiksa sebelum apa pun ditulis. */
+  async update(user: AuthUser, propertyId: string, input: UpdatePropertyInput) {
+    await pastikanPemilik(user, propertyId)
+
+    // Pemetaan tetap, bukan dirangkai dari nama field masukan, supaya nama
+    // kolom tidak pernah bisa ditentukan oleh isi permintaan.
+    const peta: [keyof UpdatePropertyInput, string][] = [
+      ['name', 'name'],
+      ['description', 'description'],
+      ['address', 'address'],
+      ['province', 'province'],
+      ['city', 'city'],
+      ['district', 'district'],
+      ['subdistrict', 'subdistrict'],
+      ['postalCode', 'postal_code'],
+      ['latitude', 'latitude'],
+      ['longitude', 'longitude'],
+      ['propertyType', 'property_type'],
+      ['genderPolicy', 'gender_policy'],
+    ]
+
+    const assignments: string[] = []
+    const values: unknown[] = []
+
+    for (const [field, kolom] of peta) {
+      const nilai = input[field]
+      if (nilai === undefined) continue
+      values.push(nilai === '' ? null : nilai)
+      assignments.push(`${kolom} = $${values.length}`)
+    }
+
+    if (assignments.length === 0) {
+      throw new HttpError(400, 'Tidak ada perubahan yang dikirim')
+    }
+
+    values.push(propertyId)
+
+    await query(
+      `UPDATE properties SET ${assignments.join(', ')}, updated_at = now()
+       WHERE id = $${values.length} AND deleted_at IS NULL`,
+      values,
+    )
+
+    return this.detailMine(user, propertyId)
+  },
+
+  /**
+   * Satu properti milik sendiri, dipakai halaman pengelolaan dan formulir ubah.
+   *
+   * Tidak memakai `detailPublic` karena properti draf tidak akan pernah lolos
+   * penyaringnya, sehingga pemiliknya sendiri tidak bisa membuka propertinya
+   * yang belum terbit.
+   */
+  async detailMine(user: AuthUser, propertyId: string) {
+    const row = await pastikanPemilik(user, propertyId)
+
+    const [gambar, aturan, biaya, kamar] = await Promise.all([
+      query<Record<string, unknown>>(
+        `SELECT id, image_url, alt_text, is_primary, display_order
+         FROM property_images WHERE property_id = $1
+         ORDER BY display_order ASC`,
+        [propertyId],
+      ),
+      query<Record<string, unknown>>(
+        `SELECT id, rule_title, rule_description, is_mandatory
+         FROM property_rules WHERE property_id = $1
+         ORDER BY is_mandatory DESC, rule_title ASC`,
+        [propertyId],
+      ),
+      query<Record<string, unknown>>(
+        `SELECT id, name, amount, billing_type, is_mandatory, is_refundable,
+                cost_confidence, description
+         FROM cost_components WHERE property_id = $1 ORDER BY name ASC`,
+        [propertyId],
+      ),
+      query<Record<string, unknown>>(
+        `SELECT id, room_number, room_name, room_type, monthly_price,
+                maximum_occupants, bathroom_type, availability_status
+         FROM rooms WHERE property_id = $1 ORDER BY room_number ASC`,
+        [propertyId],
+      ),
+    ])
+
+    return {
+      ...toPropertiKelola(row),
+      description: row.description as string | null,
+      province: row.province as string,
+      subdistrict: row.subdistrict as string | null,
+      postalCode: row.postal_code as string | null,
+      latitude: row.latitude === null ? null : Number(row.latitude),
+      longitude: row.longitude === null ? null : Number(row.longitude),
+      images: gambar.map((image) => ({
+        id: image.id as string,
+        url: image.image_url as string | null,
+        alt: (image.alt_text as string | null) ?? (row.name as string),
+        isPrimary: image.is_primary as boolean,
+      })),
+      rules: aturan.map((rule) => ({
+        id: rule.id as string,
+        title: rule.rule_title as string,
+        description: rule.rule_description as string | null,
+        isMandatory: rule.is_mandatory as boolean,
+      })),
+      costs: biaya.map((item) => ({
+        id: item.id as string,
+        name: item.name as string,
+        amount: Number(item.amount),
+        billingType: item.billing_type as string,
+        isMandatory: item.is_mandatory as boolean,
+        isRefundable: item.is_refundable as boolean,
+        confidence: item.cost_confidence as string,
+        description: item.description as string | null,
+      })),
+      rooms: kamar.map((room) => ({
+        id: room.id as string,
+        roomNumber: room.room_number as string,
+        roomName: room.room_name as string | null,
+        roomType: room.room_type as string,
+        monthlyPrice: Number(room.monthly_price),
+        maximumOccupants: room.maximum_occupants as number,
+        bathroomType: room.bathroom_type as string,
+        availabilityStatus: room.availability_status as string,
+      })),
+    }
+  },
+
+  /**
+   * Ajukan properti untuk diverifikasi admin.
+   *
+   * Perpindahan statusnya dicatat di `property_verification_histories` supaya
+   * admin bisa melihat properti ini pernah ditolak dan mengapa, tanpa harus
+   * bertanya ke pemiliknya.
+   */
+  async submitForReview(user: AuthUser, propertyId: string) {
+    const properti = await pastikanPemilik(user, propertyId)
+
+    if (properti.verification_status === 'VERIFIED') {
+      throw new HttpError(409, 'Properti ini sudah terverifikasi')
+    }
+
+    if (properti.verification_status === 'UNDER_REVIEW') {
+      throw new HttpError(409, 'Properti ini sedang ditinjau admin')
+    }
+
+    await withTransaction(async (client) => {
+      await client.query(
+        `UPDATE properties
+         SET verification_status = 'UNDER_REVIEW', updated_at = now()
+         WHERE id = $1`,
+        [propertyId],
+      )
+
+      await client.query(
+        `INSERT INTO property_verification_histories
+           (property_id, previous_status, new_status, notes)
+         VALUES ($1, $2, 'UNDER_REVIEW', 'Diajukan pemilik untuk ditinjau')`,
+        [propertyId, properti.verification_status],
+      )
+    })
+
+    return this.detailMine(user, propertyId)
+  },
+
+  /**
+   * Terbitkan atau tarik properti dari daftar publik.
+   *
+   * Hanya properti terverifikasi yang boleh terbit. Properti draf yang bisa
+   * terbit akan tampil di halaman pencarian tanpa pernah diperiksa admin, dan
+   * itu justru hal yang verifikasi ini ada untuk mencegahnya.
+   */
+  async setPublication(user: AuthUser, propertyId: string, publicationStatus: 'PUBLISHED' | 'UNPUBLISHED') {
+    const properti = await pastikanPemilik(user, propertyId)
+
+    if (publicationStatus === 'PUBLISHED' && properti.verification_status !== 'VERIFIED') {
+      throw new HttpError(409, 'Properti harus terverifikasi dulu sebelum diterbitkan')
+    }
+
+    await query(
+      `UPDATE properties
+       SET publication_status = $2,
+           published_at = CASE WHEN $2 = 'PUBLISHED' THEN COALESCE(published_at, now()) ELSE published_at END,
+           updated_at = now()
+       WHERE id = $1`,
+      [propertyId, publicationStatus],
+    )
+
+    return this.detailMine(user, propertyId)
   },
 
   async detailPublic(slug: string) {
