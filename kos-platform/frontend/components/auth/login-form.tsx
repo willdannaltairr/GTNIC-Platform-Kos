@@ -5,6 +5,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { Loader2 } from 'lucide-react'
 import { AuthField } from '@/components/auth/auth-field'
+import { useSession } from '@/components/session/session-provider'
 import { loginAccount, type ApiError } from '@/lib/api'
 
 const DEMO_ACCOUNTS = [
@@ -29,6 +30,7 @@ const DEMO_PASSWORD = 'KosDemo123!'
  */
 export function LoginForm() {
   const router = useRouter()
+  const { reload } = useSession()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [submitting, setSubmitting] = useState(false)
@@ -43,6 +45,13 @@ export function LoginForm() {
 
     try {
       await loginAccount({ email, password })
+
+      // Sesi di klien dimuat ulang sebelum berpindah halaman. Provider hanya
+      // membaca sesi sekali saat dipasang, dan halaman masuk berpindah dengan
+      // navigasi klien, jadi tanpa ini navbar masih menampilkan tombol Masuk
+      // dan halaman berperan menolak pengunjung yang baru saja masuk.
+      await reload()
+
       setDone(true)
       // Beranda adalah halaman pertama yang isinya rekomendasi, kos terdekat,
       // rute lokasi ke lokasi, dan area terpopuler. Pengunjung yang baru masuk
