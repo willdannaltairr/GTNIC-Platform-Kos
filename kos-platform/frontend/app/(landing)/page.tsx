@@ -18,7 +18,7 @@ import HouseSection from '@/components/landing/house-section'
 import MotionProvider from '@/components/motion/motion-provider'
 
 export const metadata: Metadata = {
-  title: 'KosPlatform — Cari & Sewa Kos dengan Biaya Transparan',
+  title: 'KosPlatform, Cari & Sewa Kos dengan Biaya Transparan',
   description:
     'Bandingkan estimasi biaya total, jarak ke kampus atau kantor, dan ketersediaan kamar sebelum survei. Platform kos dengan informasi yang bisa diperiksa.',
 }
@@ -43,7 +43,7 @@ function RecommendedSkeleton() {
  *
  * Hanya halaman ini yang memakai bahasa visual landing sendiri (foto besar,
  * gerak berbasis gulir, tipografi Space Grotesk). Halaman /kos, /masuk,
- * /daftar, dan /kredit tetap memakai chrome dan komponen yang sudah ada.
+ * /daftar tetap memakai chrome dan komponen yang sudah ada.
  */
 export default function HomePage() {
   return (

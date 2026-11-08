@@ -4,7 +4,7 @@
 /* Token desain platform kos: hijau daun sebagai warna utama (hangat,
    terpercaya),
    latar krem-hijau lembut, dan aksen jingga untuk penanda penting.
-   Nilai lama tidak diubah sembarangan — kontras teks sudah diperiksa. */
+   Nilai lama tidak diubah sembarangan, kontras teks sudah diperiksa. */
 :root {
   --background: #f4f5f1;
   --foreground: #0e1a12;
@@ -44,8 +44,8 @@
 }
 
 /* Landing page memakai tiga keluarga hurufnya sendiri: DM Sans, Space Grotesk,
-   dan JetBrains Mono. Diterapkan sebagai kelas pada pembungkus landing — bukan
-   di :root — supaya halaman lain tidak ikut berubah. */
+   dan JetBrains Mono. Diterapkan sebagai kelas pada pembungkus landing, bukan
+   di :root, supaya halaman lain tidak ikut berubah. */
 .landing-scope {
   --font-app-sans: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
   --font-app-heading: 'Space Grotesk', 'DM Sans', ui-sans-serif, system-ui, sans-serif;
@@ -56,7 +56,7 @@
   /* Tiga token font dibaca lewat variabel perantara, bukan nilai mati: itu
      yang memungkinkan landing memakai tipografinya sendiri (DM Sans + Space
      Grotesk + JetBrains Mono) tanpa mengubah font halaman /kos, /masuk,
-     /daftar, dan /kredit yang tetap Plus Jakarta Sans. */
+     /daftar yang tetap Plus Jakarta Sans. */
   --font-sans: var(--font-app-sans, ui-sans-serif, system-ui, sans-serif);
   --font-heading: var(--font-app-heading, var(--font-app-sans), ui-sans-serif, system-ui, sans-serif);
   --font-mono: var(--font-app-mono, ui-monospace, 'SFMono-Regular', Menlo, monospace);

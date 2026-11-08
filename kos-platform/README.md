@@ -20,27 +20,27 @@ dikonfirmasi pemilik dan mana yang masih perkiraan.
 
 ## Untuk siapa
 
-**Pencari kos** — mahasiswa, pekerja, atau siapa pun yang pindah ke kota baru. Mencari dan
+**Pencari kos**, mahasiswa, pekerja, atau siapa pun yang pindah ke kota baru. Mencari dan
 membandingkan kos bisa dilakukan tanpa akun. Akun sudah bisa dibuat, tetapi fitur yang
-memakainya — menyimpan kos favorit, mengajukan sewa, memantau status — belum aktif.
+memakainya, menyimpan kos favorit, mengajukan sewa, memantau status, belum aktif.
 
-**Pemilik kos** — yang ingin propertinya dilihat calon penghuni dengan informasi yang jujur,
+**Pemilik kos**, yang ingin propertinya dilihat calon penghuni dengan informasi yang jujur,
 sehingga percakapan saat survei tidak dimulai dari selisih angka. Akun pemilik juga sudah bisa
 dibuat; halaman pengelolaannya belum ada.
 
 ## Yang bisa dilakukan di web ini
 
-### Mencari dan menyaring kos — `/kos`
+### Mencari dan menyaring kos, `/kos`
 
 Masukkan nama kos atau wilayah, lalu saring menurut kota, kecamatan, tipe kos (putra, putri,
-campur), kamar mandi dalam atau luar, rentang harga bulanan, dan fasilitas — mulai dari Wi-Fi,
+campur), kamar mandi dalam atau luar, rentang harga bulanan, dan fasilitas, mulai dari Wi-Fi,
 AC, kasur, lemari, parkir, dapur bersama, laundry, CCTV, sampai penjaga kos. Hasilnya bisa
 diurutkan dari yang terbaru atau menurut harga.
 
 Setiap pilihan filter ikut tertulis di alamat halaman, jadi hasil pencarian bisa disalin dan
 dibagikan persis seperti yang Anda lihat.
 
-### Melihat detail kos dan total biayanya — `/kos/[slug]`
+### Melihat detail kos dan total biayanya, `/kos/[slug]`
 
 Halaman detail menampilkan kamar yang tersedia, fasilitas, aturan kos, dan rincian biaya:
 sewa bulanan, deposit, listrik, air, internet, kebersihan. **Deposit tidak dihitung sebagai
@@ -53,35 +53,30 @@ Setiap rincian punya label kepercayaan:
 | --- | --- |
 | Biaya lengkap | Komponen utama sudah dikonfirmasi pemilik |
 | Biaya sebagian | Sebagian angka masih berupa perkiraan |
-| Perlu konfirmasi biaya | Ada komponen penting yang belum diketahui — sebaiknya ditanyakan saat survei |
+| Perlu konfirmasi biaya | Ada komponen penting yang belum diketahui, sebaiknya ditanyakan saat survei |
 
-### Membuat akun — `/masuk` dan `/daftar`
+### Membuat akun, `/masuk` dan `/daftar`
 
 Mendaftar sebagai pencari kos atau sebagai pemilik kos. Sesi masuk disimpan dengan pengaturan
 keamanan yang membuatnya tidak bisa dibaca skrip lain di halaman.
 
-### Beranda — `/`
+### Beranda, `/`
 
 Beranda menjelaskan cara kerja platform: foto bangunan kos saat pagi dan malam, kawasan yang
 bisa langsung dibuka pencariannya, penjelasan alat-alat yang disiapkan, langkah mencari kos
 dari menyaring sampai menempati kamar, manfaat untuk kedua sisi, tanya jawab, dan contoh kos
 terbaru yang bisa langsung diklik.
 
-### Kredit foto — `/kredit`
-
-Daftar foto pihak ketiga yang dipakai sebagai ilustrasi, lengkap dengan fotografer dan lisensi
-yang berlaku.
-
 ## Alat yang sedang disiapkan
 
 Tiga alat ini sudah tampil di beranda dan sedang dikerjakan bertahap:
 
-- **KosMatch** — skor kecocokan untuk tiap kos, dipecah menjadi empat faktor berbobot: anggaran
+- **KosMatch**, skor kecocokan untuk tiap kos, dipecah menjadi empat faktor berbobot: anggaran
   35%, lokasi 30%, fasilitas 20%, dan preferensi kamar 15%. Setiap skor disertai alasannya,
-  bukan angka misterius. *Belum aktif — belum bisa dipakai di halaman pencarian.*
-- **Rute & Sekitar** — jarak dan estimasi waktu tempuh ke kampus, kantor, stasiun, atau terminal,
-  plus tempat penting di sekitar kos. *Belum aktif — koordinat properti sudah disiapkan.*
-- **Room Passport** — dokumentasi kondisi kamar saat masuk dan keluar masa sewa, lengkap dengan
+  bukan angka misterius. *Belum aktif, belum bisa dipakai di halaman pencarian.*
+- **Rute & Sekitar**, jarak dan estimasi waktu tempuh ke kampus, kantor, stasiun, atau terminal,
+  plus tempat penting di sekitar kos. *Belum aktif, koordinat properti sudah disiapkan.*
+- **Room Passport**, dokumentasi kondisi kamar saat masuk dan keluar masa sewa, lengkap dengan
   foto dan catatan, disetujui kedua pihak. *Belum aktif.*
 
 ## Prinsip yang dipegang
@@ -90,7 +85,7 @@ Tiga alat ini sudah tampil di beranda dan sedang dikerjakan bertahap:
 - **Setiap angka membawa sumbernya.** Nilai yang dikonfirmasi pemilik dipisahkan dari nilai
   perkiraan, sehingga tidak ada angka yang tampak pasti padahal belum dicek.
 - **Batasannya disebutkan.** Kalau ada komponen biaya yang belum diketahui, web ini
-  menuliskannya sebagai daftar pertanyaan untuk survei — bukan mengosongkannya.
+  menuliskannya sebagai daftar pertanyaan untuk survei, bukan mengosongkannya.
 - **Ketersediaan yang lama tidak diperbarui ditandai**, bukan ditampilkan seolah pasti.
 - **Kami tidak menebak, kami mencatat.** Ulasan hanya dari penyewa yang punya transaksi sah.
 
@@ -103,7 +98,6 @@ Tiga alat ini sudah tampil di beranda dan sedang dikerjakan bertahap:
 | Detail kos | `/kos/[slug]` | Kamar, fasilitas, aturan, dan rincian biaya |
 | Masuk | `/masuk` | Form masuk |
 | Daftar | `/daftar` | Form pendaftaran pencari kos atau pemilik kos |
-| Kredit foto | `/kredit` | Sumber dan lisensi foto yang dipakai |
 
 ## Status saat ini
 
@@ -114,27 +108,27 @@ dengan rincian biaya, serta pendaftaran dan masuk akun.
 pemilik kos, pemesanan dan pembayaran sewa, dokumentasi kamar (Room Passport), dan ulasan
 penghuni.
 
-> **Datanya masih contoh.** Yang tampil sekarang adalah 6 kos demo di 6 kota — Bandung, Depok,
-> Jakarta Selatan, Malang, Sleman, dan Surabaya — beserta kamar, fasilitas, aturan, dan komponen
+> **Datanya masih contoh.** Yang tampil sekarang adalah 6 kos demo di 6 kota, Bandung, Depok,
+> Jakarta Selatan, Malang, Sleman, dan Surabaya, beserta kamar, fasilitas, aturan, dan komponen
 > biayanya. Semuanya fiktif dan dipakai supaya alur pencarian sampai rincian biaya bisa dicoba
 > apa adanya, bukan untuk menggambarkan harga pasar yang sebenarnya.
 
 ---
 
-**Panduan teknis.** Sisa dokumen ini menjelaskan cara menjalankan dan mengembangkan platformnya —
+**Panduan teknis.** Sisa dokumen ini menjelaskan cara menjalankan dan mengembangkan platformnya -
 struktur monorepo, perintah, API, dan skema database.
 
 ## Struktur monorepo
 
 ```text
 kos-platform/
-├── frontend/                 # Next.js App Router — web publik
+├── frontend/                 # Next.js App Router, web publik
 │   ├── app/                  # rute: (landing)/ dan (site)/
 │   ├── components/           # landing/, kos/, motion/, komponen bersama
 │   ├── hooks/                # use-media-query, use-prefers-reduced-motion
 │   ├── lib/                  # api.ts (klien API), format.ts, landing.ts, constants.ts
 │   └── public/images/        # foto demo + CREDITS.md
-├── backend/                  # Express + TypeScript — REST API
+├── backend/                  # Express + TypeScript, REST API
 │   ├── scripts/db-local.mjs  # kelola cluster PostgreSQL dev proyek
 │   ├── scripts/db-sql.mjs    # jalankan migration/seed SQL ke database
 │   └── src/                  # config, lib (koneksi + query), middleware, modules, routes
@@ -152,20 +146,20 @@ kos-platform/
 | --- | --- |
 | Frontend | Next.js 16.2.3 (App Router, Turbopack), React 19.2.4, TypeScript 5, Tailwind CSS v4, motion 14, lenis, lucide-react, three + @react-three/fiber (kartu 3D) |
 | Backend | Node.js, Express 4, TypeScript 5, Zod 3, node-postgres (`pg` 8), ts-node (dev) |
-| Database | PostgreSQL (lokal atau Supabase) — **tanpa ORM**: skema, migration, dan seluruh query ditulis SQL langsung |
+| Database | PostgreSQL (lokal atau Supabase), **tanpa ORM**: skema, migration, dan seluruh query ditulis SQL langsung |
 | Auth | JWT pada cookie HttpOnly (access 15 menit + refresh 7 hari), bcrypt untuk password |
 | Middleware | helmet, cors, express-rate-limit, cookie-parser, logger permintaan, error handler terpusat |
 
 Sudah ada di `.env.example` tetapi **belum dipakai kode**: Midtrans, Google Maps Platform,
 Cloudinary, Resend, dan Sentry. Variabelnya disiapkan untuk fase berikutnya, bukan
-ketergantungan aktif — tidak ada satu pun yang diimpor di `backend/src` maupun `frontend`.
+ketergantungan aktif, tidak ada satu pun yang diimpor di `backend/src` maupun `frontend`.
 
 ## Prasyarat
 
 - Node.js **20.9+** (syarat Next.js 16; diuji pada Node 22.17)
 - npm 10+
 - Database **PostgreSQL**, salah satu:
-  - **Supabase** — cukup connection string dari dashboard, atau
+  - **Supabase**, cukup connection string dari dashboard, atau
   - **cluster lokal** untuk mengembangkan tanpa internet (PostgreSQL terpasang di mesin, diuji pada PostgreSQL 18)
 - Supabase CLI **hanya bila** memakai Supabase (dijalankan lewat `npx supabase`, tidak perlu dipasang global)
 
@@ -179,7 +173,7 @@ cp .env.example backend/.env # lalu isi DATABASE_URL dan JWT_SECRET
 cp .env.example frontend/.env.local   # cukup sisakan NEXT_PUBLIC_API_URL
 ```
 
-### Pilihan A — database Supabase
+### Pilihan A, database Supabase
 
 Ambil connection string dari dashboard Supabase (**Connect → Session pooler**), lalu
 tempel ke `DATABASE_URL` di `backend/.env`.
@@ -189,7 +183,7 @@ tempel ke `DATABASE_URL` di `backend/.env`.
 > host itu tidak bisa dihubungi sama sekali. Session pooler
 > (`aws-<n>-<region>.pooler.supabase.com:5432`) selalu IPv4.
 >
-> Menempelkan `?sslmode=require` di connection string juga tidak membantu — driver `pg`
+> Menempelkan `?sslmode=require` di connection string juga tidak membantu, driver `pg`
 > akan mengabaikan pengaturan TLS dari aplikasi begitu parameter itu ada. Enkripsi sudah
 > diurus otomatis oleh `backend/src/lib/db.ts`.
 
@@ -207,14 +201,14 @@ langsung), berikan connection string pooler secara eksplisit:
 npx supabase db push --db-url "postgresql://postgres.<ref>:[PASSWORD]@aws-<n>-<region>.pooler.supabase.com:5432/postgres"
 ```
 
-### Pilihan B — PostgreSQL lokal
+### Pilihan B, PostgreSQL lokal
 
 ```bash
 npm run db:local -- init     # buat cluster PostgreSQL di 127.0.0.1:5433 (sekali saja)
 npm run db:setup             # buat seluruh tabel, lalu isi data demo
 ```
 
-Lalu satu perintah menyalakan keduanya — API di port 4000, web di port 3000:
+Lalu satu perintah menyalakan keduanya, API di port 4000, web di port 3000:
 
 ```bash
 npm run dev                  # API + web sekaligus di satu terminal
@@ -260,8 +254,8 @@ Referensi lengkap ada di [`.env.example`](.env.example). Yang benar-benar wajib:
 
 | Variable | Berkas | Keterangan |
 | --- | --- | --- |
-| `DATABASE_URL` | `backend/.env` | Wajib — API menolak start bila kosong |
-| `JWT_SECRET` | `backend/.env` | Wajib — ganti sebelum dipakai di luar mesin lokal |
+| `DATABASE_URL` | `backend/.env` | Wajib, API menolak start bila kosong |
+| `JWT_SECRET` | `backend/.env` | Wajib, ganti sebelum dipakai di luar mesin lokal |
 | `FRONTEND_URL` | `backend/.env` | Origin yang diizinkan CORS; boleh beberapa, dipisah koma |
 | `NEXT_PUBLIC_API_URL` | `frontend/.env.local` | Default `http://localhost:4000` bila kosong |
 
@@ -273,10 +267,9 @@ layanan pihak ketiga) punya nilai default di `backend/src/config/env.ts`.
 | Rute | Grup | Isi |
 | --- | --- | --- |
 | `/` | `(landing)` | Landing page: hero foto, marquee kawasan, manifesto, produk, solusi, lokasi, kos terbaru dari API, cara kerja, manfaat, angka, tentang, tanya jawab, ajakan akhir, dan kartu 3D rumah kos |
-| `/kos` | `(site)` | Pencarian kos dengan filter (kata kunci, kota, kecamatan, tipe, kamar mandi, rentang harga, fasilitas, urutan) — seluruh filter ditulis ke URL sehingga hasil bisa dibagikan |
+| `/kos` | `(site)` | Pencarian kos dengan filter (kata kunci, kota, kecamatan, tipe, kamar mandi, rentang harga, fasilitas, urutan), seluruh filter ditulis ke URL sehingga hasil bisa dibagikan |
 | `/kos/[slug]` | `(site)` | Detail properti: kamar, fasilitas, aturan, komponen biaya, dan ringkasan TrueCost |
 | `/masuk` · `/daftar` | `(site)` | Form autentikasi yang terhubung API |
-| `/kredit` | `(site)` | Kredit foto Pexels yang dipakai sebagai ilustrasi demo |
 | `not-found` · `error` | akar app | Halaman 404 dan 500, lengkap dengan header/footer situs |
 
 Landing memakai chrome sendiri (header dan footer khusus, tipografi DM Sans + Space
@@ -319,7 +312,7 @@ Semuanya benar-benar diterapkan di query database, bukan hanya disaring di front
 
 | Status | Isi |
 | --- | --- |
-| 400 | Validasi Zod gagal — `errors[]` berisi `{ field, message }` |
+| 400 | Validasi Zod gagal, `errors[]` berisi `{ field, message }` |
 | 401 / 403 | Belum login / peran tidak diizinkan |
 | 404 | Properti tidak ditemukan |
 | 429 | Rate limit terlampaui |
@@ -339,11 +332,11 @@ Skema dipegang **SQL langsung**, tanpa ORM. Seluruh definisinya ada di `supabase
 Jalankan dengan `npm run db:migrate` dan `npm run db:seed` (keduanya membaca `DATABASE_URL`),
 atau deploy ke Supabase lewat `npm run db:push`.
 
-Tiga hal yang diurus database sendiri — dulu dikerjakan aplikasi:
+Tiga hal yang diurus database sendiri, dulu dikerjakan aplikasi:
 
 - **`id`** punya `DEFAULT gen_random_uuid()`, jadi UUID dibuat database, bukan kode.
 - **`created_at` / `updated_at`** punya default `now()`, dan trigger `set_updated_at()`
-  memperbarui `updated_at` di setiap `UPDATE` — tidak bisa terlupa di query.
+  memperbarui `updated_at` di setiap `UPDATE`, tidak bisa terlupa di query.
 - **Keunikan email** dijaga indeks unik, bukan pemeriksaan terpisah di aplikasi, sehingga
   dua pendaftaran bersamaan tidak bisa sama-sama lolos (backend menerjemahkan pelanggaran
   indeks `23505` menjadi 409 "Email sudah terdaftar").
@@ -366,7 +359,7 @@ dipakai endpoint. Sisanya masih tabel kosong tanpa API.
 - **TLS otomatis.** Menyala untuk host non-lokal (Supabase wajib terenkripsi), mati untuk
   localhost yang umumnya tanpa TLS. Paksa dengan `DB_SSL=require` atau `DB_SSL=disable`.
 - **Parameter `sslmode` di connection string dibuang lebih dulu.** Kalau tidak, `pg` akan
-  menimpakan objek `ssl`-nya sendiri dan pengaturan aplikasi diabaikan — sumber galat
+  menimpakan objek `ssl`-nya sendiri dan pengaturan aplikasi diabaikan, sumber galat
   "self-signed certificate in certificate chain" yang membingungkan.
 - **Query lewat parameter, bukan rangkaian teks.** Semua nilai filter dikirim sebagai `$1`,
   `$2`, … sehingga filter pencarian yang jumlahnya berubah-ubah tetap aman dari injeksi.
@@ -375,7 +368,7 @@ dipakai endpoint. Sisanya masih tabel kosong tanpa API.
 
 Skema `public` disiapkan tertutup: RLS menyala di seluruh tabel dan hak akses `anon` serta
 `authenticated` dicabut. Alasannya, Supabase mengekspos `public` sebagai REST API yang bisa
-dipanggil siapa pun yang memegang kunci publik — dan pada tabel yang dibuat lewat SQL
+dipanggil siapa pun yang memegang kunci publik, dan pada tabel yang dibuat lewat SQL
 migration, RLS **tidak** menyala otomatis. Tanpa langkah ini, `password_hash` bisa terbaca
 dari browser. Aplikasi tidak terpengaruh karena backend masuk sebagai pemilik tabel, dan
 pemilik tabel melewati RLS.
@@ -400,7 +393,7 @@ Password semua akun: `KosDemo123!` (data fiktif, hanya untuk demo lokal).
 
 Seed juga mengisi 6 properti contoh (Kos Melati Putri, Kos Anggrek Campur, Kos Cendana Putra,
 Kos Bougenville Putri, Kos Flamboyan Campur, Kos Kenanga Putri) di Bandung, Depok, Jakarta
-Selatan, Malang, Sleman, dan Surabaya — lengkap dengan kamar, foto, fasilitas, aturan, dan
+Selatan, Malang, Sleman, dan Surabaya, lengkap dengan kamar, foto, fasilitas, aturan, dan
 komponen biaya sehingga halaman `/kos` dan `/kos/[slug]` langsung ada isinya.
 
 ## Simulasi biaya (TrueCost)
@@ -419,21 +412,21 @@ detail dengan aturan yang dipegang ketat:
 | Fase | Isi | Status |
 | --- | --- | --- |
 | 1 | Foundation: monorepo, Next.js, Express, TypeScript, PostgreSQL, skema SQL langsung, env config, error handling, logging, API versioning | Selesai |
-| 2 | Authentication & Authorization: register, login, logout, profil, RBAC, rate limit | Berjalan — endpoint inti sudah ada; endpoint refresh token belum |
-| 3 | Property & Room Management | Sebagian — baru endpoint baca publik; belum ada CRUD pemilik |
-| 4 | Search & Discovery (KosMatch, TrueCost Simulator) | Sebagian — filter pencarian dan TrueCost sudah jalan; skor KosMatch belum diimplementasikan |
-| 5 | Booking & Contract | Belum — tabel sudah ada |
+| 2 | Authentication & Authorization: register, login, logout, profil, RBAC, rate limit | Berjalan, endpoint inti sudah ada; endpoint refresh token belum |
+| 3 | Property & Room Management | Sebagian, baru endpoint baca publik; belum ada CRUD pemilik |
+| 4 | Search & Discovery (KosMatch, TrueCost Simulator) | Sebagian, filter pencarian dan TrueCost sudah jalan; skor KosMatch belum diimplementasikan |
+| 5 | Booking & Contract | Belum, tabel sudah ada |
 | 6 | Payment & Billing | Belum |
 | 7 | Tenant & Owner Operations | Belum |
 | 8 | Admin Management | Belum |
-| 9 | Map & Location | Belum — koordinat properti sudah tersimpan |
+| 9 | Map & Location | Belum, koordinat properti sudah tersimpan |
 | 10 | Testing & Polishing | Belum ada test otomatis di repo |
 
 ## Keamanan
 
 - Password di-hash bcrypt; token JWT hanya lewat cookie HttpOnly (tidak di localStorage).
 - **Query memakai parameter, bukan rangkaian teks.** Tidak ada satu pun nilai dari pengguna
-  yang disisipkan ke dalam teks SQL — termasuk filter pencarian yang jumlahnya berubah-ubah.
+  yang disisipkan ke dalam teks SQL, termasuk filter pencarian yang jumlahnya berubah-ubah.
 - **Daftar kolom ditulis eksplisit.** Tidak ada `SELECT *`, sehingga kolom sensitif seperti
   `password_hash` tidak ikut terkirim hanya karena ada kolom baru ditambahkan.
 - **Keunikan dijaga database.** Pendaftaran email ganda ditolak indeks unik, bukan oleh
@@ -447,6 +440,7 @@ detail dengan aturan yang dipegang ketat:
 
 ## Kredit foto
 
-Foto kamar dan rumah pada halaman demo berasal dari Pexels dan dipakai sesuai lisensinya —
-daftar lengkap ada di halaman `/kredit` dan di
-[`frontend/public/images/CREDITS.md`](frontend/public/images/CREDITS.md).
+Foto kamar dan rumah pada halaman demo berasal dari Pexels. Lisensi Pexels tidak mewajibkan
+atribusi, tetapi kredit tetap dicantumkan di
+[`frontend/public/images/CREDITS.md`](frontend/public/images/CREDITS.md) sebagai penghargaan
+kepada fotografernya.

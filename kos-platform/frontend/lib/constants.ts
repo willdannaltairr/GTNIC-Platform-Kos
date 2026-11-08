@@ -30,11 +30,11 @@ export const HERO_STATS = [
 
 export const LOCATIONS = [
   { city: 'Jakarta Selatan', area: 'Kebayoran Baru', href: '/kos?city=Jakarta%20Selatan' },
-  { city: 'Bandung', area: 'Coblong — dekat kampus', href: '/kos?city=Bandung' },
-  { city: 'Yogyakarta', area: 'Sleman — Jalan Kaliurang', href: '/kos?city=Sleman' },
-  { city: 'Surabaya', area: 'Gubeng — dekat stasiun', href: '/kos?city=Surabaya' },
-  { city: 'Malang', area: 'Lowokwaru — kawasan kampus', href: '/kos?city=Malang' },
-  { city: 'Depok', area: 'Beji — dekat UI', href: '/kos?city=Depok' },
+  { city: 'Bandung', area: 'Coblong, dekat kampus', href: '/kos?city=Bandung' },
+  { city: 'Yogyakarta', area: 'Sleman, Jalan Kaliurang', href: '/kos?city=Sleman' },
+  { city: 'Surabaya', area: 'Gubeng, dekat stasiun', href: '/kos?city=Surabaya' },
+  { city: 'Malang', area: 'Lowokwaru, kawasan kampus', href: '/kos?city=Malang' },
+  { city: 'Depok', area: 'Beji, dekat UI', href: '/kos?city=Depok' },
 ]
 
 export const FEATURES = [
@@ -43,11 +43,11 @@ export const FEATURES = [
     name: 'KosMatch',
     tagline: 'Rekomendasi sesuai kebutuhan Anda',
     description:
-      'Masukkan anggaran, lokasi tujuan, dan fasilitas yang dibutuhkan. KosMatch memberi skor kecocokan dengan bobot yang jelas — anggaran 35%, lokasi 30%, fasilitas 20%, preferensi kamar 15%. Setiap skor disertai alasan, bukan angka misterius.',
+      'Masukkan anggaran, lokasi tujuan, dan fasilitas yang dibutuhkan. KosMatch memberi skor kecocokan dengan bobot yang jelas, anggaran 35%, lokasi 30%, fasilitas 20%, preferensi kamar 15%. Setiap skor disertai alasan, bukan angka misterius.',
     bullets: [
       'Kategori Best Overall, Best Budget, Best Location, Best Facilities',
       'Skor adalah estimasi kecocokan, bukan jaminan kualitas',
-      'Bukan disebut AI — ini algoritma pembobotan yang bisa Anda periksa',
+      'Bukan disebut AI, ini algoritma pembobotan yang bisa Anda periksa',
     ],
   },
   {
@@ -55,7 +55,7 @@ export const FEATURES = [
     name: 'Simulasi Biaya (TrueCost)',
     tagline: 'Tahu total biaya sebelum memesan',
     description:
-      'Harga sewa bukan satu-satunya biaya. Simulasi Biaya menghitung deposit, listrik, air, internet, dan biaya lain — lalu memisahkan yang pasti dari yang masih estimasi. Deposit tidak dihitung sebagai biaya bulanan.',
+      'Harga sewa bukan satu-satunya biaya. Simulasi Biaya menghitung deposit, listrik, air, internet, dan biaya lain, lalu memisahkan yang pasti dari yang masih estimasi. Deposit tidak dihitung sebagai biaya bulanan.',
     bullets: [
       'Estimasi biaya masuk, bulanan, 3, 6, dan 12 bulan',
       'Label Cost Confidence: lengkap, sebagian, atau perlu konfirmasi',
@@ -172,7 +172,7 @@ export const FAQS = [
   {
     question: 'Apa itu Room Passport?',
     answer:
-      'Dokumentasi kondisi kamar yang dibuat saat masuk dan keluar masa sewa, lengkap dengan foto dan catatan kerusakan yang sudah ada. Kedua pihak dapat menyetujui laporan. Dokumen ini membantu mengurangi kesalahpahaman — bukan penentu otomatis siapa yang bersalah.',
+      'Dokumentasi kondisi kamar yang dibuat saat masuk dan keluar masa sewa, lengkap dengan foto dan catatan kerusakan yang sudah ada. Kedua pihak dapat menyetujui laporan. Dokumen ini membantu mengurangi kesalahpahaman, bukan penentu otomatis siapa yang bersalah.',
   },
 ]
 
@@ -199,7 +199,6 @@ export const FOOTER_LINKS = [
     links: [
       { href: '/masuk', label: 'Masuk' },
       { href: '/daftar', label: 'Buat Akun' },
-      { href: '/kredit', label: 'Kredit Foto' },
       { href: '/#tanya-jawab', label: 'Tanya Jawab' },
     ],
   },

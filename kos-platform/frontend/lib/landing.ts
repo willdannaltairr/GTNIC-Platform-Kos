@@ -60,7 +60,6 @@ export const LANDING_FOOTER_COLUMNS: LandingFooterColumn[] = [
     title: 'Lainnya',
     links: [
       { label: 'Tanya Jawab', href: '/#tanya-jawab' },
-      { label: 'Kredit Foto', href: '/masuk' },
       { label: 'Masuk', href: '/masuk' },
     ],
   },
@@ -83,7 +82,7 @@ export const HERO = {
       label: 'Pagi',
       caption: 'Bangunan yang Anda lihat',
       description:
-        'Fasad, atap, dan lingkungan sekitar rumah kos terlihat apa adanya sebelum Anda berangkat survei. Semua biaya — sewa, deposit, listrik, air, internet — sudah terhitung sejak awal.',
+        'Fasad, atap, dan lingkungan sekitar rumah kos terlihat apa adanya sebelum Anda berangkat survei. Semua biaya, sewa, deposit, listrik, air, internet, sudah terhitung sejak awal.',
       image: '/images/hero-kos-pagi.jpg',
       imageAlt: 'Rumah kos berlantai satu dengan panel surya di atap, dilihat dari halaman depan pada pagi hari',
     },
@@ -183,7 +182,7 @@ export const LANDING_STATS: LandingStat[] = [
   {
     value: '3',
     label: 'tingkat Cost Confidence',
-    detail: 'Biaya lengkap, sebagian, atau perlu konfirmasi — selalu ditampilkan apa adanya.',
+    detail: 'Biaya lengkap, sebagian, atau perlu konfirmasi, selalu ditampilkan apa adanya.',
   },
 ]
 
@@ -197,7 +196,7 @@ export interface CostRow {
 /**
  * Rincian biaya contoh untuk panel TrueCost di landing.
  *
- * Angka ini ilustrasi tampilan, bukan properti sungguhan — sama seperti data
+ * Angka ini ilustrasi tampilan, bukan properti sungguhan, sama seperti data
  * demo di halaman /kos. Label keterangannya sengaja ditulis seperti di produk.
  */
 export const COST_DEMO = {
@@ -254,7 +253,7 @@ export const SOLUTION_STAGES: SolutionStage[] = [
     id: 'kosmatch',
     label: 'KosMatch',
     title: 'Rekomendasi yang alasannya bisa Anda periksa.',
-    text: 'Masukkan anggaran, lokasi tujuan, dan fasilitas yang dibutuhkan. Setiap skor dipecah menjadi empat faktor berbobot — tidak ada angka misterius di baliknya.',
+    text: 'Masukkan anggaran, lokasi tujuan, dan fasilitas yang dibutuhkan. Setiap skor dipecah menjadi empat faktor berbobot, tidak ada angka misterius di baliknya.',
     bullets: FEATURES[0].bullets,
     tone: 'dark',
   },
@@ -272,7 +271,7 @@ export const SOLUTION_STAGES: SolutionStage[] = [
     id: 'campusroute',
     label: 'Rute & Sekitar',
     title: 'Tahu jaraknya sebelum berangkat survei.',
-    text: 'Jarak dan estimasi waktu tempuh ke kampus, kantor, stasiun, atau terminal — plus tempat penting di sekitar kos yang membuat hidup sehari-hari lebih mudah.',
+    text: 'Jarak dan estimasi waktu tempuh ke kampus, kantor, stasiun, atau terminal, plus tempat penting di sekitar kos yang membuat hidup sehari-hari lebih mudah.',
     bullets: FEATURES[2].bullets,
     tone: 'light',
   },
@@ -313,7 +312,7 @@ export interface PreviewResult {
   facilities: string[]
 }
 
-/** Contoh layar pencarian untuk pratinjau platform — angka ilustrasi tampilan. */
+/** Contoh layar pencarian untuk pratinjau platform, angka ilustrasi tampilan. */
 export const SEARCH_PREVIEW = {
   keywords: 'kos putri',
   city: 'Sleman',
@@ -408,7 +407,7 @@ export interface Testimonial {
 export const TESTIMONIALS: Testimonial[] = [
   {
     quote:
-      'Yang berubah bukan pilihan kosnya, tapi saya tahu persis apa yang saya bayar. Deposit, listrik, air — semuanya sudah ada angkanya sebelum saya datang survei.',
+      'Yang berubah bukan pilihan kosnya, tapi saya tahu persis apa yang saya bayar. Deposit, listrik, air, semuanya sudah ada angkanya sebelum saya datang survei.',
     author: 'Rani Prameswari',
     role: 'Mahasiswa',
     company: 'Depok',
