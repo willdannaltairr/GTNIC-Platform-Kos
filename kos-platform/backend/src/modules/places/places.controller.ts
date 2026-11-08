@@ -36,4 +36,28 @@ export const placesController = {
       meta: { total: data.length },
     })
   },
+
+  async facilities(req: Request, res: Response): Promise<void> {
+    // `kategori` hanya menerima dua nilai enum kolomnya. Nilai lain ditolak
+    // dengan 400, bukan diam-diam diabaikan: permintaan yang salah bentuk harus
+    // terlihat salah, bukan menghasilkan daftar lengkap tanpa penjelasan.
+    const kategori = req.query.category
+    if (kategori !== undefined && kategori !== 'PROPERTY' && kategori !== 'ROOM') {
+      res.status(400).json({
+        success: false,
+        message: 'Kategori fasilitas harus PROPERTY atau ROOM',
+        errors: [],
+      })
+      return
+    }
+
+    const data = await placesService.listFacilities(kategori)
+
+    res.json({
+      success: true,
+      message: 'Daftar fasilitas',
+      data,
+      meta: { total: data.length },
+    })
+  },
 }

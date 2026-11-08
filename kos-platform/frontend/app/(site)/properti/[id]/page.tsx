@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
-import { ArrowLeft, Loader2 } from 'lucide-react'
+import { ArrowLeft, Loader2, Plus } from 'lucide-react'
 import { useSession } from '@/components/session/session-provider'
 import { EmptyRow, Panel, StatusBadge } from '@/components/dashboard/kit'
 import { PropertiForm } from '@/components/owner/properti-form'
@@ -250,10 +250,13 @@ export default function PropertiDetailPage() {
               {data.rooms.map((kamar) => (
                 <li key={kamar.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
                   <div className="min-w-0">
-                    <p className="truncate text-sm font-medium">
+                    <Link
+                      href={`/properti/${data.id}/kamar/${kamar.id}`}
+                      className="truncate text-sm font-medium hover:underline"
+                    >
                       Kamar {kamar.roomNumber}
                       {kamar.roomName ? ` · ${kamar.roomName}` : ''}
-                    </p>
+                    </Link>
                     <p className="mt-0.5 text-xs text-muted-foreground">
                       {formatRupiah(kamar.monthlyPrice)} per bulan ·{' '}
                       {BATHROOM_LABEL[kamar.bathroomType] ?? kamar.bathroomType} · maksimal{' '}
@@ -267,6 +270,16 @@ export default function PropertiDetailPage() {
               ))}
             </ul>
           )}
+
+          <div className="mt-4 border-t border-border pt-4">
+            <Link
+              href={`/properti/${data.id}/kamar/baru`}
+              className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-primary px-4 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary-strong"
+            >
+              <Plus className="size-4" aria-hidden="true" />
+              Tambah kamar
+            </Link>
+          </div>
         </Panel>
 
         {data.costs.length > 0 && (
