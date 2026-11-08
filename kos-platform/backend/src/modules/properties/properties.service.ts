@@ -210,6 +210,7 @@ const fetchListRows = async (
   ids: string[],
   pengunjung?: GeoPoint,
   asal?: GeoPoint,
+  hanyaPublik = false,
 ): Promise<ListRow[]> => {
   if (ids.length === 0) return []
 
@@ -259,9 +260,16 @@ const fetchListRows = async (
        ORDER BY pi.display_order ASC
        LIMIT 1
      ) img ON true
-     WHERE p.id = ANY($1::uuid[])`,
-    values,
-  )
+     WHERE p.id = ANY($1::uuid[])
+       ${
+         hanyaPublik
+           ? `AND p.deleted_at IS NULL
+              AND p.publication_status = 'PUBLISHED'
+              AND p.verification_status = 'VERIFIED'`
+           : ''
+       }`,
+     values,
+     )
 
   const byId = new Map(rows.map((row) => [row.id, row]))
   return ids.map((id) => byId.get(id)).filter((row): row is ListRow => row !== undefined)
@@ -336,6 +344,22 @@ export const propertiesService = {
         totalPages: Math.max(1, Math.ceil(total / params.limit)),
       },
     }
+  },
+
+  /**
+   * Beberapa properti sekaligus berdasarkan id, dalam bentuk kartu daftar.
+   *
+   * Dipakai halaman favorit. Pengunjung membuka halaman itu untuk melihat
+   * kosnya, jadi mengirim daftar id saja memaksa frontend memanggil API sekali
+   * lagi untuk setiap baris.
+   *
+   * Hanya properti yang masih terpublikasi dan terverifikasi yang dikembalikan.
+   * Properti yang ditarik pemiliknya akan mengarah ke halaman yang tidak ada,
+   * dan satu kartu seperti itu membuat seluruh daftar favorit terasa rusak.
+   */
+  async listPublicByIds(ids: string[]) {
+    const rows = await fetchListRows(ids, undefined, undefined, true)
+    return rows.map(toListItem)
   },
 
   async detailPublic(slug: string) {
