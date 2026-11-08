@@ -2,15 +2,36 @@ import { env } from '../config/env'
 import { HttpError } from './httpError'
 
 /**
- * Penyimpanan foto di Supabase Storage.
+ * Penyimpanan berkas di Supabase Storage.
  *
  * Backend yang memegang kunci rahasia dan yang mengunggah, browser tidak
  * pernah menerima kunci itu, dan tidak ada jalur unggah langsung dari klien.
  * Konsekuensinya seluruh berkas melewati validasi di sini lebih dulu.
+ *
+ * Ada dua bucket, dan bedanya disengaja:
+ *
+ *   * `room-photos` publik, karena foto kamar memang ditampilkan di halaman
+ *     publik dan alamatnya boleh dibagikan.
+ *   * `owner-documents` privat, karena isinya KTP, swafoto dengan KTP, NPWP,
+ *     dan buku rekening. URL publik tidak bisa ditarik kembali setelah bocor,
+ *     jadi yang diberikan ke admin adalah URL bertanda tangan yang kedaluwarsa
+ *     dalam hitungan menit.
  */
 
-/** Batas ukuran satu berkas. Selaraskan dengan `file_size_limit` bucket. */
+/** Batas ukuran satu foto. Selaraskan dengan `file_size_limit` bucket. */
 export const MAX_PHOTO_BYTES = 8 * 1024 * 1024
+
+/**
+ * Batas ukuran satu dokumen verifikasi.
+ *
+ * Nilainya kebetulan sama dengan batas foto, tetapi tetap ditulis sebagai nama
+ * sendiri supaya pesan galatnya bisa menyebut dokumen dan bukan foto, dan
+ * supaya mengubah salah satunya tidak diam-diam mengubah yang lain.
+ */
+export const MAX_DOCUMENT_BYTES = 8 * 1024 * 1024
+
+/** Bucket dokumen verifikasi pemilik. Privat, tidak pernah dibaca publik. */
+export const DOCUMENT_BUCKET = 'owner-documents'
 
 /** Jenis gambar yang diterima, beserta ekstensi yang dipakai saat menyimpan. */
 const IMAGE_TYPES = {
@@ -55,8 +76,12 @@ const storageConfigured = (): boolean => Boolean(env.SUPABASE_URL && env.SUPABAS
 
 const apiBase = (): string => env.SUPABASE_URL.replace(/\/+$/, '')
 
+/** Setiap bagian path di-encode, tetapi garis miringnya tetap jadi pemisah. */
+const encodePath = (path: string): string =>
+  path.split('/').map(encodeURIComponent).join('/')
+
 /**
- * URL publik sebuah objek di bucket.
+ * URL publik sebuah objek di bucket foto.
  *
  * Tiga bentuk `storage_path` diperlakukan berbeda, karena ketiganya memang ada
  * di database:
@@ -75,12 +100,11 @@ export const publicUrlFor = (storagePath: string | null): string | null => {
   if (storagePath.startsWith('/')) return storagePath
   if (!env.SUPABASE_URL) return null
 
-  const encoded = storagePath.split('/').map(encodeURIComponent).join('/')
-  return `${apiBase()}/storage/v1/object/public/${env.STORAGE_BUCKET}/${encoded}`
+  return `${apiBase()}/storage/v1/object/public/${env.STORAGE_BUCKET}/${encodePath(storagePath)}`
 }
 
-/** Simpan satu objek. `path` relatif terhadap bucket, tanpa garis miring di depan. */
-export const uploadObject = async (
+const uploadTo = async (
+  bucket: string,
   path: string,
   body: Buffer,
   contentType: string,
@@ -88,11 +112,11 @@ export const uploadObject = async (
   if (!storageConfigured()) {
     throw new HttpError(
       503,
-      'Penyimpanan foto belum dikonfigurasi: isi SUPABASE_URL dan SUPABASE_SECRET_KEY di backend/.env',
+      'Penyimpanan berkas belum dikonfigurasi: isi SUPABASE_URL dan SUPABASE_SECRET_KEY di backend/.env',
     )
   }
 
-  const response = await fetch(`${apiBase()}/storage/v1/object/${env.STORAGE_BUCKET}/${path}`, {
+  const response = await fetch(`${apiBase()}/storage/v1/object/${bucket}/${encodePath(path)}`, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${env.SUPABASE_SECRET_KEY}`,
@@ -106,23 +130,16 @@ export const uploadObject = async (
   if (!response.ok) {
     const detail = (await response.text()).slice(0, 300)
     console.error('[storage] unggah gagal:', response.status, detail)
-    throw new HttpError(502, 'Gagal menyimpan foto ke penyimpanan')
+    throw new HttpError(502, 'Gagal menyimpan berkas ke penyimpanan')
   }
 }
 
-/**
- * Hapus satu objek.
- *
- * Kegagalan di sini tidak pernah melempar: baris database tetap dihapus, dan
- * berkas yatim di bucket jauh lebih ringan akibatnya daripada permintaan yang
- * gagal padahal datanya sudah hilang.
- */
-export const deleteObject = async (path: string): Promise<void> => {
+const deleteFrom = async (bucket: string, path: string): Promise<void> => {
   if (!storageConfigured()) return
   if (!path || path.startsWith('/') || /^https?:\/\//i.test(path)) return
 
   try {
-    const response = await fetch(`${apiBase()}/storage/v1/object/${env.STORAGE_BUCKET}/${path}`, {
+    const response = await fetch(`${apiBase()}/storage/v1/object/${bucket}/${encodePath(path)}`, {
       method: 'DELETE',
       headers: { Authorization: `Bearer ${env.SUPABASE_SECRET_KEY}` },
     })
@@ -132,5 +149,76 @@ export const deleteObject = async (path: string): Promise<void> => {
     }
   } catch (error) {
     console.error('[storage] hapus gagal:', (error as Error).message)
+  }
+}
+
+/** Simpan satu objek di bucket foto. `path` relatif terhadap bucket. */
+export const uploadObject = (path: string, body: Buffer, contentType: string): Promise<void> =>
+  uploadTo(env.STORAGE_BUCKET, path, body, contentType)
+
+/** Simpan satu dokumen verifikasi di bucket privat. */
+export const uploadDocumentObject = (
+  path: string,
+  body: Buffer,
+  contentType: string,
+): Promise<void> => uploadTo(DOCUMENT_BUCKET, path, body, contentType)
+
+/**
+ * Hapus satu objek dari bucket foto.
+ *
+ * Kegagalan di sini tidak pernah melempar: baris database tetap dihapus, dan
+ * berkas yatim di bucket jauh lebih ringan akibatnya daripada permintaan yang
+ * gagal padahal datanya sudah hilang.
+ */
+export const deleteObject = (path: string): Promise<void> => deleteFrom(env.STORAGE_BUCKET, path)
+
+/** Hapus satu dokumen verifikasi. Sama, kegagalannya tidak pernah melempar. */
+export const deleteDocumentObject = (path: string): Promise<void> =>
+  deleteFrom(DOCUMENT_BUCKET, path)
+
+/**
+ * URL bertanda tangan untuk satu dokumen di bucket privat.
+ *
+ * Masa berlakunya pendek dengan sengaja: cukup untuk membuka dan memeriksa
+ * berkasnya, tidak cukup untuk meninggalkan tautan yang masih bisa dibuka
+ * besok. URL publik tidak bisa ditarik kembali, dan dokumen identitas adalah
+ * berkas yang paling tidak boleh beredar.
+ *
+ * Mengembalikan `null` bila penyimpanan belum dikonfigurasi atau permintaannya
+ * ditolak, supaya pemanggil menampilkan keterangan yang jujur alih-alih gambar
+ * rusak.
+ */
+export const documentSignedUrl = async (
+  path: string | null,
+  expiresIn = 300,
+): Promise<string | null> => {
+  if (!storageConfigured() || !path) return null
+
+  try {
+    const response = await fetch(
+      `${apiBase()}/storage/v1/object/sign/${DOCUMENT_BUCKET}/${encodePath(path)}`,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${env.SUPABASE_SECRET_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ expiresIn }),
+      },
+    )
+
+    if (!response.ok) {
+      const detail = (await response.text()).slice(0, 200)
+      console.error('[storage] tanda tangan dokumen gagal:', response.status, detail)
+      return null
+    }
+
+    const data = (await response.json()) as { signedURL?: string }
+    if (!data.signedURL) return null
+
+    return `${apiBase()}/storage/v1${data.signedURL}`
+  } catch (error) {
+    console.error('[storage] tanda tangan dokumen gagal:', (error as Error).message)
+    return null
   }
 }

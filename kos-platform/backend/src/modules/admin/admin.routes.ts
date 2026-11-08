@@ -2,6 +2,7 @@ import { Router } from 'express'
 import { asyncHandler } from '../../middleware/asyncHandler'
 import { authenticate, authorize } from '../../middleware/auth'
 import { adminController } from './admin.controller'
+import { ownerVerificationAdminController } from '../owner-verification/owner-verification.controller'
 
 const router = Router()
 
@@ -26,5 +27,17 @@ router.post('/properti/:id/verifikasi', asyncHandler(adminController.verifyPrope
 router.get('/pengguna', asyncHandler(adminController.listUsers))
 router.patch('/pengguna/:id/status', asyncHandler(adminController.setUserStatus))
 router.get('/aktivitas', asyncHandler(adminController.listActivity))
+
+/**
+ * Verifikasi pemilik kos.
+ *
+ * Handler-nya tinggal di modul owner-verification karena aturan kelengkapan
+ * dokumen (KTP dan swafoto wajib ada) dipakai bersama oleh sisi pemilik dan
+ * sisi admin. Menyalinnya ke sini berarti dua tempat yang harus diubah
+ * bersamaan setiap kali syaratnya berubah.
+ */
+router.get('/pemilik', asyncHandler(ownerVerificationAdminController.list))
+router.get('/pemilik/:id', asyncHandler(ownerVerificationAdminController.detail))
+router.post('/pemilik/:id/verifikasi', asyncHandler(ownerVerificationAdminController.verify))
 
 export default router
