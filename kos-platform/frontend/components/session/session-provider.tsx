@@ -17,6 +17,15 @@ type SessionStatus = 'memuat' | 'masuk' | 'tamu'
 interface SessionValue {
   user: SessionUser | null
   status: SessionStatus
+  /**
+   * Muat ulang sesi dari server.
+   *
+   * Provider ini hanya membaca sesi sekali saat dipasang, sedangkan halaman
+   * masuk berpindah dengan navigasi klien. Tanpa pemuatan ulang di sana,
+   * navbar masih menampilkan pengunjung sebagai tamu walau ia baru saja
+   * berhasil masuk, sampai halaman dimuat ulang.
+   */
+  reload: () => Promise<void>
   logout: () => Promise<void>
 }
 
@@ -126,8 +135,8 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   }, [router])
 
   const value = useMemo<SessionValue>(
-    () => ({ user, status, logout }),
-    [user, status, logout],
+    () => ({ user, status, reload: load, logout }),
+    [user, status, load, logout],
   )
 
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>
