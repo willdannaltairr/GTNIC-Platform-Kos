@@ -1,10 +1,10 @@
 -- ════════════════════════════════════════════════════════════════════════════
--- KosPlatform — data demo (seed)
+-- KosPlatform, data demo (seed)
 --
 -- Prasyarat: migration 20261107120000_init.sql sudah dijalankan.
 --
 -- Sifat:
---   * Idempoten — aman dijalankan berulang. Akun dan properti dikenali lewat
+--   * Idempoten, aman dijalankan berulang. Akun dan properti dikenali lewat
 --     email/slug, anak-anak properti (foto, aturan, komponen biaya) ditulis
 --     ulang supaya isinya selalu sama seperti definisi di bawah.
 --   * Semua data fiktif, hanya untuk demo dan pengembangan.
@@ -141,7 +141,7 @@ ON CONFLICT (slug) DO UPDATE SET
   icon = EXCLUDED.icon;
 
 -- ════════════════════════════════════════════════════════════════════════════
--- 1. Kos Melati Putri — Jakarta Selatan, kos putri
+-- 1. Kos Melati Putri, Jakarta Selatan, kos putri
 -- ════════════════════════════════════════════════════════════════════════════
 
 INSERT INTO properties (
@@ -245,7 +245,7 @@ WHERE p.slug = 'kos-melati-putri-kebayoran'
 ON CONFLICT (room_id, facility_id) DO NOTHING;
 
 -- ════════════════════════════════════════════════════════════════════════════
--- 2. Kos Anggrek Campur — Bandung, kos campur
+-- 2. Kos Anggrek Campur, Bandung, kos campur
 -- ════════════════════════════════════════════════════════════════════════════
 
 INSERT INTO properties (
@@ -348,7 +348,7 @@ WHERE p.slug = 'kos-anggrek-campur-dago'
 ON CONFLICT (room_id, facility_id) DO NOTHING;
 
 -- ════════════════════════════════════════════════════════════════════════════
--- 3. Kos Cendana Putra — Sleman, kos putra
+-- 3. Kos Cendana Putra, Sleman, kos putra
 -- ════════════════════════════════════════════════════════════════════════════
 
 INSERT INTO properties (
@@ -444,7 +444,7 @@ WHERE p.slug = 'kos-cendana-putra-jogja'
 ON CONFLICT (room_id, facility_id) DO NOTHING;
 
 -- ════════════════════════════════════════════════════════════════════════════
--- 4. Kos Bougenville Putri — Surabaya, kos putri
+-- 4. Kos Bougenville Putri, Surabaya, kos putri
 -- ════════════════════════════════════════════════════════════════════════════
 
 INSERT INTO properties (
@@ -545,12 +545,12 @@ WHERE p.slug = 'kos-bougenville-putri-surabaya'
 ON CONFLICT (room_id, facility_id) DO NOTHING;
 
 -- ════════════════════════════════════════════════════════════════════════════
--- 5. Kos Flamboyan Campur — Malang
+-- 5. Kos Flamboyan Campur, Malang
 --
 -- Contoh properti yang biayanya BELUM lengkap: ketersediaan terakhir
 -- dikonfirmasi 30 hari lalu (ambang batas 14 hari) dan nominal listrik belum
--- diketahui pemilik. Dua hal ini sengaja ada supaya perilaku jujur platform —
--- menandai data basi dan menampilkan biaya yang belum dikonfirmasi — bisa
+-- diketahui pemilik. Dua hal ini sengaja ada supaya perilaku jujur platform -
+-- menandai data basi dan menampilkan biaya yang belum dikonfirmasi, bisa
 -- dilihat langsung di aplikasi.
 -- ════════════════════════════════════════════════════════════════════════════
 
@@ -653,7 +653,7 @@ WHERE p.slug = 'kos-flamboyan-campur-malang'
 ON CONFLICT (room_id, facility_id) DO NOTHING;
 
 -- ════════════════════════════════════════════════════════════════════════════
--- 6. Kos Kenanga Putri — Depok, kos putri
+-- 6. Kos Kenanga Putri, Depok, kos putri
 -- ════════════════════════════════════════════════════════════════════════════
 
 INSERT INTO properties (
@@ -762,7 +762,7 @@ ON CONFLICT (room_id, facility_id) DO NOTHING;
 -- beberapa ratus meter tidak mengubah peringkat pada radius 5 km), tetapi tidak
 -- boleh dipakai untuk navigasi atau klaim jarak yang presisi.
 --
--- Isinya sengaja tersebar di banyak kota — bukan hanya pulau Jawa — supaya
+-- Isinya sengaja tersebar di banyak kota, bukan hanya pulau Jawa, supaya
 -- tampilan "kampus populer" di beranda tetap masuk akal ketika nanti diisi data
 -- properti dari kota lain.
 --
@@ -806,14 +806,14 @@ ON CONFLICT (slug) DO UPDATE SET
 -- Dipakai fitur "area kos terpopuler" di beranda.
 --
 -- Isinya wajib mencakup setiap kota dan kecamatan yang sudah dipakai properti di
--- atas — kalau tidak, area itu tidak akan pernah muncul walau kosnya ada, dan
+-- atas, kalau tidak, area itu tidak akan pernah muncul walau kosnya ada, dan
 -- yang tampil justru area kosong. Karena itu daftarnya diturunkan dari data
 -- properti di berkas ini, bukan dikarang terpisah.
 --
 -- `type` menentukan cara pencocokan ke properti: CITY dicocokkan ke kolom
 -- `properties.city`, DISTRICT ke `properties.district`. Perhatikan bahwa nama
--- yang sama bisa muncul di kedua jenis — "Depok" adalah kota di Jawa Barat
--- sekaligus kecamatan di Sleman — sehingga slug-nya dibedakan (`depok` dan
+-- yang sama bisa muncul di kedua jenis, "Depok" adalah kota di Jawa Barat
+-- sekaligus kecamatan di Sleman, sehingga slug-nya dibedakan (`depok` dan
 -- `depok-sleman`) dan pencocokannya selalu lewat `type`, bukan lewat nama saja.
 --
 -- Koordinatnya pusat kota/kecamatan dan sama seperti kampus: perkiraan yang
