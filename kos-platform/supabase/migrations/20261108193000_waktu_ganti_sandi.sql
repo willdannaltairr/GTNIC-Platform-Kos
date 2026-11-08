@@ -1,0 +1,12 @@
+-- Waktu sandi terakhir diganti, dipakai untuk mencabut sesi lama.
+--
+-- Tanpa kolom ini, atur ulang sandi tidak benar-benar mengusir siapa pun:
+-- cookie refresh berumur 30 hari dan ditandatangani sendiri oleh server, jadi
+-- perangkat yang sudah masuk tetap bisa memakai akun meski sandinya sudah
+-- diganti. Orang yang mengganti sandi biasanya melakukannya justru karena
+-- akunnya dipakai orang lain, dan itu justru kasus yang paling butuh sesi lama
+-- benar-benar berakhir.
+--
+-- `IF NOT EXISTS` dipakai supaya migrasi ini aman dijalankan ulang: skrip
+-- migrasi lokal menjalankan berkas apa adanya tanpa tabel catatan versi.
+ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "password_changed_at" TIMESTAMPTZ(3);

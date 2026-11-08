@@ -3,8 +3,18 @@ import { env } from '../../config/env'
 import { HttpError } from '../../lib/httpError'
 import type { AuthRequest } from '../../middleware/auth'
 import { usersService } from '../users/users.service'
-import { authService, type TokenPayload } from './auth.service'
-import { loginSchema, registerSchema, type LoginInput, type RegisterInput } from './auth.validator'
+import { buildResetUrl, sendPasswordResetEmail } from './auth.mailer'
+import { authService, type TokenPayload, type VerifiedTokenPayload } from './auth.service'
+import {
+  forgotPasswordSchema,
+  loginSchema,
+  registerSchema,
+  resetPasswordSchema,
+  type ForgotPasswordInput,
+  type LoginInput,
+  type RegisterInput,
+  type ResetPasswordInput,
+} from './auth.validator'
 
 const COOKIE_OPTIONS = {
   httpOnly: true,
@@ -81,6 +91,62 @@ export const authController = {
   },
 
   /**
+   * Permintaan tautan atur ulang sandi.
+   *
+   * Jawabannya selalu sama, terdaftar atau tidak. Kalau endpoint ini membalas
+   * "email tidak ditemukan", siapa pun bisa memakainya untuk memeriksa email
+   * mana yang punya akun di sini, dan itu informasi yang tidak perlu dibagikan.
+   */
+  async forgotPassword(req: Request, res: Response): Promise<void> {
+    const data: ForgotPasswordInput = forgotPasswordSchema.parse(req.body)
+    const user = await authService.findByEmail(data.email)
+
+    let devToken: string | undefined
+
+    if (user) {
+      const token = await authService.createPasswordResetToken(user.id)
+      await sendPasswordResetEmail({
+        to: user.email,
+        fullName: user.full_name,
+        resetUrl: buildResetUrl(token),
+      })
+
+      // Token mentah hanya untuk pengembangan, supaya alurnya bisa dicoba
+      // tanpa penyedia email. Di produksi nilai ini tidak pernah ikut terkirim,
+      // karena membagikan token atur ulang sandi lewat respons HTTP sama saja
+      // dengan membuka akun siapa pun yang emailnya ditebak.
+      if (env.NODE_ENV !== 'production') devToken = token
+    }
+
+    res.json({
+      success: true,
+      message: 'Kalau email itu terdaftar, kami sudah mengirim tautan atur ulang sandi.',
+      ...(devToken ? { data: { devToken } } : {}),
+    })
+  },
+
+  /**
+   * Ganti sandi memakai token dari email.
+   *
+   * Cookie di peramban yang sedang dipakai ikut dibersihkan supaya pengunjung
+   * yang baru mengganti sandinya tidak ditinggal dalam keadaan seolah masih
+   * masuk, padahal semua sesinya sudah dicabut di sisi server.
+   */
+  async resetPassword(req: Request, res: Response): Promise<void> {
+    const data: ResetPasswordInput = resetPasswordSchema.parse(req.body)
+
+    await authService.resetPassword(data.token, data.password)
+
+    res.clearCookie('access_token', { path: '/' })
+    res.clearCookie('refresh_token', { path: '/' })
+
+    res.json({
+      success: true,
+      message: 'Sandi berhasil diperbarui, silakan masuk dengan sandi baru',
+    })
+  },
+
+  /**
    * Perpanjang sesi memakai cookie refresh.
    *
    * Tanpa endpoint ini, cookie access yang berumur 15 menit membuat pengunjung
@@ -98,7 +164,7 @@ export const authController = {
       throw new HttpError(401, 'Tidak ada sesi untuk diperpanjang')
     }
 
-    let payload: TokenPayload
+    let payload: VerifiedTokenPayload
     try {
       payload = authService.verifyToken(token)
     } catch {
@@ -106,6 +172,22 @@ export const authController = {
     }
 
     const user = await authService.findSessionUser(payload.userId)
+
+    /*
+     * Sesi yang terbit sebelum sandi diganti tidak boleh diperpanjang.
+     *
+     * Ini satu-satunya cara atur ulang sandi benar-benar mengusir perangkat
+     * yang sudah masuk: cookie refresh ditandatangani server sendiri dan tidak
+     * bisa dicabut dari jauh. Dibandingkan dalam satuan detik karena `iat` di
+     * JWT memang hanya sepersekian detik, dan pembulatan ke bawah membuat login
+     * yang terjadi tepat setelah sandi diganti tidak ikut ditolak.
+     */
+    if (user.password_changed_at) {
+      const changedAtSeconds = Math.floor(user.password_changed_at.getTime() / 1000)
+      if (changedAtSeconds > payload.iat) {
+        throw new HttpError(401, 'Sandi sudah diganti, silakan masuk kembali')
+      }
+    }
 
     const tokenPayload = {
       userId: user.id,
