@@ -283,3 +283,18 @@ export async function loginAccount(payload: LoginPayload) {
     payload,
   )
 }
+
+/**
+ * Minta tautan atur ulang sandi.
+ *
+ * Balasannya sengaja tidak membedakan email yang terdaftar dari yang tidak,
+ * jadi formulirnya tidak bisa dipakai untuk menebak siapa saja yang punya akun
+ * di sini. `devToken` hanya terisi saat API berjalan di mode pengembangan.
+ */
+export async function forgotPassword(payload: { email: string }) {
+  return postAuth<{ devToken?: string } | null>('/auth/forgot-password', payload)
+}
+
+export async function resetPassword(payload: { token: string; password: string }) {
+  return postAuth<null>('/auth/reset-password', payload)
+}
