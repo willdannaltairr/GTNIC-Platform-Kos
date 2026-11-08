@@ -7,6 +7,7 @@ import placesRoutes from '../modules/places/places.routes'
 import propertiesRoutes from '../modules/properties/properties.routes'
 import roomsRoutes from '../modules/rooms/rooms.routes'
 import usersRoutes from '../modules/users/users.routes'
+import visitsRoutes from '../modules/visits/visits.routes'
 
 export const apiRouter = Router()
 
@@ -23,6 +24,7 @@ apiRouter.use('/users', usersRoutes)
 apiRouter.use('/dashboard', dashboardRoutes)
 apiRouter.use('/favorites', favoritesRoutes)
 apiRouter.use('/notifications', notificationsRoutes)
+apiRouter.use('/visits', visitsRoutes)
 apiRouter.use('/properties', propertiesRoutes)
 apiRouter.use('/rooms', roomsRoutes)
 apiRouter.use('/places', placesRoutes)
