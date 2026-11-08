@@ -194,32 +194,43 @@ const HeroSection: FC = (): ReactNode => {
 
             {/* Foto rumah: hanya suasana yang aktif yang terlihat. Bangunannya
                 naik sedikit saat halaman dibuka, jadi hero-nya terasa datang
-                dari bawah alih-alih muncul begitu saja. */}
+                dari bawah alih-alih muncul begitu saja.
+
+                Visibilitas suasana diatur pembungkus ini, bukan elemen motion
+                di dalamnya. Animasi motion menulis opacity: 1 sebagai gaya
+                inline, dan gaya inline menang atas kelas opacity-0. Kalau
+                keduanya menempel di elemen yang sama, kedua foto tetap
+                terlihat dan foto malam yang dirender terakhir selalu menimpa
+                foto pagi: mode siang jadi menampilkan suasana malam. */}
             {SCENE_IDS.map((id) => (
-              <motion.div
+              <div
                 key={id}
-                initial={still ? false : { opacity: 0, y: '42%', scale: 0.96 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                transition={{ duration: 1.4, delay: id === 'pagi' ? 0.1 : 0.2, ease: [0.22, 1, 0.36, 1] }}
                 className={cn(
-                  'absolute inset-0 will-change-[transform,opacity]',
+                  'absolute inset-0 transition-opacity duration-[1400ms] ease-in-out',
                   id === scene ? 'opacity-100' : 'pointer-events-none opacity-0',
                 )}
               >
-                {/* Bingkai foto: di layar kecil bangunan ditaruh di bawah judul
-                    sebagai panel 16:9, lalu di layar lebar foto mengisi seluruh
-                    panggung dengan tepi yang melebur. */}
-                <div className="hero-house-mask absolute bottom-[16%] left-1/2 aspect-video w-[150%] -translate-x-1/2 sm:bottom-[12%] sm:w-[125%] md:w-[110%] lg:inset-0 lg:aspect-auto lg:w-full lg:translate-x-0">
-                  <Image
-                    src={HERO.scenes[id].image}
-                    alt={HERO.scenes[id].imageAlt}
-                    fill
-                    priority={id === 'pagi'}
-                    sizes="(min-width: 1024px) 100vw, 150vw"
-                    className="object-cover object-[50%_78%]"
-                  />
-                </div>
-              </motion.div>
+                <motion.div
+                  initial={still ? false : { opacity: 0, y: '42%', scale: 0.96 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  transition={{ duration: 1.4, delay: id === 'pagi' ? 0.1 : 0.2, ease: [0.22, 1, 0.36, 1] }}
+                  className="absolute inset-0 will-change-[transform,opacity]"
+                >
+                  {/* Bingkai foto: di layar kecil bangunan ditaruh di bawah judul
+                      sebagai panel 16:9, lalu di layar lebar foto mengisi seluruh
+                      panggung dengan tepi yang melebur. */}
+                  <div className="hero-house-mask absolute bottom-[16%] left-1/2 aspect-video w-[150%] -translate-x-1/2 sm:bottom-[12%] sm:w-[125%] md:w-[110%] lg:inset-0 lg:aspect-auto lg:w-full lg:translate-x-0">
+                    <Image
+                      src={HERO.scenes[id].image}
+                      alt={HERO.scenes[id].imageAlt}
+                      fill
+                      priority={id === 'pagi'}
+                      sizes="(min-width: 1024px) 100vw, 150vw"
+                      className="object-cover object-[50%_78%]"
+                    />
+                  </div>
+                </motion.div>
+              </div>
             ))}
 
             <div
