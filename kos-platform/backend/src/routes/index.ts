@@ -6,6 +6,7 @@ import contractsRoutes from '../modules/contracts/contracts.routes'
 import dashboardRoutes from '../modules/dashboard/dashboard.routes'
 import favoritesRoutes from '../modules/favorites/favorites.routes'
 import invoicesRoutes from '../modules/invoices/invoices.routes'
+import maintenanceRoutes from '../modules/maintenance/maintenance.routes'
 import notificationsRoutes from '../modules/notifications/notifications.routes'
 import paymentsRoutes from '../modules/payments/payments.routes'
 import ownerVerificationRoutes from '../modules/owner-verification/owner-verification.routes'
@@ -36,6 +37,7 @@ apiRouter.use('/bookings', bookingsRoutes)
 apiRouter.use('/contracts', contractsRoutes)
 apiRouter.use('/invoices', invoicesRoutes)
 apiRouter.use('/payments', paymentsRoutes)
+apiRouter.use('/perbaikan', maintenanceRoutes)
 apiRouter.use('/properties', propertiesRoutes)
 apiRouter.use('/rooms', roomsRoutes)
 apiRouter.use('/places', placesRoutes)

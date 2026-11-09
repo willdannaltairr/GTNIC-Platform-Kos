@@ -8,7 +8,7 @@ import { HttpError } from './httpError'
  * pernah menerima kunci itu, dan tidak ada jalur unggah langsung dari klien.
  * Konsekuensinya seluruh berkas melewati validasi di sini lebih dulu.
  *
- * Ada dua bucket, dan bedanya disengaja:
+ * Ada tiga bucket, dan bedanya disengaja:
  *
  *   * `room-photos` publik, karena foto kamar memang ditampilkan di halaman
  *     publik dan alamatnya boleh dibagikan.
@@ -16,6 +16,10 @@ import { HttpError } from './httpError'
  *     dan buku rekening. URL publik tidak bisa ditarik kembali setelah bocor,
  *     jadi yang diberikan ke admin adalah URL bertanda tangan yang kedaluwarsa
  *     dalam hitungan menit.
+ *   * `maintenance-photos` privat, karena isinya keadaan di dalam kamar yang
+ *     sedang dihuni: kerusakan yang dilaporkan beserta barang penghuninya yang
+ *     ikut terfoto. Foto kamar kosong boleh dilihat siapa saja; kamar yang
+ *     sedang dihuni tidak.
  */
 
 /** Batas ukuran satu foto. Selaraskan dengan `file_size_limit` bucket. */
@@ -30,8 +34,14 @@ export const MAX_PHOTO_BYTES = 8 * 1024 * 1024
  */
 export const MAX_DOCUMENT_BYTES = 8 * 1024 * 1024
 
+/** Batas ukuran satu foto laporan perbaikan. */
+export const MAX_MAINTENANCE_BYTES = 8 * 1024 * 1024
+
 /** Bucket dokumen verifikasi pemilik. Privat, tidak pernah dibaca publik. */
 export const DOCUMENT_BUCKET = 'owner-documents'
+
+/** Bucket foto laporan perbaikan. Privat, sama seperti dokumen. */
+export const MAINTENANCE_BUCKET = 'maintenance-photos'
 
 /** Jenis gambar yang diterima, beserta ekstensi yang dipakai saat menyimpan. */
 const IMAGE_TYPES = {
@@ -163,6 +173,13 @@ export const uploadDocumentObject = (
   contentType: string,
 ): Promise<void> => uploadTo(DOCUMENT_BUCKET, path, body, contentType)
 
+/** Simpan satu foto laporan perbaikan di bucket privat. */
+export const uploadMaintenanceObject = (
+  path: string,
+  body: Buffer,
+  contentType: string,
+): Promise<void> => uploadTo(MAINTENANCE_BUCKET, path, body, contentType)
+
 /**
  * Hapus satu objek dari bucket foto.
  *
@@ -176,27 +193,36 @@ export const deleteObject = (path: string): Promise<void> => deleteFrom(env.STOR
 export const deleteDocumentObject = (path: string): Promise<void> =>
   deleteFrom(DOCUMENT_BUCKET, path)
 
+/** Hapus satu foto laporan perbaikan. Kegagalannya juga tidak melempar. */
+export const deleteMaintenanceObject = (path: string): Promise<void> =>
+  deleteFrom(MAINTENANCE_BUCKET, path)
+
 /**
- * URL bertanda tangan untuk satu dokumen di bucket privat.
+ * URL bertanda tangan untuk satu objek di bucket privat.
  *
  * Masa berlakunya pendek dengan sengaja: cukup untuk membuka dan memeriksa
  * berkasnya, tidak cukup untuk meninggalkan tautan yang masih bisa dibuka
- * besok. URL publik tidak bisa ditarik kembali, dan dokumen identitas adalah
+ * besok. URL publik tidak bisa ditarik kembali, dan isi bucket privat adalah
  * berkas yang paling tidak boleh beredar.
+ *
+ * Menerima nama bucket, bukan hanya satu bucket tetap, karena sekarang ada dua
+ * yang privat: dokumen identitas pemilik dan foto laporan perbaikan. Keduanya
+ * butuh perlakuan yang sama, jadi menyusun URL-nya pun satu tempat.
  *
  * Mengembalikan `null` bila penyimpanan belum dikonfigurasi atau permintaannya
  * ditolak, supaya pemanggil menampilkan keterangan yang jujur alih-alih gambar
  * rusak.
  */
-export const documentSignedUrl = async (
+const signedUrlFor = async (
+  bucket: string,
   path: string | null,
-  expiresIn = 300,
+  expiresIn: number,
 ): Promise<string | null> => {
   if (!storageConfigured() || !path) return null
 
   try {
     const response = await fetch(
-      `${apiBase()}/storage/v1/object/sign/${DOCUMENT_BUCKET}/${encodePath(path)}`,
+      `${apiBase()}/storage/v1/object/sign/${bucket}/${encodePath(path)}`,
       {
         method: 'POST',
         headers: {
@@ -209,7 +235,7 @@ export const documentSignedUrl = async (
 
     if (!response.ok) {
       const detail = (await response.text()).slice(0, 200)
-      console.error('[storage] tanda tangan dokumen gagal:', response.status, detail)
+      console.error('[storage] tanda tangan berkas gagal:', response.status, detail)
       return null
     }
 
@@ -218,7 +244,17 @@ export const documentSignedUrl = async (
 
     return `${apiBase()}/storage/v1${data.signedURL}`
   } catch (error) {
-    console.error('[storage] tanda tangan dokumen gagal:', (error as Error).message)
+    console.error('[storage] tanda tangan berkas gagal:', (error as Error).message)
     return null
   }
 }
+
+/** URL bertanda tangan untuk satu dokumen verifikasi pemilik. */
+export const documentSignedUrl = (path: string | null, expiresIn = 300): Promise<string | null> =>
+  signedUrlFor(DOCUMENT_BUCKET, path, expiresIn)
+
+/** URL bertanda tangan untuk satu foto laporan perbaikan. */
+export const maintenanceSignedUrl = (
+  path: string | null,
+  expiresIn = 300,
+): Promise<string | null> => signedUrlFor(MAINTENANCE_BUCKET, path, expiresIn)
