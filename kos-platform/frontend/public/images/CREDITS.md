@@ -7,3 +7,8 @@
 - Photo by M&W Studios on Pexels, https://www.pexels.com/photo/white-bed-next-to-white-accent-table-90319/
 - Photo by Ariel Marcon on Pexels, https://www.pexels.com/photo/cozy-bedroom-interior-with-warm-lighting-40080688/
 - Photo by LayG Traveller on Pexels, https://www.pexels.com/photo/lamp-on-nightstand-26840825/
+- Photo by Jose Rodriguez Ortega on Pexels — https://www.pexels.com/photo/light-behind-a-window-and-a-blind-11912319/
+- Photo by David Brown on Pexels — https://www.pexels.com/photo/evening-photo-of-a-modern-building-16808496/
+- Photo by Anastasia  Shuraeva on Pexels — https://www.pexels.com/photo/green-plant-on-window-pane-4512766/
+- Photo by hellobyesunny on Pexels — https://www.pexels.com/photo/green-plant-beside-white-wall-5675466/
+- Photo by Mari Lortkipanidze on Pexels — https://www.pexels.com/photo/cozy-indoor-setting-with-plant-by-window-35919022/
