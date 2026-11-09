@@ -65,6 +65,30 @@ export const corsHeaders = (req: Request): Record<string, string> => {
 }
 
 /**
+ * Apakah fungsi ini sedang dipakai untuk pengembangan.
+ *
+ * Penanda tersendiri, bukan nama lingkungan yang lazim, dan bawaannya MATI.
+ * Yang bergantung padanya hanya jalur uji simulasi pembayaran, yaitu jalur
+ * yang bisa menandai uang masuk tanpa bukti dari penyedia. Karena itu ia harus
+ * diminta dengan sengaja, dan dimatikan sebelum ada uang sungguhan yang lewat.
+ *
+ * Token mentah tidak ikut di sini; penandanya sendiri, lihat
+ * `tokenPengembangan`.
+ */
+export const modePengembangan = (): boolean => Deno.env.get('MODE_PENGEMBANGAN') === 'true'
+
+/**
+ * Apakah token mentah boleh ikut dikirim di jawaban.
+ *
+ * Dipisahkan dari `modePengembangan` karena risikonya berbeda: penanda ini
+ * membocorkan token yang bisa dipakai mengambil alih akun siapa pun, sedangkan
+ * penanda itu hanya membuka satu jalur uji pembayaran. Digabung, menguji
+ * pembayaran berarti ikut membagikan kunci atur ulang sandi kepada setiap
+ * orang yang menebak alamat emailnya.
+ */
+export const tokenPengembangan = (): boolean => Deno.env.get('TOKEN_PENGEMBANGAN') === 'true'
+
+/**
  * Jawaban sukses, dengan amplop yang sama seperti backend Express.
  *
  * Cookie dikirim sebagai daftar, bukan satu nilai yang digabung: peramban
