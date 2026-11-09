@@ -7,6 +7,7 @@ import dashboardRoutes from '../modules/dashboard/dashboard.routes'
 import favoritesRoutes from '../modules/favorites/favorites.routes'
 import invoicesRoutes from '../modules/invoices/invoices.routes'
 import notificationsRoutes from '../modules/notifications/notifications.routes'
+import paymentsRoutes from '../modules/payments/payments.routes'
 import ownerVerificationRoutes from '../modules/owner-verification/owner-verification.routes'
 import placesRoutes from '../modules/places/places.routes'
 import propertiesRoutes from '../modules/properties/properties.routes'
@@ -34,6 +35,7 @@ apiRouter.use('/visits', visitsRoutes)
 apiRouter.use('/bookings', bookingsRoutes)
 apiRouter.use('/contracts', contractsRoutes)
 apiRouter.use('/invoices', invoicesRoutes)
+apiRouter.use('/payments', paymentsRoutes)
 apiRouter.use('/properties', propertiesRoutes)
 apiRouter.use('/rooms', roomsRoutes)
 apiRouter.use('/places', placesRoutes)
