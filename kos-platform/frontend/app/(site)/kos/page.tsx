@@ -71,8 +71,7 @@ async function KosResults({ query }: { query: KosQuery }) {
       <div className="rounded-2xl border border-dashed border-border bg-card p-10 text-center">
         <p className="text-sm font-semibold text-foreground">Daftar kos belum dapat dimuat.</p>
         <p className="mx-auto mt-2 max-w-md text-xs leading-relaxed text-muted-foreground">
-          Server API tidak merespons saat halaman ini dirender. Jalankan backend dengan
-          <code className="mx-1 rounded bg-muted px-1.5 py-0.5">npm run dev:api</code>
+          Server API tidak merespons saat halaman ini dirender. Periksa koneksi ke layanan API
           lalu muat ulang halaman ini.
         </p>
       </div>
