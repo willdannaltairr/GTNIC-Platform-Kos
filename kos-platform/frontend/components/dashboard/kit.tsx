@@ -179,6 +179,30 @@ const ULASAN: Record<string, Label> = {
   HIDDEN: { label: 'Disembunyikan', nada: 'netral' },
 }
 
+/**
+ * Status pemeriksaan kondisi kamar (Room Passport).
+ *
+ * DISPUTED ditulis "Dipertanyakan", bukan "Ditolak": pemilik tidak menolak
+ * pemeriksaannya, ia tidak menyetujui sebagian isinya, dan penghuninya masih
+ * bisa memperbaiki lalu meminta persetujuan lagi. Menulisnya "Ditolak" membuat
+ * penghuni mengira laporannya mati.
+ */
+const KONDISI: Record<string, Label> = {
+  DRAFT: { label: 'Draf', nada: 'netral' },
+  SUBMITTED: { label: 'Menunggu persetujuan', nada: 'peringatan' },
+  ACKNOWLEDGED: { label: 'Disetujui', nada: 'sukses' },
+  DISPUTED: { label: 'Dipertanyakan', nada: 'bahaya' },
+  COMPLETED: { label: 'Selesai', nada: 'sukses' },
+}
+
+/** Keadaan satu butir periksa kondisi kamar. */
+const KEADAAN: Record<string, Label> = {
+  BAIK: { label: 'Baik', nada: 'sukses' },
+  RUSAK_RINGAN: { label: 'Rusak ringan', nada: 'peringatan' },
+  RUSAK_BERAT: { label: 'Rusak berat', nada: 'bahaya' },
+  TIDAK_ADA: { label: 'Tidak ada', nada: 'netral' },
+}
+
 const KAMUS = {
   booking: BOOKING,
   invoice: INVOICE,
@@ -194,6 +218,8 @@ const KAMUS = {
   dokumen: DOKUMEN,
   pembayaran: PEMBAYARAN,
   ulasan: ULASAN,
+  kondisi: KONDISI,
+  keadaan: KEADAAN,
 } as const
 
 export type JenisStatus = keyof typeof KAMUS
