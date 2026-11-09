@@ -271,31 +271,28 @@ export interface BerkasUnggahan {
 }
 
 /**
- * Baca satu berkas dari isi permintaan `multipart/form-data`.
+ * Baca isi formulir unggahan, sekali saja.
  *
- * Pengganti peran multer di backend Express. Bedanya, di sini isi permintaan
- * dibaca sekaligus ke memori, jadi batas ukurannya diperiksa dua kali: dari
- * ukuran yang dilaporkan sebelum isinya dibaca, lalu dari panjang isi yang
- * benar-benar terbaca. Yang pertama menolak lebih awal, yang kedua menutup
- * ketidaksesuaian antara yang dilaporkan dan yang dikirim.
- *
- * Nama field-nya tetap sama seperti sebelumnya ("photo", "document"), karena
- * formulir di frontend mengirimnya dengan nama itu.
+ * Isi permintaan multipart adalah aliran yang habis setelah dibaca, jadi
+ * `req.formData()` hanya boleh dipanggil satu kali. Rute yang butuh berkasnya
+ * sekaligus field lain di formulir yang sama harus membaca lewat sini lebih
+ * dulu, lalu mengambil keduanya dari hasilnya.
  */
-export const bacaBerkas = async (
-  req: Request,
+export const bacaFormulir = async (req: Request): Promise<FormData> => {
+  try {
+    return await req.formData()
+  } catch {
+    throw new HttpError(400, 'Isi permintaan bukan formulir unggahan yang sah')
+  }
+}
+
+/** Ambil satu berkas dari formulir yang sudah dibaca. */
+export const bacaBerkasDariFormulir = async (
+  form: FormData,
   namaField: string,
   batas: number,
   label: string,
 ): Promise<BerkasUnggahan> => {
-  let form: FormData
-
-  try {
-    form = await req.formData()
-  } catch {
-    throw new HttpError(400, 'Isi permintaan bukan formulir unggahan yang sah')
-  }
-
   const berkas = form.get(namaField)
   if (!(berkas instanceof File)) {
     throw new HttpError(400, `Berkas ${label} wajib dikirim pada field "${namaField}"`)
@@ -319,3 +316,23 @@ export const bacaBerkas = async (
 
   return { bytes, size: bytes.byteLength, name: berkas.name }
 }
+
+/**
+ * Baca satu berkas dari isi permintaan `multipart/form-data`.
+ *
+ * Pengganti peran multer di backend Express. Bedanya, di sini isi permintaan
+ * dibaca sekaligus ke memori, jadi batas ukurannya diperiksa dua kali: dari
+ * ukuran yang dilaporkan sebelum isinya dibaca, lalu dari panjang isi yang
+ * benar-benar terbaca. Yang pertama menolak lebih awal, yang kedua menutup
+ * ketidaksesuaian antara yang dilaporkan dan yang dikirim.
+ *
+ * Nama field-nya tetap sama seperti sebelumnya ("photo", "document"), karena
+ * formulir di frontend mengirimnya dengan nama itu.
+ */
+export const bacaBerkas = async (
+  req: Request,
+  namaField: string,
+  batas: number,
+  label: string,
+): Promise<BerkasUnggahan> =>
+  bacaBerkasDariFormulir(await bacaFormulir(req), namaField, batas, label)

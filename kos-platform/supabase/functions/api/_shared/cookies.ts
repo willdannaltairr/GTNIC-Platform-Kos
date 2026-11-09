@@ -54,7 +54,7 @@ export const bacaCookie = (req: Request, nama: string): string | null => {
  * API lewat jalur yang diteruskan dari domainnya sendiri.
  */
 const susun = (req: Request, nama: string, nilai: string, umurDetik: number): string => {
-  const secure = (req.headers.get('origin') ?? '').startsWith('https://') || Deno.env.get('ENVIRONMENT') === 'production'
+  const secure = (req.headers.get('origin') ?? '').startsWith('https://')
 
   return [
     `${nama}=${encodeURIComponent(nilai)}`,
