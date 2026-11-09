@@ -1,0 +1,10 @@
+{
+  "imports": {
+    "zod": "npm:zod@3",
+    "postgres": "npm:postgres@^3"
+  },
+  "compilerOptions": {
+    "strict": true,
+    "lib": ["deno.window", "dom"]
+  }
+}
