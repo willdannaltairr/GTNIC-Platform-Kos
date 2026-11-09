@@ -391,7 +391,7 @@ const HeroSection: FC = (): ReactNode => {
                 delay={1.3}
                 className={cn(
                   'block transition-colors duration-1000',
-                  malam ? 'text-leaf' : 'text-primary-strong/60',
+                  malam ? 'text-leaf' : 'text-white',
                 )}
               />
             </h1>
