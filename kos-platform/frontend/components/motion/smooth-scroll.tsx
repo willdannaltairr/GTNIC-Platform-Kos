@@ -4,6 +4,7 @@ import type { FC, ReactNode } from 'react'
 
 import Lenis from 'lenis'
 import { useEffect } from 'react'
+import { requestAnchorScroll } from '@/lib/anchor-scroll'
 
 const HEADER_OFFSET = -88
 
@@ -41,11 +42,23 @@ const SmoothScroll: FC = (): ReactNode => {
 
       if (url.origin !== window.location.origin || url.pathname !== window.location.pathname || !url.hash) return
 
-      const target = document.getElementById(decodeURIComponent(url.hash.slice(1)))
+      const hash = decodeURIComponent(url.hash.slice(1))
+      const target = document.getElementById(hash)
       if (!target) return
 
       event.preventDefault()
-      lenis.scrollTo(target, { offset: HEADER_OFFSET, duration: 1.4 })
+
+      // Bagian yang mengatur posisinya sendiri, misalnya jalur horizontal
+      // tersemat, boleh mengambil alih tujuan jangkar ini.
+      const handled = requestAnchorScroll(target, {
+        hash,
+        scrollTo: (top) => lenis.scrollTo(top, { duration: 1.4 }),
+      })
+
+      if (!handled) {
+        lenis.scrollTo(target, { offset: HEADER_OFFSET, duration: 1.4 })
+      }
+
       window.history.replaceState(window.history.state, '', url.hash)
     }
 
