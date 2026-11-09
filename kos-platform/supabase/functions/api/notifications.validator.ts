@@ -22,6 +22,9 @@ export const NOTIFICATION_KINDS = [
   'AVAILABILITY_REMINDER',
   'PROPERTY_VERIFIED',
   'NEW_MESSAGE',
+  'REVIEW_APPROVED',
+  'REVIEW_REJECTED',
+  'REVIEW_HIDDEN',
 ] as const
 
 export type NotificationKind = (typeof NOTIFICATION_KINDS)[number]
