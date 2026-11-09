@@ -21,6 +21,7 @@ export const NOTIFICATION_KINDS = [
   'NEW_MAINTENANCE_REPORT',
   'AVAILABILITY_REMINDER',
   'PROPERTY_VERIFIED',
+  'NEW_MESSAGE',
 ] as const
 
 export type NotificationKind = (typeof NOTIFICATION_KINDS)[number]
