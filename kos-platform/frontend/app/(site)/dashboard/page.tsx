@@ -196,7 +196,12 @@ function TampilanPenghuni({ data }: { data: DashboardTenant | null }) {
               {data.perbaikan.map((item) => (
                 <li key={item.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
                   <div className="min-w-0">
-                    <p className="truncate text-sm font-medium">{item.title}</p>
+                    <Link
+                      href={`/perbaikan/${item.id}`}
+                      className="truncate text-sm font-medium hover:underline"
+                    >
+                      {item.title}
+                    </Link>
                     <p className="mt-0.5 text-xs text-muted-foreground">
                       {item.propertyName}, kamar {item.roomNumber} · {formatTanggal(item.createdAt)}
                     </p>
@@ -362,7 +367,12 @@ function TampilanPemilik({ data }: { data: DashboardOwner | null }) {
               {data.perbaikan.map((item) => (
                 <li key={item.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
                   <div className="min-w-0">
-                    <p className="truncate text-sm font-medium">{item.title}</p>
+                    <Link
+                      href={`/perbaikan/${item.id}`}
+                      className="truncate text-sm font-medium hover:underline"
+                    >
+                      {item.title}
+                    </Link>
                     <p className="mt-0.5 text-xs text-muted-foreground">
                       {item.propertyName}, kamar {item.roomNumber} · {formatTanggal(item.createdAt)}
                     </p>

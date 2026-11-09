@@ -74,6 +74,7 @@ const GROUPS: NavGroup[] = [
       { label: 'Kontrak sewa', href: '/kontrak', hint: 'Kesepakatan berlaku' },
       { label: 'Tagihan', href: '/tagihan', hint: 'Yang perlu dibayar' },
       { label: 'Jadwal kunjungan', href: '/kunjungan', hint: 'Survei kos' },
+      { label: 'Perbaikan', href: '/perbaikan', hint: 'Kerusakan kamar' },
       { label: 'Properti saya', href: '/properti', hint: 'Kelola kos Anda' },
       { label: 'Verifikasi pemilik', href: '/verifikasi', hint: 'Dokumen identitas' },
       { label: 'Notifikasi', href: '/notifikasi', hint: 'Pemberitahuan' },
