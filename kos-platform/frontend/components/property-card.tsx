@@ -2,6 +2,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { BedDouble, MapPin, Navigation, Users } from 'lucide-react'
 import { FavoriteButton } from '@/components/favorites/favorite-button'
+import { TombolBandingkan } from '@/components/kos/tombol-bandingkan'
 import { cn } from '@/lib/utils'
 import type { PropertyListItem } from '@/lib/api'
 import {
@@ -77,18 +78,21 @@ export function PropertyCard({
         )}
       </Link>
 
-      {/* Tombol favorit di luar tautan kartu, bukan di dalamnya: tombol di
-          dalam <a> akan ikut membuka halaman properti setiap kali ditekan,
-          dan pembatalan lewat event di situ mudah terlewat di salah satu
-          peramban. */}
+      {/* Dua tombol tanda disatukan dalam satu kolom, bukan ditempatkan satu
+          per satu: menumpuknya dengan posisi absolut terpisah membuat
+          jaraknya harus dihitung ulang setiap kali salah satunya berubah.
+          Keduanya juga di luar tautan kartu — tombol di dalam <a> akan ikut
+          membuka halaman properti setiap kali ditekan. */}
       {!gated && (
-        <FavoriteButton
-          propertyId={property.id}
+        <div
           className={cn(
-            'absolute z-10',
-            property.distanceKm !== null ? 'right-3 top-12' : 'right-3 top-3',
+            'absolute right-3 z-10 flex flex-col gap-2',
+            property.distanceKm !== null ? 'top-12' : 'top-3',
           )}
-        />
+        >
+          <FavoriteButton propertyId={property.id} />
+          <TombolBandingkan slug={property.slug} />
+        </div>
       )}
 
       <div className="flex flex-1 flex-col gap-3 p-4">

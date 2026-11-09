@@ -61,6 +61,7 @@ const GROUPS: NavGroup[] = [
     items: [
       { label: 'KosMatch', href: '/#kosmatch', hint: 'Segera' },
       { label: 'Simulasi Biaya', href: '/#truecost', hint: 'Aktif' },
+      { label: 'Bandingkan kos', href: '/bandingkan', hint: 'Aktif' },
       { label: 'Rute & Sekitar', href: '/#campusroute', hint: 'Segera' },
     ],
   },
