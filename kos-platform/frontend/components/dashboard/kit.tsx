@@ -81,6 +81,23 @@ const KUNJUNGAN: Record<string, Label> = {
 }
 
 /**
+ * Status pembayaran.
+ *
+ * PENDING ditulis "Menunggu dibayar" dan EXPIRED "Kedaluwarsa": yang pertama
+ * masih bisa diselesaikan penghuni, yang kedua tidak lagi dan ia perlu membuat
+ * pembayaran baru. Menulis keduanya sebagai "Menunggu" akan membuat penghuni
+ * menunggu sesuatu yang sudah tidak akan terjadi.
+ */
+const PEMBAYARAN: Record<string, Label> = {
+  PENDING: { label: 'Menunggu dibayar', nada: 'peringatan' },
+  SUCCESS: { label: 'Berhasil', nada: 'sukses' },
+  FAILED: { label: 'Gagal', nada: 'bahaya' },
+  EXPIRED: { label: 'Kedaluwarsa', nada: 'netral' },
+  REFUNDED: { label: 'Dana dikembalikan', nada: 'netral' },
+  PARTIALLY_REFUNDED: { label: 'Dikembalikan sebagian', nada: 'peringatan' },
+}
+
+/**
  * Status verifikasi properti.
  *
  * PENDING diterjemahkan "Belum diajukan", bukan "Menunggu": properti baru
@@ -160,6 +177,7 @@ const KAMUS = {
   peran: PERAN,
   pemilik: VERIFIKASI_PEMILIK,
   dokumen: DOKUMEN,
+  pembayaran: PEMBAYARAN,
 } as const
 
 export type JenisStatus = keyof typeof KAMUS
