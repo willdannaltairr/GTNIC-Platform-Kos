@@ -6,9 +6,9 @@
  * mana yang berlaku ditentukan server, jadi tidak ada parameter peran di sini.
  */
 
-// Relatif terhadap situs sendiri: permintaannya diteruskan ke Edge Function
-// oleh `next.config.ts`, supaya cookie sesi tetap first-party dan ikut terkirim.
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? ''
+// Alamat dasar dipilih menurut sisi tempat kodenya berjalan; penjelasannya ada
+// di `api-alamat.ts`.
+import { API_BASE } from './api-alamat'
 
 export type InvoiceStatus = 'DRAFT' | 'UNPAID' | 'PARTIALLY_PAID' | 'PAID' | 'OVERDUE' | 'CANCELLED'
 
