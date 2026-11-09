@@ -55,6 +55,14 @@ import {
 } from './invoices.validator.ts'
 import { notificationsService } from './notifications.service.ts'
 import { listNotificationsQuerySchema, notificationIdParam } from './notifications.validator.ts'
+import { reviewsService } from './reviews.service.ts'
+import {
+  createReviewSchema,
+  listReviewsQuerySchema,
+  moderateReviewSchema,
+  reviewIdParam,
+  updateReviewSchema,
+} from './reviews.validator.ts'
 import { maintenanceService } from './maintenance.service.ts'
 import {
   createMaintenanceSchema,
@@ -1114,6 +1122,83 @@ router.post('/percakapan/:id/pesan', async (ctx: Ctx) => {
   const data = await conversationsService.kirim(user, percakapanIdParam(ctx.params.id), input)
 
   return jsonOk(ctx.req, { message: 'Pesan terkirim', data }, 201)
+})
+
+// ─── Ulasan ─────────────────────────────────────────────────────────────────
+
+/**
+ * Ulasan penghuni atas kos yang pernah ia sewa.
+ *
+ * Daftar dan detailnya boleh dibuka tanpa sesi: ulasan yang sudah tayang
+ * memang untuk dibaca calon penghuni berikutnya. Yang membedakan apa yang
+ * terlihat adalah perannya, dan itu diputuskan di service — halaman properti
+ * hanya melihat yang sudah lolos tinjauan, penghuni melihat ulasannya sendiri
+ * beserta catatan moderasinya, dan admin melihat antrean moderasi.
+ */
+router.get('/reviews', async (ctx: Ctx) => {
+  const user = await optionalAuthenticate(ctx.req)
+  const params = listReviewsQuerySchema.parse(kueriObjek(ctx.url))
+  const hasil = await reviewsService.list(user, params)
+
+  return jsonOk(ctx.req, { message: 'Daftar ulasan', data: hasil.items, meta: hasil.meta })
+})
+
+/**
+ * Tulis ulasan dari kontrak yang sedang atau sudah dijalani.
+ *
+ * Rutenya menuntut sesi, dan peran penghuni diperiksa di service bersama
+ * pemeriksaan kontraknya.
+ */
+router.post('/reviews', async (ctx: Ctx) => {
+  const user = await authenticate(ctx.req)
+  const input = createReviewSchema.parse(await readJson(ctx.req))
+  const data = await reviewsService.create(user, input)
+
+  return jsonOk(
+    ctx.req,
+    { message: 'Ulasan terkirim dan menunggu tinjauan admin', data },
+    201,
+  )
+})
+
+router.get('/reviews/:id', async (ctx: Ctx) => {
+  const user = await optionalAuthenticate(ctx.req)
+  const data = await reviewsService.detail(user, reviewIdParam(ctx.params.id))
+
+  return jsonOk(ctx.req, { message: 'Ulasan', data })
+})
+
+router.patch('/reviews/:id', async (ctx: Ctx) => {
+  const user = await authenticate(ctx.req)
+  const input = updateReviewSchema.parse(await readJson(ctx.req))
+  const data = await reviewsService.update(user, reviewIdParam(ctx.params.id), input)
+
+  return jsonOk(ctx.req, {
+    message: 'Ulasan diperbarui dan kembali menunggu tinjauan admin',
+    data,
+  })
+})
+
+/**
+ * Keputusan moderasi ada di blok admin, bukan di blok ulasan, supaya batas
+ * kewenangannya terlihat dari alamatnya. `authorize(user, 'ADMIN')` tetap
+ * ditulis di rutenya sendiri, sama seperti seluruh rute /admin yang lain.
+ */
+router.post('/admin/ulasan/:id/moderasi', async (ctx: Ctx) => {
+  const user = await authenticate(ctx.req)
+  authorize(user, 'ADMIN')
+  const input = moderateReviewSchema.parse(await readJson(ctx.req))
+  const data = await reviewsService.moderate(user, reviewIdParam(ctx.params.id), input)
+
+  return jsonOk(ctx.req, {
+    message:
+      input.status === 'APPROVED'
+        ? 'Ulasan disetujui dan tayang di halaman kosnya'
+        : input.status === 'REJECTED'
+          ? 'Ulasan ditolak, alasannya tersimpan dan dikirim ke penulisnya'
+          : 'Ulasan disembunyikan dari halaman kosnya',
+    data,
+  })
 })
 
 export { jsonError }

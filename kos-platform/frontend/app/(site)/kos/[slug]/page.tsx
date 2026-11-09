@@ -5,7 +5,9 @@ import { cache } from 'react'
 import { AlertTriangle, CheckCircle2, MapPin, ShieldCheck, UserRound } from 'lucide-react'
 import { BookingPanel } from '@/components/kos/booking-panel'
 import { HubungiPemilik } from '@/components/kos/hubungi-pemilik'
+import { Bintang } from '@/components/ulasan/bintang'
 import { fetchProperty } from '@/lib/api'
+import { fetchUlasanProperti } from '@/lib/reviews'
 import {
   BATHROOM_LABEL,
   COST_CONFIDENCE_CLASS,
@@ -15,6 +17,7 @@ import {
   formatLastConfirmed,
   formatNumber,
   formatRupiah,
+  formatTanggal,
 } from '@/lib/format'
 
 const STATUS_CLASS: Record<string, string> = {
@@ -28,6 +31,11 @@ const STATUS_CLASS: Record<string, string> = {
 // cache() mendedupe pemanggilan API dalam satu request, sehingga
 // generateMetadata dan komponen halaman hanya menembak API sekali.
 const getProperty = cache(async (slug: string) => fetchProperty(slug))
+
+// Ulasan diambil terpisah karena kegagalannya tidak boleh menjatuhkan halaman:
+// kos yang belum punya ulasan, atau permintaan yang gagal, tetap harus bisa
+// dibaca. cache() juga membuat satu request hanya menembak API sekali.
+const getUlasan = cache(async (slug: string) => fetchUlasanProperti(slug))
 
 /**
  * notFound() dipanggil di sini juga, bukan hanya di komponen halaman.
@@ -63,6 +71,8 @@ export default async function PropertyDetailPage({
 
   const summary = property.costSummary
   const [primaryImage, ...restImages] = property.images
+  const ulasan = await getUlasan(slug)
+  const ringkasanUlasan = ulasan?.meta.ringkasan
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
@@ -241,6 +251,86 @@ export default async function PropertyDetailPage({
               </ul>
             </section>
           )}
+
+          {/* Ulasan penghuni */}
+          <section>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <h2 className="text-lg font-bold tracking-tight">
+                Ulasan penghuni
+                {ringkasanUlasan && ringkasanUlasan.jumlahTayang > 0 && (
+                  <span className="ml-2 text-sm font-normal text-muted-foreground">
+                    {ringkasanUlasan.jumlahTayang} ulasan
+                  </span>
+                )}
+              </h2>
+
+              {ringkasanUlasan?.rataRata != null && (
+                <span className="flex items-center gap-2">
+                  <Bintang nilai={ringkasanUlasan.rataRata} ukuran="md" />
+                  <span className="text-sm font-semibold">{ringkasanUlasan.rataRata} dari 5</span>
+                </span>
+              )}
+            </div>
+
+            {/* Rincian per aspek ditampilkan karena yang membacanya sedang
+                memutuskan hal yang berbeda-beda: ada yang mementingkan
+                kebersihan, ada yang mementingkan kecepatan pemilik menjawab. */}
+            {ringkasanUlasan && ringkasanUlasan.jumlahTayang > 0 && (
+              <dl className="mt-3 grid gap-x-6 gap-y-2 sm:grid-cols-2">
+                {(
+                  [
+                    ['Kebersihan', ringkasanUlasan.kebersihan],
+                    ['Lokasi', ringkasanUlasan.lokasi],
+                    ['Fasilitas', ringkasanUlasan.fasilitas],
+                    ['Layanan pemilik', ringkasanUlasan.layananPemilik],
+                  ] as const
+                ).map(([label, nilai]) =>
+                  nilai == null ? null : (
+                    <div key={label} className="flex items-center justify-between gap-2">
+                      <dt className="text-xs text-muted-foreground">{label}</dt>
+                      <dd className="flex items-center gap-1.5">
+                        <Bintang nilai={nilai} ukuran="sm" />
+                        <span className="text-xs font-medium">{nilai}</span>
+                      </dd>
+                    </div>
+                  ),
+                )}
+              </dl>
+            )}
+
+            <div className="mt-4 space-y-3">
+              {ulasan === null ? (
+                <p className="rounded-xl border border-dashed border-border px-4 py-6 text-center text-sm text-muted-foreground">
+                  Ulasan belum bisa dimuat saat ini.
+                </p>
+              ) : ulasan.items.length === 0 ? (
+                <p className="rounded-xl border border-dashed border-border px-4 py-6 text-center text-sm text-muted-foreground">
+                  Belum ada ulasan untuk kos ini. Ulasan ditulis penghuni yang pernah menempati
+                  kamarnya, dan tayang setelah ditinjau admin.
+                </p>
+              ) : (
+                ulasan.items.map((item) => (
+                  <article key={item.id} className="rounded-xl border border-border bg-card p-4">
+                    <div className="flex flex-wrap items-start justify-between gap-2">
+                      <div>
+                        <p className="text-sm font-semibold">{item.tenantName}</p>
+                        <p className="mt-0.5 text-xs text-muted-foreground">
+                          {formatTanggal(item.createdAt)}
+                        </p>
+                      </div>
+                      <Bintang nilai={item.rating} ukuran="sm" sertakanAngka />
+                    </div>
+
+                    {item.content && (
+                      <p className="mt-2.5 text-sm leading-relaxed text-muted-foreground">
+                        {item.content}
+                      </p>
+                    )}
+                  </article>
+                ))
+              )}
+            </div>
+          </section>
         </div>
 
         {/* Kolom kanan: biaya, ketersediaan, pemilik */}

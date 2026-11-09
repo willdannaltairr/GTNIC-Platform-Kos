@@ -119,6 +119,7 @@ export default function AdminDashboardPage() {
         <nav aria-label="Bagian panel admin" className="mt-4 flex flex-wrap gap-2">
           {[
             { label: 'Moderasi properti', href: '/admin/properti' },
+            { label: 'Moderasi ulasan', href: '/admin/ulasan' },
             { label: 'Verifikasi pemilik', href: '/admin/pemilik' },
             { label: 'Pengguna', href: '/admin/pengguna' },
           ].map((item) => (

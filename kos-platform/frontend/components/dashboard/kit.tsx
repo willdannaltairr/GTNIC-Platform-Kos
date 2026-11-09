@@ -164,6 +164,21 @@ const DOKUMEN: Record<string, Label> = {
   REJECTED: { label: 'Ditolak', nada: 'bahaya' },
 }
 
+/**
+ * Status ulasan.
+ *
+ * PENDING_MODERATION ditulis "Menunggu tinjauan", bukan "Draf": ulasannya sudah
+ * terkirim dan tidak bisa ditarik lagi oleh penulisnya, yang ia tunggu adalah
+ * keputusan admin. Menulisnya "Draf" membuat penulisnya menunggu sesuatu yang
+ * tidak akan datang.
+ */
+const ULASAN: Record<string, Label> = {
+  PENDING_MODERATION: { label: 'Menunggu tinjauan', nada: 'peringatan' },
+  APPROVED: { label: 'Tayang', nada: 'sukses' },
+  REJECTED: { label: 'Ditolak', nada: 'bahaya' },
+  HIDDEN: { label: 'Disembunyikan', nada: 'netral' },
+}
+
 const KAMUS = {
   booking: BOOKING,
   invoice: INVOICE,
@@ -178,6 +193,7 @@ const KAMUS = {
   pemilik: VERIFIKASI_PEMILIK,
   dokumen: DOKUMEN,
   pembayaran: PEMBAYARAN,
+  ulasan: ULASAN,
 } as const
 
 export type JenisStatus = keyof typeof KAMUS
