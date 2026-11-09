@@ -35,6 +35,14 @@ import {
   listContractsQuerySchema,
   updateContractStatusSchema,
 } from './contracts.validator.ts'
+import { conversationsService } from './conversations.service.ts'
+import {
+  kirimPesanSchema,
+  listConversationsQuerySchema,
+  listMessagesQuerySchema,
+  mulaiPercakapanSchema,
+  percakapanIdParam,
+} from './conversations.validator.ts'
 import { dashboardService } from './dashboard.service.ts'
 import { favoritesService } from './favorites.service.ts'
 import { addFavoriteSchema, propertyIdParam } from './favorites.validator.ts'
@@ -1060,6 +1068,52 @@ router.post('/admin/pemilik/:id/verifikasi', async (ctx: Ctx) => {
         : 'Pengajuan pemilik ditolak, alasannya tersimpan',
     data,
   })
+})
+
+// ─── Percakapan ─────────────────────────────────────────────────────────────
+
+/**
+ * Percakapan penghuni dengan pemilik kos.
+ *
+ * Seluruh rutenya menuntut akun, dan siapa yang boleh melihat atau mengirim
+ * diperiksa di service: hanya di sana keanggotaan percakapannya diketahui.
+ */
+router.get('/percakapan', async (ctx: Ctx) => {
+  const user = await authenticate(ctx.req)
+  const params = listConversationsQuerySchema.parse(kueriObjek(ctx.url))
+  const hasil = await conversationsService.list(user, params)
+
+  return jsonOk(ctx.req, { message: 'Daftar percakapan', data: hasil.items, meta: hasil.meta })
+})
+
+/**
+ * Mulai percakapan tentang satu properti, atau ambil yang sudah ada.
+ *
+ * Pendaftarannya sebelum `/:id` supaya "mulai" tidak pernah terbaca sebagai
+ * sebuah id.
+ */
+router.post('/percakapan', async (ctx: Ctx) => {
+  const user = await authenticate(ctx.req)
+  const input = mulaiPercakapanSchema.parse(await readJson(ctx.req))
+  const data = await conversationsService.mulai(user, input)
+
+  return jsonOk(ctx.req, { message: 'Percakapan dibuka', data }, 201)
+})
+
+router.get('/percakapan/:id', async (ctx: Ctx) => {
+  const user = await authenticate(ctx.req)
+  const params = listMessagesQuerySchema.parse(kueriObjek(ctx.url))
+  const data = await conversationsService.detail(user, percakapanIdParam(ctx.params.id), params)
+
+  return jsonOk(ctx.req, { message: 'Percakapan', data })
+})
+
+router.post('/percakapan/:id/pesan', async (ctx: Ctx) => {
+  const user = await authenticate(ctx.req)
+  const input = kirimPesanSchema.parse(await readJson(ctx.req))
+  const data = await conversationsService.kirim(user, percakapanIdParam(ctx.params.id), input)
+
+  return jsonOk(ctx.req, { message: 'Pesan terkirim', data }, 201)
 })
 
 export { jsonError }

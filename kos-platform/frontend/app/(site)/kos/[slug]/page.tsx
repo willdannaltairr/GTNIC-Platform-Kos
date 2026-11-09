@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import { cache } from 'react'
 import { AlertTriangle, CheckCircle2, MapPin, ShieldCheck, UserRound } from 'lucide-react'
 import { BookingPanel } from '@/components/kos/booking-panel'
+import { HubungiPemilik } from '@/components/kos/hubungi-pemilik'
 import { fetchProperty } from '@/lib/api'
 import {
   BATHROOM_LABEL,
@@ -367,6 +368,11 @@ export default async function PropertyDetailPage({
               Kontak pemilik ditampilkan setelah Anda masuk dan mengajukan permintaan sewa, agar
               data pribadi tidak tersebar bebas.
             </p>
+
+            <HubungiPemilik
+              propertyId={property.id}
+              namaPemilik={property.owner.businessName ?? property.owner.name}
+            />
           </div>
         </aside>
       </div>

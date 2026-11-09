@@ -9,9 +9,9 @@
  * HttpOnly, tidak ada satu pun nilainya yang bisa dibaca kode di browser.
  */
 
-// Relatif terhadap situs sendiri: permintaannya diteruskan ke Edge Function
-// oleh `next.config.ts`, supaya cookie sesi tetap first-party dan ikut terkirim.
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? ''
+// Alamat dasar dipilih menurut sisi tempat kodenya berjalan; penjelasannya ada
+// di `api-alamat.ts`.
+import { API_BASE } from './api-alamat'
 
 export interface SessionUser {
   id: string
