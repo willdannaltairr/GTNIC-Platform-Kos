@@ -3,8 +3,9 @@
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import Link from 'next/link'
-import { Loader2 } from 'lucide-react'
+import { Loader2, LogIn } from 'lucide-react'
 import { AuthField } from '@/components/auth/auth-field'
+import { AuthMark } from '@/components/auth/auth-mark'
 import { useSession } from '@/components/session/session-provider'
 import { loginAccount, type ApiError } from '@/lib/api'
 
@@ -68,11 +69,15 @@ export function LoginForm() {
   return (
     <div>
       <form onSubmit={submit} className="flex flex-col gap-5">
-        <div className="flex flex-col gap-1.5 text-center">
-          <h1 className="font-heading text-3xl font-bold tracking-tight">Masuk ke akun Anda</h1>
-          <p className="text-sm text-balance text-muted-foreground">
-            Masuk untuk membuka daftar kos terverifikasi, menyimpan favorit, dan mengajukan sewa.
-          </p>
+        <div className="flex flex-col items-center gap-4 text-center">
+          <AuthMark icon={LogIn} />
+
+          <div className="flex flex-col gap-1.5">
+            <h1 className="font-heading text-3xl font-bold tracking-tight">Masuk ke akun Anda</h1>
+            <p className="text-sm text-balance text-muted-foreground">
+              Masuk untuk membuka daftar kos terverifikasi, menyimpan favorit, dan mengajukan sewa.
+            </p>
+          </div>
         </div>
 
         <div className="grid gap-4">

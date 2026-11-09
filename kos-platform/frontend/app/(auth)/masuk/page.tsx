@@ -11,18 +11,30 @@ export const metadata: Metadata = {
 }
 
 /**
- * Halaman masuk: dua kolom penuh, formulir di kiri dan foto kamar di kanan.
+ * Halaman masuk: dua kolom penuh, formulir di kiri dan foto di kanan.
  *
  * Halaman ini adalah pintu masuk seluruh situs, semua tautan yang meninggalkan
  * landing page mendarat di sini, jadi tata letaknya dibuat lapang dan hanya
  * berisi satu hal yang perlu dikerjakan.
+ *
+ * Fotonya sengaja bukan kamar kos: yang dibutuhkan halaman masuk adalah
+ * bangunan yang tenang dan meyakinkan, bukan kamar yang belum tentu serupa
+ * dengan kos yang sedang dicari pengunjung. Kutipan di kakinya berasal dari
+ * data demo platform yang sama dengan bagian testimoni landing, lengkap dengan
+ * penanda asalnya.
  */
 export default function MasukPage() {
   return (
     <AuthShell
       image={{
-        src: '/images/kos-4.jpg',
-        alt: 'Kamar kos: tempat tidur dengan selimut kelabu, lemari kayu, dan lantai parket.',
+        src: '/images/auth-masuk.jpg',
+        alt: 'Rumah masa kini dengan jendela menyala hangat saat senja.',
+      }}
+      quote={{
+        text: 'Yang berubah bukan pilihan kosnya, tapi saya tahu persis apa yang saya bayar. Deposit, listrik, air, semuanya sudah ada angkanya sebelum saya datang survei.',
+        author: 'Rani Prameswari',
+        role: 'Mahasiswa',
+        note: 'Kutipan contoh dari data demo platform.',
       }}
       footer={
         <span>

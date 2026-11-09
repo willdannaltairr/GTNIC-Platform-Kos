@@ -11,20 +11,30 @@ export const metadata: Metadata = {
 }
 
 /**
- * Halaman daftar: dua kolom penuh, formulir di kiri dan foto kamar di kanan.
+ * Halaman daftar: dua kolom penuh, formulir di kiri dan foto di kanan.
  *
  * Bentuknya sengaja disamakan dengan halaman masuk supaya berpindah antara
  * masuk dan daftar tidak terasa seperti berpindah aplikasi. Yang berbeda hanya
- * fotonya, lebar kolom formulirnya yang sedikit lebih besar (pilihan peran dan
- * tiga isian tidak nyaman dibaca pada ukuran kolom formulir masuk), dan catatan
- * tentang akun administrator di kaki kolom.
+ * fotonya, kutipannya, lebar kolom formulirnya yang sedikit lebih besar
+ * (pilihan peran dan tiga isian tidak nyaman dibaca pada ukuran kolom formulir
+ * masuk), dan catatan tentang akun administrator di kaki kolom.
+ *
+ * Kutipan yang dipilih di sini suara pemilik kos, bukan penghuni: halaman ini
+ * satu-satunya tempat kedua peran bertemu, dan pendaftar yang memilih jalan itu
+ * perlu melihat bahwa platform ini bekerja untuknya juga.
  */
 export default function DaftarPage() {
   return (
     <AuthShell
       image={{
-        src: '/images/kos-1.jpg',
-        alt: 'Kamar kos: tempat tidur rapi dengan tanaman hijau di dekat jendela.',
+        src: '/images/auth-daftar.jpg',
+        alt: 'Fasad rumah dengan jendela bercahaya hangat pada dinding bertekstur.',
+      }}
+      quote={{
+        text: 'Dulu saya harus menelepon satu per satu untuk tahu kamar mana yang masih kosong. Sekarang ketersediaannya saya perbarui sekali, dan calon penyewa melihat hal yang sama.',
+        author: 'Hendra Wijaya',
+        role: 'Pemilik kos',
+        note: 'Kutipan contoh dari data demo platform.',
       }}
       formWidth="max-w-md"
       footer={
