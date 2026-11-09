@@ -44,6 +44,14 @@ import {
   percakapanIdParam,
 } from './conversations.validator.ts'
 import { dashboardService } from './dashboard.service.ts'
+import { expensesService } from './expenses.service.ts'
+import {
+  createExpenseSchema,
+  expenseIdParam,
+  listExpensesQuerySchema,
+  ringkasanKeuanganQuerySchema,
+  updateExpenseSchema,
+} from './expenses.validator.ts'
 import { favoritesService } from './favorites.service.ts'
 import { addFavoriteSchema, propertyIdParam } from './favorites.validator.ts'
 import { invoicesService } from './invoices.service.ts'
@@ -780,6 +788,71 @@ router.post('/invoices/:id/batalkan', async (ctx: Ctx) => {
   const data = await invoicesService.batalkan(user, invoiceIdParam(ctx.params.id), input)
 
   return jsonOk(ctx.req, { message: 'Tagihan dibatalkan', data })
+})
+
+// ─── Keuangan properti ──────────────────────────────────────────────────────
+
+/**
+ * Pengeluaran pemilik dan ringkasan untung-ruginya.
+ *
+ * Seluruh rutenya menuntut akun, dan yang boleh melihat hanya pemilik
+ * propertinya (atau admin). Penghuni tidak: pembukuan usaha pemilik bukan
+ * urusan orang yang menyewa kamarnya. Pemeriksaan itu ada di service, karena
+ * hanya di sana propertinya sudah diterjemahkan menjadi pemiliknya.
+ *
+ * Ringkasan didaftarkan SEBELUM `/:id`, karena pencocokan rute mengikuti
+ * urutan pendaftaran: kalau `/:id` lebih dulu, permintaan ke `/ringkasan` akan
+ * dibaca sebagai id pengeluaran bernama "ringkasan" dan jawabannya 400 yang
+ * membingungkan.
+ */
+router.get('/expenses/ringkasan', async (ctx: Ctx) => {
+  const user = await authenticate(ctx.req)
+  const params = ringkasanKeuanganQuerySchema.parse(kueriObjek(ctx.url))
+  const data = await expensesService.ringkasan(user, params)
+
+  return jsonOk(ctx.req, { message: 'Ringkasan keuangan', data })
+})
+
+router.get('/expenses', async (ctx: Ctx) => {
+  const user = await authenticate(ctx.req)
+  const params = listExpensesQuerySchema.parse(kueriObjek(ctx.url))
+  const hasil = await expensesService.list(user, params)
+
+  return jsonOk(ctx.req, {
+    message: 'Daftar pengeluaran',
+    data: hasil.items,
+    meta: hasil.meta,
+  })
+})
+
+router.post('/expenses', async (ctx: Ctx) => {
+  const user = await authenticate(ctx.req)
+  const input = createExpenseSchema.parse(await readJson(ctx.req))
+  const data = await expensesService.create(user, input)
+
+  return jsonOk(ctx.req, { message: 'Pengeluaran tercatat', data }, 201)
+})
+
+router.get('/expenses/:id', async (ctx: Ctx) => {
+  const user = await authenticate(ctx.req)
+  const data = await expensesService.detail(user, expenseIdParam(ctx.params.id))
+
+  return jsonOk(ctx.req, { message: 'Detail pengeluaran', data })
+})
+
+router.patch('/expenses/:id', async (ctx: Ctx) => {
+  const user = await authenticate(ctx.req)
+  const input = updateExpenseSchema.parse(await readJson(ctx.req))
+  const data = await expensesService.update(user, expenseIdParam(ctx.params.id), input)
+
+  return jsonOk(ctx.req, { message: 'Pengeluaran diperbarui', data })
+})
+
+router.delete('/expenses/:id', async (ctx: Ctx) => {
+  const user = await authenticate(ctx.req)
+  const data = await expensesService.remove(user, expenseIdParam(ctx.params.id))
+
+  return jsonOk(ctx.req, { message: 'Pengeluaran dihapus', data })
 })
 
 // ─── Pembayaran ─────────────────────────────────────────────────────────────
