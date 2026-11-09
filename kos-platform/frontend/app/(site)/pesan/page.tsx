@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { Loader2, MessageSquare } from 'lucide-react'
+import { MessageSquare } from 'lucide-react'
 import { useSession } from '@/components/session/session-provider'
 import { EmptyRow, Panel } from '@/components/dashboard/kit'
 import { fetchPercakapanList, type Percakapan, type DaftarPercakapan } from '@/lib/conversations'
@@ -153,8 +153,7 @@ export default function PesanPage() {
       </div>
 
       {daftar !== null && daftar.items.length > 0 && (
-        <p className="mt-4 flex items-center gap-1.5 text-xs text-muted-foreground">
-          <Loader2 className="size-3.5 opacity-0" aria-hidden="true" />
+        <p className="mt-4 text-xs text-muted-foreground">
           {daftar.meta.total} percakapan tersimpan.
         </p>
       )}
