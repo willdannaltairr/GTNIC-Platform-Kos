@@ -2,6 +2,7 @@ import { Router } from 'express'
 import adminRoutes from '../modules/admin/admin.routes'
 import authRoutes from '../modules/auth/auth.routes'
 import bookingsRoutes from '../modules/bookings/bookings.routes'
+import contractsRoutes from '../modules/contracts/contracts.routes'
 import dashboardRoutes from '../modules/dashboard/dashboard.routes'
 import favoritesRoutes from '../modules/favorites/favorites.routes'
 import notificationsRoutes from '../modules/notifications/notifications.routes'
@@ -30,6 +31,7 @@ apiRouter.use('/favorites', favoritesRoutes)
 apiRouter.use('/notifications', notificationsRoutes)
 apiRouter.use('/visits', visitsRoutes)
 apiRouter.use('/bookings', bookingsRoutes)
+apiRouter.use('/contracts', contractsRoutes)
 apiRouter.use('/properties', propertiesRoutes)
 apiRouter.use('/rooms', roomsRoutes)
 apiRouter.use('/places', placesRoutes)
