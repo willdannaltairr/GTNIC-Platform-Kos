@@ -13,7 +13,9 @@
 
 import type { PropertyListItem } from '@/lib/api'
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000'
+// Relatif terhadap situs sendiri: permintaannya diteruskan ke Edge Function
+// oleh `next.config.ts`, supaya cookie sesi tetap first-party dan ikut terkirim.
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? ''
 
 /** Properti yang difavoritkan pengguna yang sedang masuk. */
 export async function fetchFavorites(): Promise<PropertyListItem[] | null> {
