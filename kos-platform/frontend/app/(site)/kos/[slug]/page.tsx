@@ -5,6 +5,7 @@ import { cache } from 'react'
 import { AlertTriangle, CheckCircle2, MapPin, ShieldCheck, UserRound } from 'lucide-react'
 import { BookingPanel } from '@/components/kos/booking-panel'
 import { HubungiPemilik } from '@/components/kos/hubungi-pemilik'
+import { TombolBandingkan } from '@/components/kos/tombol-bandingkan'
 import { Bintang } from '@/components/ulasan/bintang'
 import { fetchProperty } from '@/lib/api'
 import { fetchUlasanProperti } from '@/lib/reviews'
@@ -348,6 +349,11 @@ export default async function PropertyDetailPage({
                 monthlyPrice: room.monthlyPrice,
               }))}
           />
+
+          {/* Perbandingan ditaruh tepat di bawah pengajuan: keduanya keputusan
+              yang diambil sambil membaca rincian biaya, dan tombol yang
+              terkubur di bawah pemilik hampir tidak pernah ditemukan. */}
+          <TombolBandingkan slug={property.slug} varian="lebar" />
 
           {/* Simulasi biaya */}
           <div className="rounded-2xl border border-border bg-card p-5">
