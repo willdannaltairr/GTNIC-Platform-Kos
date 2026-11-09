@@ -3,10 +3,9 @@ import { HttpError } from './http.ts'
 /**
  * Router kecil untuk satu Edge Function.
  *
- * Express tidak dipakai lagi, tetapi bentuk rutenya dipertahankan: pola
- * bertitik dua (`/:id`) dan urutan pemeriksaan yang sama, sehingga daftar
- * endpoint-nya bisa dibaca berdampingan dengan backend lama dan tidak ada
- * jalur yang diam-diam berubah arti.
+ * Bentuk rutenya sengaja sederhana: pola bertitik dua (`/:id`) dan urutan
+ * pemeriksaan yang sama seperti yang sudah dipakai sejak awal, sehingga daftar
+ * endpoint-nya tetap terbaca dan tidak ada jalur yang diam-diam berubah arti.
  *
  * Ditulis sendiri, bukan memakai pustaka, karena kebutuhannya hanya mencocokkan
  * segmen jalan dan menyimpan nilainya: sekitar tiga puluh baris, tanpa satu pun

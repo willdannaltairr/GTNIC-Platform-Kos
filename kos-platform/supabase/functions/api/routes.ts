@@ -106,11 +106,11 @@ import {
 import { updateProfileSchema } from './users.validator.ts'
 
 /**
- * Daftar endpoint, disusun berdampingan dengan backend Express yang digantikan.
+ * Daftar endpoint, satu berkas untuk seluruh modul.
  *
- * Jalurnya sengaja tidak diubah satu pun: empat belas berkas klien di frontend
- * memanggil alamat-alamat ini, dan mengubahnya berarti memindahkan backend
- * sekaligus menulis ulang seluruh lapisan data di sisi web.
+ * Jalurnya sengaja tidak diubah satu pun sejak backend lama: empat belas berkas
+ * klien di frontend memanggil alamat-alamat ini, dan mengubahnya berarti
+ * menulis ulang seluruh lapisan data di sisi web tanpa manfaat apa pun.
  */
 export const router = new Router()
 
