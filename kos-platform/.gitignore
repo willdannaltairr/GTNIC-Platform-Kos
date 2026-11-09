@@ -10,7 +10,7 @@ frontend/node_modules/
 next-env.d.ts
 .vercel/
 
-# Express / API
+# Perkakas database (bukan server; server API ada di supabase/functions/api)
 backend/dist/
 backend/node_modules/
 

@@ -128,11 +128,10 @@ kos-platform/
 │   ├── hooks/                # use-media-query, use-prefers-reduced-motion
 │   ├── lib/                  # api.ts (klien API), format.ts, landing.ts, constants.ts
 │   └── public/images/        # foto demo + CREDITS.md
-├── backend/                  # Express + TypeScript, REST API
-│   ├── scripts/db-local.mjs  # kelola cluster PostgreSQL dev proyek
-│   ├── scripts/db-sql.mjs    # jalankan migration/seed SQL ke database
-│   └── src/                  # config, lib (koneksi + query), middleware, modules, routes
-├── supabase/                 # seluruh skema dan data demo, murni SQL
+├── backend/                  # perkakas database lokal, bukan server
+│   └── scripts/              # db-local.mjs (kelola cluster) dan db-sql.mjs (jalankan SQL)
+├── supabase/                 # seluruh skema, data demo, dan server API
+│   ├── functions/api/        # Edge Function: seluruh endpoint /api/v1
 │   ├── migrations/           # DDL: 46 tabel, 23 enum, 78 foreign key, trigger updated_at
 │   ├── seed.sql              # 8 akun demo + 6 properti contoh
 │   └── config.toml           # konfigurasi Supabase CLI
@@ -145,14 +144,15 @@ kos-platform/
 | Bagian | Dipakai |
 | --- | --- |
 | Frontend | Next.js 16.2.3 (App Router, Turbopack), React 19.2.4, TypeScript 5, Tailwind CSS v4, motion 14, lenis, lucide-react, three + @react-three/fiber (kartu 3D) |
-| Backend | Node.js, Express 4, TypeScript 5, Zod 3, node-postgres (`pg` 8), ts-node (dev) |
-| Database | PostgreSQL (lokal atau Supabase), **tanpa ORM**: skema, migration, dan seluruh query ditulis SQL langsung |
-| Auth | JWT pada cookie HttpOnly (access 15 menit + refresh 7 hari), bcrypt untuk password |
-| Middleware | helmet, cors, express-rate-limit, cookie-parser, logger permintaan, error handler terpusat |
+| Backend | Supabase Edge Function: Deno, TypeScript, Zod 3, postgres.js. Deploy tanpa Docker |
+| Database | PostgreSQL di Supabase, **tanpa ORM**: skema, migration, dan seluruh query ditulis SQL langsung |
+| Auth | Supabase Auth; sesinya dikirim lewat cookie HttpOnly `access_token` dan `refresh_token` |
+| Server | Rute per modul, validasi Zod di batas masuk, pembatasan peran per rute, error handler terpusat |
 
-Sudah ada di `.env.example` tetapi **belum dipakai kode**: Midtrans, Google Maps Platform,
-Cloudinary, Resend, dan Sentry. Variabelnya disiapkan untuk fase berikutnya, bukan
-ketergantungan aktif, tidak ada satu pun yang diimpor di `backend/src` maupun `frontend`.
+Sudah ada di `.env.example` tetapi **belum dipakai kode**: Google Maps Platform, Cloudinary,
+dan Sentry. Midtrans dan Resend sudah terpakai di sisi server, tetapi kuncinya boleh kosong:
+tanpa kunci Midtrans tautan pembayaran belum dibuat, dan tanpa kunci Resend tautan verifikasi
+email dicatat di log fungsi alih-alih dikirim.
 
 ## Prasyarat
 
@@ -169,9 +169,13 @@ Jalankan dari folder `kos-platform` (git-bash):
 
 ```bash
 npm install                  # dependency seluruh workspace (hoisted ke kos-platform/node_modules)
-cp .env.example backend/.env # lalu isi DATABASE_URL dan JWT_SECRET
-cp .env.example frontend/.env.local   # cukup sisakan NEXT_PUBLIC_API_URL
+npm run dev                  # web di http://localhost:3000
 ```
+
+Server API-nya tidak dijalankan dari mesin ini: seluruh endpoint dilayani Edge Function
+yang sudah ter-deploy di proyek Supabase. Peramban memanggilnya lewat jalur `/api/v1`
+milik situs sendiri, yang diteruskan ke sana oleh `frontend/next.config.ts`, sehingga
+cookie sesinya first-party.
 
 ### Pilihan A, database Supabase
 
@@ -185,13 +189,14 @@ tempel ke `DATABASE_URL` di `backend/.env`.
 >
 > Menempelkan `?sslmode=require` di connection string juga tidak membantu, driver `pg`
 > akan mengabaikan pengaturan TLS dari aplikasi begitu parameter itu ada. Enkripsi sudah
-> diurus otomatis oleh `backend/src/lib/db.ts`.
+> diurus otomatis oleh `backend/scripts/db-sql.mjs`.
 
 ```bash
 npx supabase login                              # sekali saja, menyimpan token akses
 npx supabase link --project-ref <ref-proyek>    # contoh: ftunxbdpiokslgrzcmvd
 npm run db:migrate                              # buat seluruh tabel + kunci akses REST
 npm run db:seed                                 # 8 akun demo + 6 properti contoh
+npx supabase functions deploy api --use-api --no-verify-jwt   # deploy API-nya
 ```
 
 Bila `supabase db push` gagal karena IPv6 (perintah itu menyambung lewat koneksi
@@ -208,20 +213,15 @@ npm run db:local -- init     # buat cluster PostgreSQL di 127.0.0.1:5433 (sekali
 npm run db:setup             # buat seluruh tabel, lalu isi data demo
 ```
 
-Lalu satu perintah menyalakan keduanya, API di port 4000, web di port 3000:
+Cluster lokal hanya untuk perkakas database: migration, seed, dan pemeriksaan isi tabel.
+Server API-nya tetap Edge Function di Supabase, karena fungsi itu berjalan di sana dan
+tidak bisa dijalankan dari mesin ini (butuh Docker).
+
+Lalu nyalakan web dan buka alamat dari baris `Local:`:
 
 ```bash
-npm run dev                  # API + web sekaligus di satu terminal
+npm run dev                  # web  → http://localhost:3000
 ```
-
-Bila ingin dipisah ke dua terminal (mis. untuk membaca log salah satu saja):
-
-```bash
-npm run dev:api              # API  → http://localhost:4000
-npm run dev:web              # web  → lihat baris "Local:" di terminal
-```
-
-Buka alamat dari baris `Local:` itu, lalu masuk dengan akun demo di bawah.
 
 ## Perintah
 
@@ -229,12 +229,11 @@ Semua perintah dijalankan dari folder `kos-platform`:
 
 | Perintah | Fungsi |
 | --- | --- |
-| `npm run dev` | Nyalakan **frontend dan backend** sekaligus dalam satu terminal |
-| `npm run dev:web` | Hanya dev server frontend (Turbopack) |
-| `npm run build` · `npm run build:web` | Build produksi frontend (`next build`) |
+| `npm run dev` · `dev:web` | Nyalakan dev server frontend (Turbopack) |
+| `npm run build` · `build:web` | Build produksi frontend (`next build`) |
 | `npm run start` | Jalankan hasil build frontend |
-| `npm run dev:api` | Hanya dev server backend (ts-node, port 4000) |
-| `npm run build:api` | Type-check backend (`tsc --noEmit`, tanpa output) |
+| `npm run check:api` | Type-check Edge Function (`deno check`, lewat npx) |
+| `npm run functions:deploy` | Deploy Edge Function `api` ke proyek Supabase yang di-`link` |
 | `npm run db:migrate` | Jalankan seluruh migration SQL ke database di `DATABASE_URL` |
 | `npm run db:seed` | Isi akun demo dan properti contoh |
 | `npm run db:setup` | `db:migrate` lalu `db:seed` sekaligus |
@@ -244,23 +243,27 @@ Semua perintah dijalankan dari folder `kos-platform`:
 ### Catatan menjalankan
 
 - **Port web bisa berpindah.** Bila 3000 sedang dipakai proses lain, Next otomatis memakai port berikutnya dan menuliskannya di terminal.
-- **Login dan daftar hanya jalan dari origin yang terdaftar.** Backend hanya menjawab CORS untuk origin di `FRONTEND_URL` (default `http://localhost:3000`); dari port lain browser memblokir permintaan auth. Beberapa origin dipisah koma, mis. `FRONTEND_URL=http://localhost:3000,http://localhost:3001` di `backend/.env`, lalu jalankan ulang API.
+- **Cookie sesi ikut karena satu asal.** Halaman memanggil `/api/v1` di domainnya sendiri, dan `frontend/next.config.ts` yang meneruskannya ke Edge Function. Memanggil alamat fungsinya langsung membuat login tampak berhasil tetapi sesinya tidak pernah terbaca, sebab cookie `SameSite=Lax` tidak dikirim pada permintaan lintas situs.
+- **Origin yang boleh memanggil API diatur `FRONTEND_URL`** di sisi fungsi (lewat `npx supabase secrets set`), dipisah koma. Bila kosong, hanya `http://localhost:3000` dan `http://127.0.0.1:3000`.
 - **Tanpa API.** Halaman tetap tampil; bagian daftar kos menampilkan keterangan bahwa daftar belum dapat dimuat, bukan data contoh.
 - **Cluster DB perlu dihidupkan ulang tiap boot.** `npm run db:local -- start`.
 
 ## Environment variable
 
-Referensi lengkap ada di [`.env.example`](.env.example). Yang benar-benar wajib:
+Referensi lengkap ada di [`.env.example`](.env.example). Ada dua tempat yang berbeda:
 
-| Variable | Berkas | Keterangan |
+| Variable | Tempat | Keterangan |
 | --- | --- | --- |
-| `DATABASE_URL` | `backend/.env` | Wajib, API menolak start bila kosong |
-| `JWT_SECRET` | `backend/.env` | Wajib, ganti sebelum dipakai di luar mesin lokal |
-| `FRONTEND_URL` | `backend/.env` | Origin yang diizinkan CORS; boleh beberapa, dipisah koma |
-| `NEXT_PUBLIC_API_URL` | `frontend/.env.local` | Default `http://localhost:4000` bila kosong |
+| `DATABASE_URL` | `backend/.env` | Untuk perkakas database lokal: migration, seed, dan `db:local` |
+| `DB_SSL` | `backend/.env` | Mode TLS ke database: `auto` (default), `disable`, atau `require` |
+| `FRONTEND_URL` | secret fungsi | Origin yang boleh memanggil API; boleh beberapa, dipisah koma |
+| `MIDTRANS_SERVER_KEY` | secret fungsi | Kunci Midtrans; kosong berarti tautan pembayaran belum dibuat |
+| `RESEND_API_KEY` | secret fungsi | Pengirim email verifikasi; kosong berarti tautannya dicatat di log fungsi |
+| `STORAGE_BUCKET` | secret fungsi | Bucket foto kamar, default `room-photos` |
+| `MODE_PENGEMBANGAN` | secret fungsi | `true` membuka rute simulasi pembayaran; bawaannya mati |
+| `TOKEN_PENGEMBANGAN` | secret fungsi | `true` menyertakan token mentah di jawaban; bawaannya mati, jangan dinyalakan di produksi |
 
-Sisanya (`PORT`, `API_PREFIX`, `BCRYPT_SALT_ROUNDS`, `JWT_*_EXPIRES_IN`, dan kredensial
-layanan pihak ketiga) punya nilai default di `backend/src/config/env.ts`.
+Variabel berawalan `SUPABASE_` disuntikkan platform sendiri dan tidak perlu diisi.
 
 ## Halaman
 
@@ -278,8 +281,11 @@ yang lebih sederhana. Pemisahannya ada di `app/(landing)/layout.tsx` dan `app/(s
 
 ## API
 
-Prefix `/api/v1` (dapat diubah lewat `API_PREFIX`). Semua respons berbentuk
+Prefix `/api/v1`. Semua respons berbentuk
 `{ success, message, data?, meta?, errors? }`.
+
+Endpointnya ada di `supabase/functions/api/routes.ts`, satu berkas untuk seluruh modul,
+sehingga daftar alamatnya bisa dibaca di satu tempat:
 
 | Method | Endpoint | Akses | Keterangan |
 | --- | --- | --- | --- |
@@ -338,7 +344,7 @@ Tiga hal yang diurus database sendiri, dulu dikerjakan aplikasi:
 - **`created_at` / `updated_at`** punya default `now()`, dan trigger `set_updated_at()`
   memperbarui `updated_at` di setiap `UPDATE`, tidak bisa terlupa di query.
 - **Keunikan email** dijaga indeks unik, bukan pemeriksaan terpisah di aplikasi, sehingga
-  dua pendaftaran bersamaan tidak bisa sama-sama lolos (backend menerjemahkan pelanggaran
+  dua pendaftaran bersamaan tidak bisa sama-sama lolos (fungsi menerjemahkan pelanggaran
   indeks `23505` menjadi 409 "Email sudah terdaftar").
 
 Kelompok tabelnya: pengguna dan profil (`users`, `owner_profiles`, `tenant_profiles`,
@@ -352,17 +358,17 @@ Kelompok tabelnya: pengguna dan profil (`users`, `owner_profiles`, `tenant_profi
 Hanya tabel pengguna, properti, kamar, fasilitas, aturan, dan komponen biaya yang sudah
 dipakai endpoint. Sisanya masih tabel kosong tanpa API.
 
-### Cara backend menyambung
+### Cara API menyambung ke database
 
-`backend/src/lib/db.ts` membuat satu pool `pg` dari `DATABASE_URL`:
+`supabase/functions/api/_shared/db.ts` menyambung ke `SUPABASE_DB_URL`, yang disuntikkan
+platform ke dalam Edge Function:
 
-- **TLS otomatis.** Menyala untuk host non-lokal (Supabase wajib terenkripsi), mati untuk
-  localhost yang umumnya tanpa TLS. Paksa dengan `DB_SSL=require` atau `DB_SSL=disable`.
-- **Parameter `sslmode` di connection string dibuang lebih dulu.** Kalau tidak, `pg` akan
-  menimpakan objek `ssl`-nya sendiri dan pengaturan aplikasi diabaikan, sumber galat
-  "self-signed certificate in certificate chain" yang membingungkan.
-- **Query lewat parameter, bukan rangkaian teks.** Semua nilai filter dikirim sebagai `$1`,
+- **Parameter query, bukan rangkaian teks.** Semua nilai filter dikirim sebagai `$1`,
   `$2`, … sehingga filter pencarian yang jumlahnya berubah-ubah tetap aman dari injeksi.
+- **`prepare: false` wajib**, bukan pilihan gaya. Pooler Supabase dalam mode transaction
+  tidak mendukung prepared statement, dan tanpa mematikannya query bisa menggantung.
+- **Kolom selalu ditulis eksplisit.** Tidak ada `SELECT *`, sehingga kolom sensitif tidak
+  ikut terkirim hanya karena ada kolom baru ditambahkan.
 
 ### Supabase
 
@@ -370,8 +376,8 @@ Skema `public` disiapkan tertutup: RLS menyala di seluruh tabel dan hak akses `a
 `authenticated` dicabut. Alasannya, Supabase mengekspos `public` sebagai REST API yang bisa
 dipanggil siapa pun yang memegang kunci publik, dan pada tabel yang dibuat lewat SQL
 migration, RLS **tidak** menyala otomatis. Tanpa langkah ini, `password_hash` bisa terbaca
-dari browser. Aplikasi tidak terpengaruh karena backend masuk sebagai pemilik tabel, dan
-pemilik tabel melewati RLS.
+dari browser. API tidak terpengaruh karena menyambung sebagai pemilik tabel, dan pemilik
+tabel melewati RLS.
 
 ### Cluster dev lokal
 
@@ -398,7 +404,7 @@ komponen biaya sehingga halaman `/kos` dan `/kos/[slug]` langsung ada isinya.
 
 ## Simulasi biaya (TrueCost)
 
-`backend/src/modules/properties/cost-summary.ts` menghitung ringkasan biaya untuk halaman
+`supabase/functions/api/cost-summary.ts` menghitung ringkasan biaya untuk halaman
 detail dengan aturan yang dipegang ketat:
 
 - Deposit bukan biaya bulanan dan tidak dihitung sebagai pengeluaran hilang.
@@ -411,31 +417,37 @@ detail dengan aturan yang dipegang ketat:
 
 | Fase | Isi | Status |
 | --- | --- | --- |
-| 1 | Foundation: monorepo, Next.js, Express, TypeScript, PostgreSQL, skema SQL langsung, env config, error handling, logging, API versioning | Selesai |
-| 2 | Authentication & Authorization: register, login, logout, profil, RBAC, rate limit | Berjalan, endpoint inti sudah ada; endpoint refresh token belum |
-| 3 | Property & Room Management | Sebagian, baru endpoint baca publik; belum ada CRUD pemilik |
+| 1 | Foundation: monorepo, Next.js, Supabase Edge Function, TypeScript, PostgreSQL, skema SQL langsung, error handling, API versioning | Selesai |
+| 2 | Authentication & Authorization: register, login, logout, profil, verifikasi email, lupa sandi, RBAC | Selesai |
+| 3 | Property & Room Management: kelola properti dan kamar pemilik, foto kamar, moderasi admin | Selesai |
 | 4 | Search & Discovery (KosMatch, TrueCost Simulator) | Sebagian, filter pencarian dan TrueCost sudah jalan; skor KosMatch belum diimplementasikan |
-| 5 | Booking & Contract | Belum, tabel sudah ada |
-| 6 | Payment & Billing | Belum |
-| 7 | Tenant & Owner Operations | Belum |
-| 8 | Admin Management | Belum |
-| 9 | Map & Location | Belum, koordinat properti sudah tersimpan |
+| 5 | Booking & Contract: pengajuan sewa, keputusan pemilik, kontrak sewa | Selesai |
+| 6 | Payment & Billing: tagihan, pembayaran Midtrans, webhook | Selesai untuk alurnya; kunci Midtrans masih perlu diisi untuk pembayaran sungguhan |
+| 7 | Tenant & Owner Operations: favorit, kunjungan, perbaikan, verifikasi pemilik | Sebagian, API-nya selesai; halaman perbaikan di frontend belum dibuat |
+| 8 | Admin Management: moderasi properti, pengguna, verifikasi pemilik, audit | Selesai |
+| 9 | Map & Location | Sebagian, koordinat dan pencarian sekitar sudah jalan; rute tempuh belum |
 | 10 | Testing & Polishing | Belum ada test otomatis di repo |
 
 ## Keamanan
 
-- Password di-hash bcrypt; token JWT hanya lewat cookie HttpOnly (tidak di localStorage).
+- Password ditangani Supabase Auth: tidak ada kata sandi yang disimpan sendiri, dan hash lama
+  dipindahkan apa adanya sehingga tidak ada yang perlu menyetel ulang sandinya.
+- **Sesi hanya lewat cookie HttpOnly** (tidak di localStorage), dikirim sebagai
+  `access_token` dan `refresh_token`; nilainya tidak bisa dibaca skrip di halaman.
 - **Query memakai parameter, bukan rangkaian teks.** Tidak ada satu pun nilai dari pengguna
   yang disisipkan ke dalam teks SQL, termasuk filter pencarian yang jumlahnya berubah-ubah.
 - **Daftar kolom ditulis eksplisit.** Tidak ada `SELECT *`, sehingga kolom sensitif seperti
-  `password_hash` tidak ikut terkirim hanya karena ada kolom baru ditambahkan.
+  hash kata sandi tidak ikut terkirim hanya karena ada kolom baru ditambahkan.
 - **Keunikan dijaga database.** Pendaftaran email ganda ditolak indeks unik, bukan oleh
   pemeriksaan yang bisa dilewati dua permintaan bersamaan.
 - **REST API Supabase ditutup.** RLS menyala di seluruh tabel dan hak akses peran `anon`
   serta `authenticated` dicabut, sehingga isi database tidak bisa dibaca lewat kunci publik.
-- Rate limit per IP untuk seluruh API dan batas lebih ketat untuk endpoint auth.
-- Backend memverifikasi role dan kepemilikan resource di setiap endpoint privat.
-- `JWT_SECRET` wajib diganti sebelum dipakai di luar mesin lokal.
+- **Status pembayaran hanya datang dari webhook** yang tanda tangannya diperiksa lebih dulu,
+  bukan dari halaman kembalian di peramban.
+- **Berkas sensitif di bucket privat** (dokumen identitas, foto laporan perbaikan) dan hanya
+  dibuka lewat URL bertanda tangan yang berlaku lima menit.
+- Setiap rute memeriksa peran dan kepemilikan data; yang tidak berhak dijawab 404 bila
+  menyebut 403 akan membocorkan keberadaan datanya.
 - Jangan pernah commit file `.env` asli. Gunakan `.env.example` sebagai referensi.
 
 ## Kredit foto
