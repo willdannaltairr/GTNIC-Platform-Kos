@@ -37,6 +37,15 @@ export const MAX_DOCUMENT_BYTES = 8 * 1024 * 1024
 /** Batas ukuran satu foto laporan perbaikan. */
 export const MAX_MAINTENANCE_BYTES = 8 * 1024 * 1024
 
+/**
+ * Batas ukuran satu foto kondisi kamar.
+ *
+ * Namanya sendiri, bukan memakai ulang nama di atas, supaya pesan galatnya bisa
+ * menyebut foto kondisi kamar dan bukan foto laporan perbaikan, dan supaya
+ * mengubah salah satunya tidak diam-diam mengubah yang lain.
+ */
+export const MAX_ROOM_CONDITION_BYTES = 8 * 1024 * 1024
+
 /** Bucket foto kamar. Publik. */
 export const STORAGE_BUCKET = Deno.env.get('STORAGE_BUCKET') ?? 'room-photos'
 
@@ -45,6 +54,16 @@ export const DOCUMENT_BUCKET = 'owner-documents'
 
 /** Bucket foto laporan perbaikan. Privat, sama seperti dokumen. */
 export const MAINTENANCE_BUCKET = 'maintenance-photos'
+
+/**
+ * Bucket foto kondisi kamar (Room Passport). Privat.
+ *
+ * Sama alasannya dengan foto perbaikan: isinya keadaan di dalam kamar yang
+ * sedang dihuni, termasuk barang penghuninya yang ikut terfoto. Foto kamar
+ * kosong boleh dibaca siapa saja karena memang ditampilkan di halaman publik;
+ * kamar yang sedang dihuni tidak.
+ */
+export const ROOM_CONDITION_BUCKET = 'room-condition-photos'
 
 /** Jenis gambar yang diterima, beserta ekstensi yang dipakai saat menyimpan. */
 const IMAGE_TYPES = {
@@ -183,6 +202,13 @@ export const uploadMaintenanceObject = (
   contentType: string,
 ): Promise<void> => uploadTo(MAINTENANCE_BUCKET, path, body, contentType)
 
+/** Simpan satu foto kondisi kamar di bucket privat. */
+export const uploadRoomConditionObject = (
+  path: string,
+  body: Uint8Array,
+  contentType: string,
+): Promise<void> => uploadTo(ROOM_CONDITION_BUCKET, path, body, contentType)
+
 /**
  * Hapus satu objek dari bucket foto.
  *
@@ -199,6 +225,10 @@ export const deleteDocumentObject = (path: string): Promise<void> =>
 /** Hapus satu foto laporan perbaikan. Kegagalannya juga tidak melempar. */
 export const deleteMaintenanceObject = (path: string): Promise<void> =>
   deleteFrom(MAINTENANCE_BUCKET, path)
+
+/** Hapus satu foto kondisi kamar. Kegagalannya juga tidak melempar. */
+export const deleteRoomConditionObject = (path: string): Promise<void> =>
+  deleteFrom(ROOM_CONDITION_BUCKET, path)
 
 /**
  * URL bertanda tangan untuk satu objek di bucket privat.
@@ -261,6 +291,12 @@ export const maintenanceSignedUrl = (
   path: string | null,
   expiresIn = 300,
 ): Promise<string | null> => signedUrlFor(MAINTENANCE_BUCKET, path, expiresIn)
+
+/** URL bertanda tangan untuk satu foto kondisi kamar. */
+export const roomConditionSignedUrl = (
+  path: string | null,
+  expiresIn = 300,
+): Promise<string | null> => signedUrlFor(ROOM_CONDITION_BUCKET, path, expiresIn)
 
 /** Satu berkas yang sudah dibaca dari isi permintaan multipart. */
 export interface BerkasUnggahan {
