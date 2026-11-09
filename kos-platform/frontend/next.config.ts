@@ -1,22 +1,14 @@
 import path from 'node:path'
 import type { NextConfig } from 'next'
+import { ALAMAT_FUNGSI } from './lib/api-alamat'
 
 /**
  * Alamat Edge Function yang melayani seluruh API.
  *
- * Permintaan dari peramban diteruskan ke sini lewat jalur `/api/v1` milik situs
- * sendiri, bukan dipanggil langsung ke alamat fungsinya. Alasannya cookie sesi:
- * cookie `SameSite=Lax` tidak ikut terkirim pada permintaan lintas situs,
- * sehingga pemanggilan langsung membuat pengunjung tampak selalu belum masuk
- * walaupun loginnya berhasil. Lewat penerusan ini, seluruh permintaannya
- * sesama asal dan cookienya first-party.
- *
- * Nilainya bisa ditimpa lewat `API_FUNGSI_URL` untuk menunjuk proyek Supabase
- * lain tanpa menyunting berkas ini.
+ * Berasal dari `lib/api-alamat.ts`, tempat yang sama yang dipakai sisi server
+ * untuk memanggil fungsinya langsung. Satu sumber supaya penerusan di sini dan
+ * pemanggilan langsung itu tidak pernah menunjuk ke proyek yang berbeda.
  */
-const API_FUNGSI =
-  process.env.API_FUNGSI_URL ?? 'https://ftunxbdpiokslgrzcmvd.supabase.co/functions/v1/api'
-
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   productionBrowserSourceMaps: false,
@@ -43,7 +35,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: '/api/v1/:jalur*',
-        destination: `${API_FUNGSI}/api/v1/:jalur*`,
+        destination: `${ALAMAT_FUNGSI}/api/v1/:jalur*`,
       },
     ]
   },
