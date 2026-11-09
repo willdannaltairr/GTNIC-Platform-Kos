@@ -25,8 +25,8 @@ export default async function ResetSandiPage({
   return (
     <AuthShell
       image={{
-        src: '/images/kos-6.jpg',
-        alt: 'Kamar kos tertata dengan meja kerja di dekat jendela yang terang.',
+        src: '/images/auth-sandi-baru.jpg',
+        alt: 'Bayangan dedaunan di dinding yang terkena sinar matahari pagi.',
       }}
     >
       <ResetPasswordForm token={token ?? ''} />
