@@ -5,6 +5,7 @@ import {
   MAX_DOCUMENT_BYTES,
   MAX_MAINTENANCE_BYTES,
   MAX_PHOTO_BYTES,
+  MAX_ROOM_CONDITION_BYTES,
   bacaBerkas,
   bacaBerkasDariFormulir,
   bacaFormulir,
@@ -71,6 +72,17 @@ import {
   reviewIdParam,
   updateReviewSchema,
 } from './reviews.validator.ts'
+import { roomConditionService } from './room-condition.service.ts'
+import {
+  acknowledgeSchema,
+  createRoomConditionSchema,
+  listRoomConditionsQuerySchema,
+  roomConditionIdParam,
+  roomConditionPhotoIdParam,
+  setChecklistSchema,
+  submitRoomConditionSchema,
+  updateRoomConditionSchema,
+} from './room-condition.validator.ts'
 import { maintenanceService } from './maintenance.service.ts'
 import {
   createMaintenanceSchema,
@@ -982,6 +994,122 @@ router.delete('/perbaikan/:id/photos/:photoId', async (ctx: Ctx) => {
   )
 
   return jsonOk(ctx.req, { message: 'Foto laporan dihapus', data })
+})
+
+// ─── Room Passport (kondisi kamar) ──────────────────────────────────────────
+
+/**
+ * Catatan kondisi kamar saat masuk dan keluar.
+ *
+ * Seluruh rutenya menuntut akun, dan siapa yang boleh apa diperiksa di service:
+ * hanya di sana kontraknya sudah diterjemahkan menjadi penyewa dan pemiliknya.
+ * Penghuni membuat dan mengirim pemeriksaannya, pemilik menyetujui atau
+ * mengajukan keberatan.
+ *
+ * Daftar periksa dan fotonya sengaja tidak punya rute urutan tersendiri:
+ * keduanya selalu dibaca bersama pemeriksaannya, dan memisahkannya berarti
+ * halaman detail harus memanggil tiga endpoint untuk satu layar.
+ */
+router.get('/kondisi-kamar', async (ctx: Ctx) => {
+  const user = await authenticate(ctx.req)
+  const params = listRoomConditionsQuerySchema.parse(kueriObjek(ctx.url))
+  const hasil = await roomConditionService.list(user, params)
+
+  return jsonOk(ctx.req, {
+    message: 'Daftar pemeriksaan kondisi kamar',
+    data: hasil.items,
+    meta: hasil.meta,
+  })
+})
+
+router.post('/kondisi-kamar', async (ctx: Ctx) => {
+  const user = await authenticate(ctx.req)
+  const input = createRoomConditionSchema.parse(await readJson(ctx.req))
+  const data = await roomConditionService.create(user, input)
+
+  return jsonOk(ctx.req, { message: 'Pemeriksaan kondisi kamar dimulai', data }, 201)
+})
+
+router.get('/kondisi-kamar/:id', async (ctx: Ctx) => {
+  const user = await authenticate(ctx.req)
+  const data = await roomConditionService.detail(user, roomConditionIdParam(ctx.params.id))
+
+  return jsonOk(ctx.req, { message: 'Detail pemeriksaan kondisi kamar', data })
+})
+
+router.patch('/kondisi-kamar/:id', async (ctx: Ctx) => {
+  const user = await authenticate(ctx.req)
+  const input = updateRoomConditionSchema.parse(await readJson(ctx.req))
+  const data = await roomConditionService.update(user, roomConditionIdParam(ctx.params.id), input)
+
+  return jsonOk(ctx.req, { message: 'Keterangan pemeriksaan diperbarui', data })
+})
+
+router.put('/kondisi-kamar/:id/checklist', async (ctx: Ctx) => {
+  const user = await authenticate(ctx.req)
+  const input = setChecklistSchema.parse(await readJson(ctx.req))
+  const data = await roomConditionService.setChecklist(user, roomConditionIdParam(ctx.params.id), input)
+
+  return jsonOk(ctx.req, { message: 'Daftar periksa disimpan', data })
+})
+
+router.post('/kondisi-kamar/:id/kirim', async (ctx: Ctx) => {
+  const user = await authenticate(ctx.req)
+  const input = submitRoomConditionSchema.parse(await readJson(ctx.req))
+  const data = await roomConditionService.submit(user, roomConditionIdParam(ctx.params.id), input)
+
+  return jsonOk(ctx.req, { message: 'Pemeriksaan dikirim ke pemilik untuk disetujui', data })
+})
+
+router.post('/kondisi-kamar/:id/persetujuan', async (ctx: Ctx) => {
+  const user = await authenticate(ctx.req)
+  const input = acknowledgeSchema.parse(await readJson(ctx.req))
+  const data = await roomConditionService.acknowledge(
+    user,
+    roomConditionIdParam(ctx.params.id),
+    input,
+  )
+
+  return jsonOk(ctx.req, {
+    message: input.setuju
+      ? 'Pemeriksaan kondisi kamar disetujui'
+      : 'Keberatan tersimpan dan dikirim ke penghuninya',
+    data,
+  })
+})
+
+/**
+ * Foto kondisi.
+ *
+ * Area dan keterangannya ikut lewat query string, bukan field formulir, karena
+ * unggahan multipart di sini hanya membawa berkasnya. Isi permintaan multipart
+ * adalah aliran yang habis setelah dibaca, jadi menggabungkan keduanya di satu
+ * formulir akan memaksa pembacaannya dua kali.
+ */
+router.post('/kondisi-kamar/:id/photos', async (ctx: Ctx) => {
+  const user = await authenticate(ctx.req)
+  const berkas = await bacaBerkas(ctx.req, 'photo', MAX_ROOM_CONDITION_BYTES, 'foto kondisi')
+  const area = ctx.url.searchParams.get('areaName')?.trim() || undefined
+  const keterangan = ctx.url.searchParams.get('description')?.trim() || undefined
+  const data = await roomConditionService.addPhoto(
+    user,
+    roomConditionIdParam(ctx.params.id),
+    berkas,
+    { areaName: area, description: keterangan },
+  )
+
+  return jsonOk(ctx.req, { message: 'Foto kondisi ditambahkan', data }, 201)
+})
+
+router.delete('/kondisi-kamar/:id/photos/:photoId', async (ctx: Ctx) => {
+  const user = await authenticate(ctx.req)
+  const data = await roomConditionService.removePhoto(
+    user,
+    roomConditionIdParam(ctx.params.id),
+    roomConditionPhotoIdParam(ctx.params.photoId),
+  )
+
+  return jsonOk(ctx.req, { message: 'Foto kondisi dihapus', data })
 })
 
 // ─── Verifikasi pemilik ─────────────────────────────────────────────────────
