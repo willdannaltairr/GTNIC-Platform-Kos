@@ -280,19 +280,38 @@ export const contractsService = {
     // Tagihan yang lahir dari kontrak ini ikut ditampilkan: pertanyaan pertama
     // penghuni saat membuka kontrak biasanya "apa yang harus saya bayar", dan
     // memisahkannya ke halaman lain berarti ia harus tahu ke mana mencarinya.
-    const tagihan = await query<{
-      id: string
-      invoice_number: string
-      total_amount: string
-      invoice_status: string
-      due_date: Date | null
-    }>(
-      `SELECT id, invoice_number, total_amount, invoice_status, due_date
-       FROM invoices
-       WHERE contract_id = $1
-       ORDER BY created_at DESC`,
-      [id],
-    )
+    //
+    // Riwayat statusnya juga ikut, sama seperti pada booking: tanpanya kedua
+    // pihak hanya melihat keadaan sekarang tanpa tahu kapan berubah dan oleh
+    // siapa, padahal itulah yang paling sering dipersoalkan pada kesepakatan.
+    const [tagihan, riwayat] = await Promise.all([
+      query<{
+        id: string
+        invoice_number: string
+        total_amount: string
+        invoice_status: string
+        due_date: Date | null
+      }>(
+        `SELECT id, invoice_number, total_amount, invoice_status, due_date
+         FROM invoices
+         WHERE contract_id = $1
+         ORDER BY created_at DESC`,
+        [id],
+      ),
+      query<{
+        id: string
+        previous_status: string | null
+        new_status: string
+        notes: string | null
+        created_at: Date
+      }>(
+        `SELECT id, previous_status, new_status, notes, created_at
+         FROM contract_status_histories
+         WHERE contract_id = $1
+         ORDER BY created_at ASC`,
+        [id],
+      ),
+    ])
 
     return {
       ...keBentuk(kontrak),
@@ -302,6 +321,13 @@ export const contractsService = {
         totalAmount: angka(baris.total_amount),
         status: baris.invoice_status,
         dueDate: baris.due_date === null ? null : baris.due_date.toISOString(),
+      })),
+      riwayat: riwayat.map((baris) => ({
+        id: baris.id,
+        previousStatus: baris.previous_status,
+        newStatus: baris.new_status,
+        notes: baris.notes,
+        createdAt: baris.created_at.toISOString(),
       })),
     }
   },

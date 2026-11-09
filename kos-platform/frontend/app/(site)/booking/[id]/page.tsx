@@ -7,6 +7,7 @@ import { ArrowLeft, Loader2 } from 'lucide-react'
 import { useSession } from '@/components/session/session-provider'
 import { EmptyRow, Panel, StatusBadge } from '@/components/dashboard/kit'
 import { fetchBooking, updateBookingStatus, type BookingDetail, type BookingStatus } from '@/lib/bookings'
+import { buatKontrak, fetchKontrak, type Kontrak } from '@/lib/contracts'
 import { formatRupiah, formatTanggal } from '@/lib/format'
 import { cn } from '@/lib/utils'
 
@@ -28,6 +29,8 @@ export default function BookingDetailPage() {
   const [siap, setSiap] = useState(false)
   const [sibuk, setSibuk] = useState(false)
   const [pesan, setPesan] = useState<string | null>(null)
+  const [sukses, setSukses] = useState<string | null>(null)
+  const [kontrak, setKontrak] = useState<Kontrak | null>(null)
 
   const muat = useCallback(async (): Promise<BookingDetail | null> => {
     const hasil = await fetchBooking(params.id)
@@ -51,6 +54,14 @@ export default function BookingDetailPage() {
       setSiap(true)
     })
 
+    // Kontrak dari pengajuan ini ikut dicari supaya tombol pembuatannya tidak
+    // ditawarkan ketika kontraknya sudah ada. Pemeriksaan yang sebenarnya tetap
+    // di server, yang menolak kontrak kedua untuk booking yang sama.
+    void fetchKontrak().then((daftar) => {
+      if (!aktif) return
+      setKontrak(daftar?.find((item) => item.bookingId === params.id) ?? null)
+    })
+
     return () => {
       aktif = false
     }
@@ -67,6 +78,31 @@ export default function BookingDetailPage() {
       // Sebab penolakan dari server spesifik, misalnya perpindahan status yang
       // tidak diizinkan untuk peran ini, jadi pesannya ditampilkan apa adanya.
       setPesan(error instanceof Error ? error.message : 'Status tidak berubah')
+    } finally {
+      setSibuk(false)
+    }
+  }
+
+  /**
+   * Buat kontrak dari pengajuan yang sudah dikonfirmasi.
+   *
+   * Hanya pemilik propertinya yang boleh; penghuni ditolak server, dan pesannya
+   * ditampilkan apa adanya. Setelah jadi, tautan kontraknya langsung menggantikan
+   * tombolnya, sehingga pemilik tidak menekannya dua kali.
+   */
+  const bikinKontrak = async (): Promise<void> => {
+    setSibuk(true)
+    setPesan(null)
+    setSukses(null)
+
+    try {
+      const hasil = await buatKontrak({ bookingId: params.id })
+      setKontrak(hasil)
+      setSukses(
+        `Kontrak ${hasil.contractNumber} dibuat sebagai draf. Buka kontraknya untuk meminta tanda tangan penghuni.`,
+      )
+    } catch (error) {
+      setPesan(error instanceof Error ? error.message : 'Kontrak tidak terbentuk')
     } finally {
       setSibuk(false)
     }
@@ -161,6 +197,15 @@ export default function BookingDetailPage() {
         </p>
       )}
 
+      {sukses && (
+        <p
+          role="status"
+          className="mt-4 rounded-xl bg-emerald-50 px-4 py-2.5 text-sm text-emerald-700 ring-1 ring-emerald-200"
+        >
+          {sukses}
+        </p>
+      )}
+
       <div className="mt-6 space-y-6">
         <Panel title="Rincian sewa">
           <dl className="grid gap-x-6 gap-y-3 sm:grid-cols-2">
@@ -216,6 +261,24 @@ export default function BookingDetailPage() {
               <Tombol onClick={() => ubah('COMPLETED')} sibuk={sibuk}>
                 Tandai selesai
               </Tombol>
+            )}
+
+            {/* Kontrak adalah lanjutan dari sewa yang sudah dikonfirmasi, jadi
+                tombolnya ditaruh di sini, tempat keputusan itu diambil. */}
+            {kontrak ? (
+              <Link
+                href={`/kontrak/${kontrak.id}`}
+                className="inline-flex h-9 items-center rounded-lg border border-border px-3 text-sm font-medium transition-colors hover:bg-muted"
+              >
+                Lihat kontrak sewa
+              </Link>
+            ) : (
+              pemilik &&
+              data.status === 'CONFIRMED' && (
+                <Tombol onClick={bikinKontrak} sibuk={sibuk} utama>
+                  Buat kontrak sewa
+                </Tombol>
+              )
             )}
 
             {!pemilik &&
