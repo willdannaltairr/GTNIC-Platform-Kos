@@ -1,11 +1,10 @@
 /**
  * Cookie sesi.
  *
- * Sesi tetap dikirim lewat cookie HttpOnly, sama seperti backend Express, dan
- * itu disengaja: seluruh halaman frontend memanggil API dengan
- * `credentials: 'include'` dan tidak menyimpan token ke mana pun. Token yang
- * bisa dibaca JavaScript adalah token yang bisa dicuri satu baris skrip yang
- * kebetulan ikut terpasang.
+ * Sesi dikirim lewat cookie HttpOnly, dan itu disengaja: seluruh halaman
+ * frontend memanggil API dengan `credentials: 'include'` dan tidak menyimpan
+ * token ke mana pun. Token yang bisa dibaca JavaScript adalah token yang bisa
+ * dicuri satu baris skrip yang kebetulan ikut terpasang.
  *
  * Isi cookie di sini adalah token Supabase Auth, bukan token terbitan sendiri:
  * yang menandatangani dan mencabutnya adalah Supabase, bukan kode ini.

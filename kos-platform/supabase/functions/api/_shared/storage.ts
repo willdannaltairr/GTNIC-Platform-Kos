@@ -320,11 +320,10 @@ export const bacaBerkasDariFormulir = async (
 /**
  * Baca satu berkas dari isi permintaan `multipart/form-data`.
  *
- * Pengganti peran multer di backend Express. Bedanya, di sini isi permintaan
- * dibaca sekaligus ke memori, jadi batas ukurannya diperiksa dua kali: dari
- * ukuran yang dilaporkan sebelum isinya dibaca, lalu dari panjang isi yang
- * benar-benar terbaca. Yang pertama menolak lebih awal, yang kedua menutup
- * ketidaksesuaian antara yang dilaporkan dan yang dikirim.
+ * Isi permintaan dibaca sekaligus ke memori, jadi batas ukurannya diperiksa dua
+ * kali: dari ukuran yang dilaporkan sebelum isinya dibaca, lalu dari panjang
+ * isi yang benar-benar terbaca. Yang pertama menolak lebih awal, yang kedua
+ * menutup ketidaksesuaian antara yang dilaporkan dan yang dikirim.
  *
  * Nama field-nya tetap sama seperti sebelumnya ("photo", "document"), karena
  * formulir di frontend mengirimnya dengan nama itu.

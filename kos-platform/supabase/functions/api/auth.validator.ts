@@ -3,7 +3,7 @@ import { z } from 'npm:zod@3'
 /**
  * Validasi untuk modul autentikasi.
  *
- * Pesannya ditulis sama persis dengan backend Express: halaman daftar dan masuk
+ * Pesannya ditulis untuk dibaca pengunjung: halaman daftar dan masuk
  * menampilkan `errors[0].message` apa adanya, dan mengubah kalimatnya berarti
  * mengubah apa yang dibaca pengunjung tanpa alasan.
  */

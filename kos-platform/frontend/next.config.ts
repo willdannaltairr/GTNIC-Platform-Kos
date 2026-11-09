@@ -2,7 +2,7 @@ import path from 'node:path'
 import type { NextConfig } from 'next'
 
 /**
- * Alamat Edge Function yang menggantikan backend Express.
+ * Alamat Edge Function yang melayani seluruh API.
  *
  * Permintaan dari peramban diteruskan ke sini lewat jalur `/api/v1` milik situs
  * sendiri, bukan dipanggil langsung ke alamat fungsinya. Alasannya cookie sesi:

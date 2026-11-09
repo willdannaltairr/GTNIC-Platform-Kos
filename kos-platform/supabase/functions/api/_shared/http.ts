@@ -1,10 +1,10 @@
 /**
- * Bentuk jawaban HTTP yang sama dengan backend Express.
+ * Bentuk jawaban HTTP yang disepakati bersama sisi web.
  *
- * Kesamaan ini bukan kerapian, melainkan syarat: seluruh halaman frontend
+ * Bentuknya bukan soal kerapian, melainkan syarat: seluruh halaman frontend
  * membaca `data`, `meta`, dan `errors` dengan nama yang sama, dan alamat
- * `/api/v1` beserta bentuk amplopnya dipertahankan supaya memindahkan backend
- * tidak berarti menulis ulang empat belas berkas klien di frontend.
+ * `/api/v1` beserta amplopnya dipertahankan supaya memindahkan server tidak
+ * berarti menulis ulang empat belas berkas klien di frontend.
  */
 
 export class HttpError extends Error {
@@ -89,7 +89,7 @@ export const modePengembangan = (): boolean => Deno.env.get('MODE_PENGEMBANGAN')
 export const tokenPengembangan = (): boolean => Deno.env.get('TOKEN_PENGEMBANGAN') === 'true'
 
 /**
- * Jawaban sukses, dengan amplop yang sama seperti backend Express.
+ * Jawaban sukses, dengan amplop yang sama seperti endpoint lainnya.
  *
  * Cookie dikirim sebagai daftar, bukan satu nilai yang digabung: peramban
  * memisahkan header `Set-Cookie`, dan menggabungkan dua cookie dengan koma

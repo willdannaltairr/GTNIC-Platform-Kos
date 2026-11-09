@@ -1,10 +1,9 @@
 /**
  * Pengiriman email untuk alur autentikasi.
  *
- * Disalin apa adanya dari backend Express, termasuk perilaku pengembangannya:
- * tanpa `RESEND_API_KEY`, tautannya ditulis ke log fungsi alih-alih dikirim,
- * sehingga alur verifikasi dan atur ulang sandi tetap bisa dicoba tanpa
- * penyedia email.
+ * Perilaku pengembangannya disengaja: tanpa `RESEND_API_KEY`, tautannya
+ * ditulis ke log fungsi alih-alih dikirim, sehingga alur verifikasi dan atur
+ * ulang sandi tetap bisa dicoba tanpa penyedia email.
  *
  * Tidak pernah melempar. Permintaan yang memicunya sudah lebih dulu menyimpan
  * datanya di database, dan pengunjung tidak boleh melihat kegagalan pengiriman

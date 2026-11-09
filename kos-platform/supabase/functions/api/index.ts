@@ -4,9 +4,8 @@ import { router } from './routes.ts'
 /**
  * Satu Edge Function untuk seluruh API.
  *
- * Fungsi tunggal, bukan satu fungsi per modul, dengan dua alasan. Pertama,
- * rutenya jadi bisa dipindah apa adanya dari backend Express: satu tempat
- * memegang seluruh daftar alamat, jadi tidak ada jalur yang tercecer di
+ * Fungsi tunggal, bukan satu fungsi per modul, dengan dua alasan. Pertama, satu
+ * tempat memegang seluruh daftar alamat, jadi tidak ada jalur yang tercecer di
  * belasan tempat. Kedua, satu fungsi berarti satu kali pemuatan modul dan satu
  * kumpulan koneksi database untuk semua permintaan, bukan satu per modul.
  *
