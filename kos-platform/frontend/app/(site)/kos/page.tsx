@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Suspense } from 'react'
 import { KosFilters, type KosFilterState } from '@/components/kos/kos-filters'
+import { TombolSimpanPencarian } from '@/components/kos/tombol-simpan-pencarian'
 import { Pagination } from '@/components/pagination'
 import { PropertyCard } from '@/components/property-card'
 import { JudulHalaman, Seksi } from '@/components/site/kerangka'
@@ -162,6 +163,32 @@ export default async function KosPage({ searchParams }: { searchParams: Promise<
     sort: query.sort,
   }
 
+  /**
+   * Penyaring yang sedang berlaku, dalam bentuk yang disimpan.
+   *
+   * Diambil dari alamat halaman, bukan dari isian formulir yang belum
+   * diterapkan: yang disimpan harus penyaring yang benar-benar sedang menyaring
+   * hasil, karena itulah yang dicocokkan saat ada kos baru.
+   */
+  const penyaring: Record<string, string | number | undefined> = {
+    q: query.q || undefined,
+    city: query.city || undefined,
+    district: query.district || undefined,
+    type: query.type || undefined,
+    // Kuncinya memakai nama kueri halaman ini (`bathroom`), bukan nama yang
+    // dipakai API (`bathroomType`): yang disimpan harus bisa dipasang kembali ke
+    // alamat halaman apa adanya, dan halaman inilah yang menerjemahkannya saat
+    // memanggil API.
+    bathroom: query.bathroom || undefined,
+    minPrice: query.minPrice ? Number(query.minPrice) : undefined,
+    maxPrice: query.maxPrice ? Number(query.maxPrice) : undefined,
+    facilities: query.facilities.length > 0 ? query.facilities.join(',') : undefined,
+  }
+
+  const adaPenyaring = Object.values(penyaring).some(
+    (nilai) => nilai !== undefined && nilai !== '',
+  )
+
   return (
     <>
       <Seksi garis={false}>
@@ -173,6 +200,13 @@ export default async function KosPage({ searchParams }: { searchParams: Promise<
 
         <div className="mt-8">
           <KosFilters initial={initial} />
+        </div>
+
+        {/* Simpan pencarian diletakkan tepat di bawah penyaringnya: yang
+            disimpan adalah penyaring yang sedang berlaku, dan memisahkannya ke
+            halaman lain memaksa penyaringnya disusun ulang di sana. */}
+        <div className="mt-6">
+          <TombolSimpanPencarian filters={penyaring} adaIsi={adaPenyaring} />
         </div>
       </Seksi>
 

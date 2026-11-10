@@ -7,6 +7,7 @@ import { usePathname } from 'next/navigation'
 import {
   BadgeCheck,
   Bell,
+  Bookmark,
   Building2,
   Calculator,
   CalendarClock,
@@ -87,6 +88,7 @@ const KELOMPOK: KelompokSidebar[] = [
     judul: 'Akun',
     tautan: [
       { href: '/favorit', label: 'Kos favorit', icon: Heart },
+      { href: '/pencarian-tersimpan', label: 'Pencarian tersimpan', icon: Bookmark },
       { href: '/verifikasi', label: 'Verifikasi pemilik', icon: BadgeCheck, peran: ['OWNER', 'ADMIN'] },
     ],
   },
