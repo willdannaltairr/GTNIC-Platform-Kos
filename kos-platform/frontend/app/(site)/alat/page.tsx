@@ -95,15 +95,19 @@ export default function AlatPage() {
       </Seksi>
 
       <Seksi>
-        <ul className="grid gap-px overflow-hidden rounded-3xl border border-border bg-border sm:grid-cols-2 lg:grid-cols-3">
+        {/* Kartu terpisah dengan jarak, bukan satu kotak yang dibagi garis
+            celah: jumlah alatnya lima, sehingga grid tiga kolom menyisakan satu
+            sel kosong di kanan bawah, dan sel kosong itu ikut terwarnai abu-abu
+            sebagai sisa garis celahnya. */}
+        <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {ALAT.map((alat) => {
             const Icon = alat.icon
 
             return (
-              <li key={alat.href} className="bg-card">
+              <li key={alat.href}>
                 <Link
                   href={alat.href}
-                  className="group flex h-full flex-col p-6 transition-colors hover:bg-accent/40 sm:p-7"
+                  className="group flex h-full flex-col rounded-3xl border border-border bg-card p-6 transition-colors hover:border-primary/40 hover:bg-accent/40 sm:p-7"
                 >
                   <span className="grid size-11 place-items-center rounded-2xl bg-accent text-accent-foreground">
                     <Icon className="size-5" aria-hidden="true" />
