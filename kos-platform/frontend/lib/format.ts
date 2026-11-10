@@ -11,17 +11,16 @@ export const formatRupiah = (value: number | null | undefined): string => {
   return rupiah.format(value)
 }
 
-/** Ringkas untuk kartu: Rp1,85 jt, hanya untuk tampilan pendek. */
+/**
+ * Harga untuk grafik dan kartu ringkas.
+ *
+ * Nilainya tetap ditulis penuh dalam rupiah, bukan disingkat "jt" atau "rb".
+ * Singkatan menyembunyikan besarnya biaya: selisih antara Rp1.850.000 dan
+ * "Rp1,85 jt" tidak terlihat, padahal justru selisih itu yang dibaca orang.
+ */
 export const formatRupiahRingkas = (value: number | null | undefined): string => {
   if (value === null || value === undefined) return '-'
-  if (value >= 1_000_000) {
-    const millions = value / 1_000_000
-    return `Rp${millions.toFixed(millions >= 10 ? 0 : 2).replace('.', ',')} jt`
-  }
-  if (value >= 1_000) {
-    return `Rp${Math.round(value / 1_000)} rb`
-  }
-  return `Rp${value}`
+  return formatRupiah(value)
 }
 
 export const formatNumber = (value: number): string => new Intl.NumberFormat('id-ID').format(value)
