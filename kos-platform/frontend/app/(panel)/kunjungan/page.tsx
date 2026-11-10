@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { CalendarDays, Loader2 } from 'lucide-react'
+import { CalendarDays, ListChecks, Loader2 } from 'lucide-react'
 import { useSession } from '@/components/session/session-provider'
 import { EmptyRow, Panel, StatusBadge } from '@/components/dashboard/kit'
 import { deleteVisit, fetchVisits, updateVisit, type Kunjungan } from '@/lib/visits'
@@ -115,6 +115,13 @@ export default function KunjunganPage() {
             ? 'Calon penghuni yang ingin melihat properti Anda.'
             : 'Survei kos yang Anda jadwalkan. Buka detail untuk mengisi daftar periksa.'}
         </p>
+        <Link
+          href="/kunjungan/rencana"
+          className="mt-4 inline-flex h-10 items-center gap-2 rounded-xl border border-border px-4 text-sm font-medium transition-colors hover:bg-muted"
+        >
+          <ListChecks className="size-4" aria-hidden="true" />
+          Rencana survei
+        </Link>
       </header>
 
       {pesan && (
