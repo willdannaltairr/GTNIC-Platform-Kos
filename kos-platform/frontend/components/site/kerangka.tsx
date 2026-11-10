@@ -4,32 +4,49 @@ import { cn } from '@/lib/utils'
 /**
  * Kerangka tata letak halaman aplikasi.
  *
- * Dipakai seluruh halaman di dalam aplikasi (beranda, cari kos, pesan,
- * keuangan, dan seterusnya), BUKAN landing page. Landing page punya bahasa
- * visualnya sendiri yang sudah punya berkasnya sendiri pula, dan halaman itu
- * sengaja tidak ikut berubah saat kerangka ini disesuaikan.
+ * Dipakai seluruh halaman di dalam aplikasi (beranda, cari kos, kawasan, alat,
+ * saya, dan seterusnya), BUKAN landing page. Landing page punya bahasa
+ * visualnya sendiri dan sengaja tidak ikut berubah saat berkas ini disesuaikan.
  *
- * Iramanya mengikuti pola yang rapi dan lapang: tiap bagian dipisahkan garis
- * rambut tipis, judulnya kecil di atas dan besar di bawah, dan jarak antarbagian
- * lega. Yang membuat halaman terasa terbaca bukan warna atau hiasannya,
- * melainkan jarak yang konsisten antar bagian dan judul yang ukurannya jelas
- * berbeda dari isinya.
+ * Iramanya mengikuti pola halaman aplikasi yang lapang: tiap bagian adalah pita
+ * selebar jendela yang dipisahkan garis rambut tipis, isinya dibatasi 7xl di
+ * tengah, judulnya kecil di atas dan besar di bawah. Pita selebar jendela itu
+ * yang membuat halaman terbaca sebagai rangkaian bagian, bukan satu kolom
+ * panjang: mata memakai garis antar-pita sebagai penanda tempat, sedangkan
+ * jarak tepi yang seragam membuat judul selalu mulai dari titik yang sama saat
+ * berpindah halaman.
  */
 
 /** Lebar isi halaman aplikasi. Satu nilai untuk seluruh halaman. */
-const LEBAR = 'mx-auto w-full max-w-7xl'
+type LebarIsi = 'sempit' | 'sedang' | 'lebar' | 'penuh'
+
+/**
+ * Lebar maksimum isi per jenis halaman.
+ *
+ * Halaman berdaftar lebar (pencarian, kawasan, alat) memakai pita selebar
+ * mungkin, sedangkan halaman satu kolom (profil, formulir, detail satu
+ * dokumen) memilih lebar yang lebih kecil. Yang membedakan hanya seberapa jauh
+ * isinya boleh memanjang; jarak tepinya tetap sama, sehingga judul selalu mulai
+ * dari titik yang sama saat berpindah halaman.
+ */
+const MAKS: Record<LebarIsi, string> = {
+  sempit: 'max-w-3xl',
+  sedang: 'max-w-4xl',
+  lebar: 'max-w-6xl',
+  penuh: 'max-w-7xl',
+}
 
 /** Jarak tepi wadah: makin lebar layarnya, makin lega. */
 const TEPI = 'px-4 sm:px-6 lg:px-8'
 
+/** Jarak vertikal satu pita. */
+const VERTIKAL = 'py-12 sm:py-16 lg:py-20'
+
 /**
- * Wadah isi halaman.
+ * Wadah isi halaman yang tidak berbentuk pita.
  *
- * Semua halaman aplikasi memakai jarak tepi dan jarak vertikal yang sama;
- * halaman yang isinya sempit (formulir, detail satu dokumen) memilih lebar
- * yang lebih kecil lewat `lebar`, bukan memakai wadah yang berbeda bentuk.
- * Dengan begitu judul halaman selalu mulai dari titik yang sama saat berpindah
- * halaman, dan yang berbeda hanya seberapa lebar isinya boleh memanjang.
+ * Dipakai halaman yang isinya satu blok saja. Halaman yang isinya berupa
+ * beberapa bagian memakai `Seksi` yang sudah membawa wadahnya sendiri.
  */
 export function Wadah({
   children,
@@ -38,17 +55,10 @@ export function Wadah({
 }: {
   children: ReactNode
   className?: string
-  lebar?: 'sempit' | 'sedang' | 'lebar' | 'penuh'
+  lebar?: LebarIsi
 }) {
-  const maks = {
-    sempit: 'max-w-3xl',
-    sedang: 'max-w-4xl',
-    lebar: 'max-w-6xl',
-    penuh: 'max-w-7xl',
-  }[lebar]
-
   return (
-    <div className={cn('mx-auto w-full', maks, TEPI, 'py-10 sm:py-14 lg:py-16', className)}>
+    <div className={cn('mx-auto w-full', MAKS[lebar], TEPI, 'py-10 sm:py-12 lg:py-14', className)}>
       {children}
     </div>
   )
@@ -57,51 +67,68 @@ export function Wadah({
 /** Wadah untuk keadaan yang cuma satu paragraf: galat, kosong, atau memuat. */
 export function WadahPesan({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <div className={cn(LEBAR, TEPI, 'py-20 text-center', className)}>
+    <div className={cn('mx-auto w-full', MAKS.penuh, TEPI, 'py-20 text-center', className)}>
       <div className="mx-auto max-w-md">{children}</div>
     </div>
   )
 }
 
 /**
- * Satu bagian halaman: garis pemisah di atas, jarak lega di dalamnya.
+ * Satu pita halaman: selebar jendela, isinya dibatasi di tengah.
  *
- * `garis` dimatikan untuk bagian pertama, karena garis di atas bagian paling
- * atas hanya menggambar ulang tepi navbar.
+ * `garis` dimatikan untuk pita pertama, karena garis di atas bagian paling atas
+ * hanya menggambar ulang tepi navbar.
+ *
+ * `nada="gelap"` membuat pitanya berlatar warna utama dengan tulisan terang.
+ * Dipakai untuk bagian yang perlu berhenti sejenak dari halaman yang seluruhnya
+ * putih: satu pita gelap di antara lima pita terang membuat bagian itu dibaca
+ * sebagai penutup atau ringkasan, bukan sebagai isi biasa.
  */
 export function Seksi({
   id,
   children,
   className,
   garis = true,
+  nada = 'terang',
+  lebar = 'penuh',
 }: {
   id?: string
   children: ReactNode
   className?: string
   garis?: boolean
+  nada?: 'terang' | 'gelap'
+  lebar?: LebarIsi
 }) {
   return (
     <section
       id={id}
       className={cn(
         'scroll-mt-20',
-        garis && 'border-t border-border/70',
-        'py-12 first:pt-0 sm:py-16 lg:py-20',
-        className,
+        // Pita gelap tidak perlu garis pemisah: perbedaan warnanya sendiri sudah
+        // menjadi batas, dan garis abu-abu di atas hijau tua terbaca sebagai
+        // kesalahan, bukan sebagai pemisah.
+        garis && (nada === 'gelap' ? 'border-t border-primary-strong' : 'border-t border-border'),
+        nada === 'gelap' ? 'bg-primary text-primary-foreground' : 'bg-card',
       )}
     >
-      {children}
+      <div className={cn('mx-auto w-full', MAKS[lebar], TEPI, VERTIKAL, className)}>{children}</div>
     </section>
   )
 }
 
-/** Label kecil di atas judul bagian: huruf besar, jarak antar huruf lebar. */
-export function MataSeksi({ children, tone = 'light' }: { children: ReactNode; tone?: 'light' | 'dark' }) {
+/** Label kecil di atas judul: huruf besar, jarak antar huruf lebar. */
+export function MataSeksi({
+  children,
+  tone = 'light',
+}: {
+  children: ReactNode
+  tone?: 'light' | 'dark'
+}) {
   return (
     <p
       className={cn(
         'text-[11px] font-semibold uppercase tracking-[0.24em]',
-        tone === 'dark' ? 'text-primary-foreground/60' : 'text-muted-foreground',
+        tone === 'dark' ? 'text-primary-foreground/70' : 'text-muted-foreground',
       )}
     >
       {children}
@@ -125,6 +152,7 @@ export function JudulSeksi({
   description,
   aksi,
   align = 'left',
+  tone = 'light',
 }: {
   id?: string
   eyebrow?: string
@@ -132,6 +160,7 @@ export function JudulSeksi({
   description?: ReactNode
   aksi?: ReactNode
   align?: 'left' | 'center'
+  tone?: 'light' | 'dark'
 }) {
   return (
     <div
@@ -141,7 +170,7 @@ export function JudulSeksi({
       )}
     >
       <div className={cn('min-w-0', align === 'center' && 'mx-auto max-w-2xl text-center')}>
-        {eyebrow && <MataSeksi>{eyebrow}</MataSeksi>}
+        {eyebrow && <MataSeksi tone={tone}>{eyebrow}</MataSeksi>}
 
         <h2
           id={id}
@@ -157,8 +186,9 @@ export function JudulSeksi({
         {description && (
           <p
             className={cn(
-              'mt-3 max-w-2xl text-[15px] leading-[1.8] text-muted-foreground',
+              'mt-3 max-w-2xl text-[15px] leading-[1.8]',
               align === 'center' && 'mx-auto',
+              tone === 'dark' ? 'text-primary-foreground/80' : 'text-muted-foreground',
             )}
           >
             {description}
@@ -183,16 +213,18 @@ export function JudulHalaman({
   title,
   description,
   aksi,
+  tone = 'light',
 }: {
   eyebrow?: string
   title: string
   description?: ReactNode
   aksi?: ReactNode
+  tone?: 'light' | 'dark'
 }) {
   return (
     <header className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
       <div className="min-w-0 max-w-3xl">
-        {eyebrow && <MataSeksi>{eyebrow}</MataSeksi>}
+        {eyebrow && <MataSeksi tone={tone}>{eyebrow}</MataSeksi>}
 
         <h1
           className={cn(
@@ -205,7 +237,12 @@ export function JudulHalaman({
         </h1>
 
         {description && (
-          <p className="mt-3 max-w-2xl text-[15px] leading-[1.8] text-muted-foreground">
+          <p
+            className={cn(
+              'mt-3 max-w-2xl text-[15px] leading-[1.8]',
+              tone === 'dark' ? 'text-primary-foreground/80' : 'text-muted-foreground',
+            )}
+          >
             {description}
           </p>
         )}
@@ -215,3 +252,43 @@ export function JudulHalaman({
     </header>
   )
 }
+
+/**
+ * Baris bernomor dengan garis pemisah.
+ *
+ * Dipakai daftar yang urutannya memang berarti: langkah, urutan proses, atau
+ * tingkatan. Nomornya sengaja memakai angka yang sama lebar (`tabular-nums`)
+ * supaya barisnya tidak bergeser saat angkanya berubah dari 9 ke 10.
+ */
+export function BarisAngka({
+  nomor,
+  judul,
+  children,
+}: {
+  nomor: string
+  judul: string
+  children?: ReactNode
+}) {
+  return (
+    <div className="flex gap-5 border-b border-border py-6 last:border-b-0 sm:gap-8">
+      <span className="w-9 shrink-0 pt-0.5 text-[13px] font-semibold tabular-nums tracking-[0.16em] text-primary">
+        {nomor}
+      </span>
+
+      <div className="min-w-0">
+        <h3 className="text-base font-semibold tracking-tight">{judul}</h3>
+        {children && (
+          <p className="mt-2 text-sm leading-[1.8] text-muted-foreground">{children}</p>
+        )}
+      </div>
+    </div>
+  )
+}
+
+/** Tombol utama: pil penuh, satu warna aksen, dipakai sekali per layar. */
+export const TOMBOL_UTAMA =
+  'inline-flex h-11 items-center justify-center gap-2 rounded-full bg-primary px-6 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary-strong disabled:opacity-70'
+
+/** Tombol kedua: bentuk sama, tanpa warna aksen agar tidak bersaing. */
+export const TOMBOL_SEKUNDER =
+  'inline-flex h-11 items-center justify-center gap-2 rounded-full border border-border bg-card px-6 text-sm font-semibold text-foreground transition-colors hover:border-primary/40 hover:bg-accent/40'
