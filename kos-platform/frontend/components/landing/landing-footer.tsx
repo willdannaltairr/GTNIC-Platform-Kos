@@ -8,7 +8,7 @@ import { motion } from 'motion/react'
 import { Logo } from '@/components/landing/logo'
 import { LANDING_CTA, LANDING_FOOTER_COLUMNS } from '@/lib/landing'
 
-const WORDMARK = 'KosPlatform'.split('')
+const WORDMARK = 'HuniKos'.split('')
 
 /** Footer landing: kolom tautan di atas, wordmark raksasa di bawah. */
 export const LandingFooter: FC = (): ReactNode => {
@@ -19,7 +19,7 @@ export const LandingFooter: FC = (): ReactNode => {
           <div className="max-w-sm">
             <Link
               href="/"
-              aria-label="KosPlatform, beranda"
+              aria-label="HuniKos, beranda"
               className="inline-flex rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf"
             >
               <Logo tone="light" />
@@ -62,7 +62,7 @@ export const LandingFooter: FC = (): ReactNode => {
         </div>
 
         <div className="mt-16 flex flex-col gap-3 border-t border-white/10 pt-6 text-sm text-forest-foreground/55 sm:flex-row sm:items-center sm:justify-between">
-          <p>&copy; 2026 KosPlatform. Seluruh hak cipta dilindungi.</p>
+          <p>&copy; 2026 HuniKos. Seluruh hak cipta dilindungi.</p>
 
           <p>Properti dan akun demo berisi data fiktif untuk demonstrasi.</p>
         </div>
