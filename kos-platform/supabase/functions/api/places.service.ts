@@ -1,6 +1,12 @@
-import { query } from './_shared/db.ts'
+import { query, queryOne } from './_shared/db.ts'
 import { distanceFromPoint, haversineSql, roundedDistanceSql, type GeoPoint } from './_shared/geo.ts'
-import type { ListCampusesQuery, ListRegionsQuery } from './places.validator.ts'
+import { HttpError } from './_shared/http.ts'
+import { propertiesService } from './properties.service.ts'
+import type {
+  CampusDetailQuery,
+  ListCampusesQuery,
+  ListRegionsQuery,
+} from './places.validator.ts'
 
 /**
  * Acuan peta lokasi: kampus dan daerah, beserta jumlah kos di sekitarnya.
@@ -109,6 +115,82 @@ export const placesService = {
       distanceKm: angka(row.distance_km),
       propertyCount: row.property_count,
     }))
+  },
+
+  /**
+   * Satu kampus beserta kos terverifikasi di sekitarnya, terdekat lebih dulu.
+   *
+   * Jaraknya diukur dari kampus, bukan dari lokasi pengunjung: halaman ini
+   * menjawab "kos mana yang dekat kampus ini", dan jawabannya harus sama untuk
+   * semua orang yang membukanya. Kalau diukur dari lokasi pembaca, urutannya
+   * berubah-ubah dan angkanya tidak bisa dibandingkan dengan apa pun.
+   *
+   * Radius dan batas barisnya datang dari query, jadi pengunjung bisa
+   * melonggarkan sendiri ketika radius bawaannya terlalu sempit.
+   */
+  async campusDetail(slug: string, params: CampusDetailQuery) {
+    const kampus = await queryOne<{
+      id: string
+      name: string
+      slug: string
+      abbreviation: string | null
+      city: string
+      province: string
+      latitude: string
+      longitude: string
+    }>(
+      `SELECT id, name, slug, abbreviation, city, province, latitude, longitude
+       FROM campuses
+       WHERE slug = $1`,
+      [slug],
+    )
+
+    if (!kampus) {
+      throw new HttpError(404, 'Kampus tidak ditemukan')
+    }
+
+    const titik: GeoPoint = { lat: Number(kampus.latitude), lng: Number(kampus.longitude) }
+
+    // Jarak kampus ke properti dihitung antarkolom, dengan titik kampus sebagai
+    // parameter. Ekspresinya dipakai tiga kali (pilih, saring, urut) dan itu
+    // memang tujuannya: satu rumus untuk ketiganya, sehingga yang disaring dan
+    // yang diurutkan tidak pernah berbeda hasilnya.
+    const jarak = haversineSql(
+      { lat: '$1::double precision', lng: '$2::double precision' },
+      { lat: 'p.latitude', lng: 'p.longitude' },
+    )
+
+    const rows = await query<{ id: string; jarak_km: string | null }>(
+      `SELECT p.id, ${roundedDistanceSql(jarak)} AS jarak_km
+       FROM properties p
+       WHERE ${SYARAT_PROPERTI_PUBLIK}
+         AND ${jarak} <= $3
+       ORDER BY ${jarak} ASC NULLS LAST, p.created_at DESC
+       LIMIT $4`,
+      [titik.lat, titik.lng, params.radiusKm, params.limit],
+    )
+
+    // Bentuk kartunya diambil dari fungsi yang sama dengan daftar pencarian,
+    // dan urutannya dipertahankan dari query di atas.
+    const items = await propertiesService.listPublicByIdsAround(
+      rows.map((row) => row.id),
+      titik,
+    )
+
+    return {
+      campus: {
+        id: kampus.id,
+        name: kampus.name,
+        slug: kampus.slug,
+        abbreviation: kampus.abbreviation,
+        city: kampus.city,
+        province: kampus.province,
+        latitude: titik.lat,
+        longitude: titik.lng,
+      },
+      items,
+      radiusKm: params.radiusKm,
+    }
   },
 
   async listRegions(params: ListRegionsQuery) {
