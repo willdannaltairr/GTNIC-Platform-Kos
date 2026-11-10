@@ -172,8 +172,29 @@ export default function ProfilPage() {
             </span>
 
             <div className="min-w-0">
-              <p className="truncate text-base font-semibold">{profil.full_name}</p>
-              <p className="truncate text-sm text-muted-foreground">{profil.email}</p>
+              <div className="flex flex-wrap items-center gap-2">
+                <p className="truncate text-base font-semibold">{profil.full_name}</p>
+
+                {/* Lencana peran dan status verifikasi: dua hal yang paling
+                    sering ditanyakan pemilik akun, dan keduanya sudah ada di
+                    data sesi. Menaruhnya di sebelah nama membuat jawabannya
+                    terbaca sebelum halaman digulir. */}
+                <span className="shrink-0 rounded-full bg-accent px-2.5 py-0.5 text-[11px] font-semibold text-accent-foreground ring-1 ring-primary/15">
+                  {ROLE_LABEL[profil.role] ?? profil.role}
+                </span>
+
+                {profil.email_verified_at ? (
+                  <span className="shrink-0 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-700 ring-1 ring-emerald-200">
+                    Terverifikasi
+                  </span>
+                ) : (
+                  <span className="shrink-0 rounded-full bg-amber-50 px-2.5 py-0.5 text-[11px] font-semibold text-amber-700 ring-1 ring-amber-200">
+                    Belum terverifikasi
+                  </span>
+                )}
+              </div>
+
+              <p className="mt-1 truncate text-sm text-muted-foreground">{profil.email}</p>
             </div>
           </div>
 
