@@ -1176,6 +1176,23 @@ router.post('/kondisi-kamar', async (ctx: Ctx) => {
   return jsonOk(ctx.req, { message: 'Pemeriksaan kondisi kamar dimulai', data }, 201)
 })
 
+/**
+ * Riwayat kondisi satu kamar.
+ *
+ * Alamatnya tiga segmen sedangkan `/kondisi-kamar/:id` dua segmen, jadi tidak
+ * ada yang tertutupi. Yang membuatnya rute tersendiri adalah sumbernya: seluruh
+ * pemeriksaan satu kamar, bukan satu pemeriksaan.
+ */
+router.get('/kondisi-kamar/riwayat/:roomId', async (ctx: Ctx) => {
+  const user = await authenticate(ctx.req)
+  const data = await roomConditionService.riwayatKamar(
+    user,
+    idParam(ctx.params.roomId, 'ID kamar'),
+  )
+
+  return jsonOk(ctx.req, { message: 'Riwayat kondisi kamar', data })
+})
+
 router.get('/kondisi-kamar/:id', async (ctx: Ctx) => {
   const user = await authenticate(ctx.req)
   const data = await roomConditionService.detail(user, roomConditionIdParam(ctx.params.id))

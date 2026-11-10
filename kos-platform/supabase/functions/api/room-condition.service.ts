@@ -148,6 +148,120 @@ const ambil = async (user: AuthUser, id: string): Promise<KondisiRow> => {
   return row
 }
 
+/**
+ * Urutan keparahan keadaan yang bisa dibandingkan.
+ *
+ * Hanya tiga keadaan ini yang punya arah. "Tidak ada" sengaja tidak diberi
+ * peringkat: bagian yang tidak ada bisa berarti belum dipasang, sudah dibuang,
+ * atau memang tidak pernah termasuk perabot kamarnya, dan menebaknya sebagai
+ * perbaikan atau kerusakan akan salah separuh waktu. Perubahannya tetap
+ * ditampilkan, tetapi sebagai "berbeda" tanpa arah.
+ */
+const PERINGKAT: Record<string, number> = {
+  BAIK: 0,
+  RUSAK_RINGAN: 1,
+  RUSAK_BERAT: 2,
+}
+
+/** Peringkat satu keadaan; `undefined` berarti keadaan itu tidak punya peringkat. */
+const peringkat = (keadaan: string | null): number | undefined =>
+  keadaan === null ? undefined : PERINGKAT[keadaan]
+
+/** Arah perubahan satu butir antara pemeriksaan awal dan akhir. */
+type ArahPerubahan =
+  | 'MEMBURUK'
+  | 'MEMBAIK'
+  | 'SAMA'
+  | 'BARU'
+  | 'HILANG'
+  | 'BELUM_LENGKAP'
+  | 'BERBEDA'
+
+/** Keadaan tiap butir periksa, dihitung sekali di sini. */
+const hitungRingkasan = (butir: { condition_status: string | null }[]): Record<string, number> => {
+  const ringkasan: Record<string, number> = {
+    BAIK: 0,
+    RUSAK_RINGAN: 0,
+    RUSAK_BERAT: 0,
+    TIDAK_ADA: 0,
+    belumDiperiksa: 0,
+  }
+
+  for (const satu of butir) {
+    if (!satu.condition_status) ringkasan.belumDiperiksa += 1
+    else ringkasan[satu.condition_status] = (ringkasan[satu.condition_status] ?? 0) + 1
+  }
+
+  return ringkasan
+}
+
+/**
+ * Bandingkan daftar periksa dua pemeriksaan, butir demi butir.
+ *
+ * Pencocokannya lewat nama butir yang dinormalkan, karena daftar periksa boleh
+ * diubah penghuni: butir yang namanya ditulis berbeda antara dua pemeriksaan
+ * memang tidak bisa dibandingkan, dan lebih jujur muncul sebagai butir baru
+ * daripada dipaksakan berpasangan.
+ *
+ * Butir yang salah satu keadaannya belum diisi masuk ke `BELUM_LENGKAP`, bukan
+ * dihitung sebagai "sama": belum diperiksa bukan berarti tidak berubah.
+ */
+const bandingkan = (
+  awal: { item_name: string; condition_status: string | null }[],
+  akhir: { item_name: string; condition_status: string | null }[],
+): { itemName: string; dari: string | null; ke: string | null; arah: ArahPerubahan }[] => {
+  const kunci = (nama: string): string => nama.trim().toLowerCase()
+
+  const petaAwal = new Map(awal.map((butir) => [kunci(butir.item_name), butir]))
+  const petaAkhir = new Map(akhir.map((butir) => [kunci(butir.item_name), butir]))
+
+  // Urutannya mengikuti daftar periksa terakhir, lalu butir yang hanya ada di
+  // pemeriksaan awal. Yang dibaca penggunanya adalah isi pemeriksaan terakhir.
+  const urutan: string[] = []
+  const sudah = new Set<string>()
+
+  for (const butir of [...akhir, ...awal]) {
+    const nama = kunci(butir.item_name)
+    if (sudah.has(nama)) continue
+    sudah.add(nama)
+    urutan.push(nama)
+  }
+
+  return urutan.map((nama) => {
+    const dari = petaAwal.get(nama)
+    const ke = petaAkhir.get(nama)
+    const itemName = (ke ?? dari)!.item_name
+
+    let arah: ArahPerubahan
+
+    if (!dari) arah = 'BARU'
+    else if (!ke) arah = 'HILANG'
+    else if (!dari.condition_status || !ke.condition_status) arah = 'BELUM_LENGKAP'
+    else {
+      const awalPeringkat = peringkat(dari.condition_status)
+      const akhirPeringkat = peringkat(ke.condition_status)
+
+      arah =
+        awalPeringkat === undefined || akhirPeringkat === undefined
+          ? dari.condition_status === ke.condition_status
+            ? 'SAMA'
+            : 'BERBEDA'
+          : akhirPeringkat > awalPeringkat
+            ? 'MEMBURUK'
+            : akhirPeringkat < awalPeringkat
+              ? 'MEMBAIK'
+              : 'SAMA'
+    }
+
+    return {
+      itemName,
+      dari: dari?.condition_status ?? null,
+      ke: ke?.condition_status ?? null,
+      arah,
+    }
+  })
+}
+
 export const roomConditionService = {
   /**
    * Buka satu pemeriksaan kondisi baru.
@@ -306,6 +420,148 @@ export const roomConditionService = {
   },
 
   /**
+   * Riwayat kondisi satu kamar beserta perbandingan pemeriksaannya.
+   *
+   * Yang dibandingkan adalah pemeriksaan PERTAMA dan TERAKHIR yang daftar
+   * periksanya terisi, bukan dua yang terakhir. Paspor kamar menumpuk seperti
+   * paspor: yang dibaca pemilik maupun calon penghuni berikutnya adalah keadaan
+   * awal dibandingkan keadaan sekarang, sedangkan perubahan di antara keduanya
+   * sudah terbaca dari ringkasan tiap pemeriksaan di daftar riwayatnya.
+   *
+   * Pencocokan butirnya lewat nama, karena daftar periksa boleh diubah
+   * penghuninya. Butir yang cuma ada di salah satu pemeriksaan muncul sebagai
+   * "baru" atau "hilang", bukan dipaksakan berpasangan dengan butir yang
+   * namanya mirip.
+   */
+  async riwayatKamar(user: AuthUser, roomId: string) {
+    const kamar = await queryOne<{
+      id: string
+      room_number: string
+      owner_id: string
+      property_id: string
+      property_name: string
+      property_slug: string
+    }>(
+      `SELECT r.id, r.room_number, p.owner_id, p.id AS property_id,
+              p.name AS property_name, p.slug AS property_slug
+       FROM rooms r
+       JOIN properties p ON p.id = r.property_id
+       WHERE r.id = $1 AND p.deleted_at IS NULL`,
+      [roomId],
+    )
+
+    if (!kamar) throw new HttpError(404, 'Kamar tidak ditemukan')
+
+    // Penghuni yang pernah menempati kamar ini ikut berhak, bukan hanya yang
+    // sedang menempatinya: justru setelah ia keluar catatan ini dipakai untuk
+    // membandingkan keadaan awal dan akhir.
+    //
+    // Patokannya KONTRAK, bukan pemeriksaan yang sudah ada. Uji pertama memakai
+    // pemeriksaan sebagai patokan, dan penghuni yang sedang menempati kamar
+    // tetapi belum pernah membuat pemeriksaan mendapat 404 - tepat pada saat
+    // riwayat ini paling ingin ia lihat, yaitu sebelum ia mencatat apa pun.
+    let boleh = user.role === 'ADMIN' || kamar.owner_id === user.userId
+
+    if (!boleh && user.role === 'TENANT') {
+      const punya = await queryOne<{ ada: boolean }>(
+        `SELECT EXISTS (
+           SELECT 1 FROM contracts
+           WHERE room_id = $1 AND tenant_id = $2 AND contract_status <> 'CANCELLED'
+         ) AS ada`,
+        [roomId, user.userId],
+      )
+
+      boleh = punya?.ada === true
+    }
+
+    // Yang tidak terlibat dijawab 404, bukan 403: keberadaan kamar dan riwayat
+    // kondisinya tidak perlu diketahui orang yang tidak menempatinya.
+    if (!boleh) throw new HttpError(404, 'Kamar tidak ditemukan')
+
+    const laporan = await query<KondisiRow & { jumlah_butir: number; jumlah_foto: number }>(
+      `SELECT ${KOLOM},
+              (SELECT count(*)::int FROM room_condition_checklist_items i
+               WHERE i.report_id = rc.id) AS jumlah_butir,
+              (SELECT count(*)::int FROM room_condition_images m
+               WHERE m.report_id = rc.id) AS jumlah_foto
+       ${DARI}
+       WHERE rc.room_id = $1
+       ORDER BY COALESCE(rc.report_date, rc.created_at) ASC, rc.created_at ASC`,
+      [roomId],
+    )
+
+    const id = laporan.map((baris) => baris.id)
+
+    // Seluruh butir diambil sekali untuk semua pemeriksaan kamar ini, bukan satu
+    // permintaan per pemeriksaan: jumlahnya bertambah setiap kali kamar ini
+    // diperiksa lagi, dan halaman yang makin lambat seiring waktu akan dihindari
+    // orang tepat saat datanya mulai berguna.
+    const butir =
+      id.length === 0
+        ? []
+        : await query<{ report_id: string; item_name: string; condition_status: string | null }>(
+            `SELECT report_id, item_name, condition_status
+             FROM room_condition_checklist_items
+             WHERE report_id = ANY($1::uuid[])
+             ORDER BY created_at, item_name`,
+            [id],
+          )
+
+    const butirPer = new Map<string, { item_name: string; condition_status: string | null }[]>()
+
+    for (const satu of butir) {
+      butirPer.set(satu.report_id, [...(butirPer.get(satu.report_id) ?? []), satu])
+    }
+
+    const berisi = laporan.filter((baris) => (butirPer.get(baris.id) ?? []).length > 0)
+    const pertama = berisi[0] ?? null
+    const terakhir = berisi.length > 1 ? berisi[berisi.length - 1] : null
+
+    const perbandingan =
+      pertama && terakhir
+        ? {
+            dari: keBentuk(pertama),
+            ke: keBentuk(terakhir),
+            butir: bandingkan(butirPer.get(pertama.id) ?? [], butirPer.get(terakhir.id) ?? []),
+          }
+        : null
+
+    // Angka keadaannya diambil dari pemeriksaan TERAKHIR yang terisi, bukan
+    // dirata-ratakan sepanjang riwayat: yang dibaca pemilik adalah keadaan kamar
+    // sekarang, dan rata-rata akan menyembunyikan kerusakan yang baru muncul.
+    const ringkasanTerakhir = terakhir ? hitungRingkasan(butirPer.get(terakhir.id) ?? []) : null
+
+    return {
+      kamar: {
+        id: kamar.id,
+        roomNumber: kamar.room_number,
+        propertyId: kamar.property_id,
+        propertyName: kamar.property_name,
+        propertySlug: kamar.property_slug,
+      },
+      laporan: laporan.map((baris) => ({
+        ...keBentuk(baris),
+        jumlahButir: baris.jumlah_butir,
+        jumlahFoto: baris.jumlah_foto,
+        ringkasan: hitungRingkasan(butirPer.get(baris.id) ?? []),
+      })),
+      perbandingan,
+      meta: {
+        jumlahPemeriksaan: laporan.length,
+        jumlahBerisiButir: berisi.length,
+        belumDisetujui: laporan.filter(
+          (baris) => baris.report_status === 'SUBMITTED' || baris.report_status === 'DISPUTED',
+        ).length,
+        rusakSekarang: ringkasanTerakhir
+          ? ringkasanTerakhir.RUSAK_RINGAN + ringkasanTerakhir.RUSAK_BERAT
+          : 0,
+        membaik: perbandingan?.butir.filter((satu) => satu.arah === 'MEMBAIK').length ?? 0,
+        memburuk: perbandingan?.butir.filter((satu) => satu.arah === 'MEMBURUK').length ?? 0,
+      },
+    }
+  },
+
+  /**
    * Satu pemeriksaan beserta daftar periksa, fotonya, dan persetujuannya.
    *
    * Ketiganya dibaca bersamaan karena halaman ini memang menampilkan ketiganya
@@ -344,18 +600,7 @@ export const roomConditionService = {
     ])
 
     /** Ringkasan keadaan, dihitung di sini supaya halaman tidak menghitung ulang. */
-    const ringkasan: Record<string, number> = {
-      BAIK: 0,
-      RUSAK_RINGAN: 0,
-      RUSAK_BERAT: 0,
-      TIDAK_ADA: 0,
-      belumDiperiksa: 0,
-    }
-
-    for (const butir of periksa) {
-      if (!butir.condition_status) ringkasan.belumDiperiksa += 1
-      else ringkasan[butir.condition_status] = (ringkasan[butir.condition_status] ?? 0) + 1
-    }
+    const ringkasan = hitungRingkasan(periksa)
 
     return {
       ...keBentuk(kondisi),

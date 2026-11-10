@@ -308,3 +308,71 @@ export async function hapusFotoKondisi(id: string, photoId: string): Promise<{ i
     { method: 'DELETE' },
   )
 }
+
+/**
+ * Arah perubahan satu butir antara dua pemeriksaan.
+ *
+ * `BERBEDA` dipakai untuk perubahan yang tidak bisa diberi arah, misalnya dari
+ * "tidak ada" menjadi "rusak ringan": bagian yang tadinya tidak ada tidak bisa
+ * disebut membaik atau memburuk tanpa menebak maksud pencatatnya.
+ */
+export type ArahPerubahan =
+  | 'MEMBURUK'
+  | 'MEMBAIK'
+  | 'SAMA'
+  | 'BARU'
+  | 'HILANG'
+  | 'BELUM_LENGKAP'
+  | 'BERBEDA'
+
+export interface ButirPerbandingan {
+  itemName: string
+  dari: KeadaanButir | null
+  ke: KeadaanButir | null
+  arah: ArahPerubahan
+}
+
+export interface LaporanRiwayat extends PemeriksaanKondisi {
+  jumlahButir: number
+  jumlahFoto: number
+  /** Keadaan butir pada pemeriksaan ITU, bukan keadaan kamar sekarang. */
+  ringkasan: RingkasanKondisi
+}
+
+export interface RiwayatKamar {
+  kamar: {
+    id: string
+    roomNumber: string
+    propertyId: string
+    propertyName: string
+    propertySlug: string
+  }
+  /** Urut waktu naik: yang paling awal lebih dulu. */
+  laporan: LaporanRiwayat[]
+  /** Null selama belum ada dua pemeriksaan yang daftar periksanya terisi. */
+  perbandingan: {
+    dari: PemeriksaanKondisi
+    ke: PemeriksaanKondisi
+    butir: ButirPerbandingan[]
+  } | null
+  meta: {
+    jumlahPemeriksaan: number
+    jumlahBerisiButir: number
+    belumDisetujui: number
+    /** Butir rusak menurut pemeriksaan terakhir yang terisi. */
+    rusakSekarang: number
+    membaik: number
+    memburuk: number
+  }
+}
+
+/**
+ * Riwayat kondisi satu kamar beserta perbandingannya.
+ *
+ * Dikerjakan server, bukan dirangkai dari daftar pemeriksaan: pembandingnya
+ * mencocokkan nama butir antar pemeriksaan, dan pencocokan yang berbeda di dua
+ * tempat akan menghasilkan angka yang berbeda pula untuk riwayat yang sama.
+ */
+export async function fetchRiwayatKamar(roomId: string): Promise<RiwayatKamar | null> {
+  return ambil<RiwayatKamar>(`/kondisi-kamar/riwayat/${encodeURIComponent(roomId)}`)
+}
