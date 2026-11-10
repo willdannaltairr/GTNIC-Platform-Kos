@@ -7,7 +7,7 @@ import { LoginForm } from '@/components/auth/login-form'
 export const metadata: Metadata = {
   title: 'Masuk',
   description:
-    'Masuk ke HuniKos untuk membuka daftar kos terverifikasi, menyimpan favorit, dan mengajukan sewa.',
+    'Masuk ke HuniKos untuk membuka daftar kos terverifikasi, menyimpan pencarian, dan mengajukan sewa.',
 }
 
 /**
