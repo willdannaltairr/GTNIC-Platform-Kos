@@ -76,7 +76,7 @@ export default async function PropertyDetailPage({
   const ringkasanUlasan = ulasan?.meta.ringkasan
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
+    <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
       <nav className="text-xs text-muted-foreground">
         <Link href="/kos" className="hover:text-foreground">
           Cari Kos
@@ -87,7 +87,7 @@ export default async function PropertyDetailPage({
 
       <header className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{property.name}</h1>
+          <h1 className="text-balance font-heading font-semibold leading-[1.08] tracking-[-0.035em] text-[clamp(1.75rem,3.6vw,2.6rem)]">{property.name}</h1>
           <p className="mt-2 flex items-center gap-1.5 text-sm text-muted-foreground">
             <MapPin className="h-4 w-4 shrink-0" aria-hidden />
             {property.address}, {property.district}, {property.city}, {property.province}

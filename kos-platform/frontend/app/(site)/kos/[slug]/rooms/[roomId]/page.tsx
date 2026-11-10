@@ -85,7 +85,7 @@ export default async function KamarPublikPage({
       : null
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-10">
+    <div className="mx-auto w-full max-w-5xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
       <Link
         href={`/kos/${slug}`}
         className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
@@ -96,7 +96,7 @@ export default async function KamarPublikPage({
 
       <header className="mt-4 flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
-          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
+          <h1 className="text-balance font-heading font-semibold leading-[1.08] tracking-[-0.035em] text-[clamp(1.75rem,3.6vw,2.6rem)]">
             Kamar {kamar.roomNumber}
             {kamar.roomName ? ` · ${kamar.roomName}` : ''}
           </h1>
