@@ -87,7 +87,7 @@ export default function VerifikasiPage() {
 
   if (status === 'memuat' || !siap) {
     return (
-      <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
+      <div className="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
         <div className="h-8 w-56 animate-pulse rounded bg-muted" />
         <div className="mt-6 h-80 animate-pulse rounded-2xl bg-muted" />
       </div>
@@ -96,8 +96,8 @@ export default function VerifikasiPage() {
 
   if (!user) {
     return (
-      <div className="mx-auto max-w-md px-4 py-20 text-center sm:px-6">
-        <h1 className="text-xl font-bold tracking-tight">Masuk untuk memverifikasi akun</h1>
+      <div className="mx-auto w-full max-w-md px-4 py-20 text-center sm:px-6 lg:px-8">
+        <h1 className="text-balance font-heading text-2xl font-semibold tracking-[-0.03em]">Masuk untuk memverifikasi akun</h1>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
           Verifikasi pemilik berisi dokumen identitas, jadi hanya bisa dibuka oleh pemilik akunnya.
         </p>
@@ -113,8 +113,8 @@ export default function VerifikasiPage() {
 
   if (user.role !== 'OWNER') {
     return (
-      <div className="mx-auto max-w-md px-4 py-20 text-center sm:px-6">
-        <h1 className="text-xl font-bold tracking-tight">Halaman ini untuk pemilik kos</h1>
+      <div className="mx-auto w-full max-w-md px-4 py-20 text-center sm:px-6 lg:px-8">
+        <h1 className="text-balance font-heading text-2xl font-semibold tracking-[-0.03em]">Halaman ini untuk pemilik kos</h1>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
           Verifikasi identitas pemilik dipakai untuk menerbitkan kos. Akun Anda terdaftar sebagai
           pencari kos.
@@ -131,7 +131,7 @@ export default function VerifikasiPage() {
 
   if (!data) {
     return (
-      <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6">
+      <div className="mx-auto w-full max-w-3xl px-4 py-16 sm:px-6 lg:px-8">
         <EmptyRow>
           Status verifikasi belum bisa dimuat. Pastikan server API berjalan, lalu muat ulang halaman.
         </EmptyRow>
@@ -145,10 +145,10 @@ export default function VerifikasiPage() {
   const bolehKirim = data.status !== 'UNDER_REVIEW' && data.status !== 'VERIFIED'
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-10">
+    <div className="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Verifikasi pemilik</h1>
+          <h1 className="text-balance font-heading font-semibold leading-[1.08] tracking-[-0.035em] text-[clamp(1.75rem,3.6vw,2.6rem)]">Verifikasi pemilik</h1>
           <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
             Dokumen identitas dipakai untuk memastikan kos yang Anda daftarkan benar milik Anda.
             Hanya admin platform yang bisa membukanya.
