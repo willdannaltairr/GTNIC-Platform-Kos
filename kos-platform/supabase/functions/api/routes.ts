@@ -744,6 +744,16 @@ router.post('/visits', async (ctx: Ctx) => {
   return jsonOk(ctx.req, { message: 'Kunjungan terjadwal', data }, 201)
 })
 
+// Rencana survei didaftarkan SEBELUM `/visits/:id`: keduanya punya dua segmen,
+// dan rute yang lebih dulu diperiksa yang menang, sehingga `/visits/rencana`
+// akan terbaca sebagai id kunjungan "rencana" bila urutannya dibalik.
+router.get('/visits/rencana', async (ctx: Ctx) => {
+  const user = await authenticate(ctx.req)
+  const data = await visitsService.rencana(user)
+
+  return jsonOk(ctx.req, { message: 'Rencana survei', data })
+})
+
 router.get('/visits/:id', async (ctx: Ctx) => {
   const user = await authenticate(ctx.req)
   const data = await visitsService.detail(user, visitIdParam(ctx.params.id))

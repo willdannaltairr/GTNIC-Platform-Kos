@@ -169,6 +169,149 @@ export const visitsService = {
     }
   },
 
+  /**
+   * Rencana survei: jadwal yang masih akan berlangsung, ditambah ringkasan
+   * hasil kunjungan yang sudah dilakukan.
+   *
+   * Dibuat sebagai satu endpoint, bukan dua, karena keduanya selalu dibuka
+   * bersama: yang sedang merencanakan survei ingin melihat apa yang sudah
+   * ditemukan di kos sebelumnya, dan yang sedang membandingkan hasil ingin tahu
+   * jadwal berikutnya. Dua permintaan terpisah berarti dua keadaan memuat di
+   * halaman yang sama.
+   *
+   * Daftar periksa dan catatan diambil sekaligus untuk seluruh kunjungan, bukan
+   * satu per kunjungan: dua puluh kunjungan berarti empat puluh satu permintaan
+   * ke database bila diambil satu per satu, dan jumlahnya bertambah setiap kali
+   * pengguna mengisi survei berikutnya.
+   */
+  async rencana(user: AuthUser) {
+    // Penyaring perannya sama dengan `list`: penghuni melihat surveinya
+    // sendiri, pemilik melihat kunjungan ke propertinya.
+    const pemilik = user.role === 'OWNER' || user.role === 'ADMIN'
+    const syarat = pemilik ? 'p.owner_id = $1' : 'v.tenant_id = $1'
+    const dari = `
+      FROM visits v
+      JOIN properties p ON p.id = v.property_id
+      JOIN users u ON u.id = v.tenant_id
+      LEFT JOIN rooms r ON r.id = v.room_id`
+
+    const [agenda, selesai, jumlah] = await Promise.all([
+      query<KunjunganRow>(
+        `SELECT ${KOLOM}
+         ${dari}
+         WHERE ${syarat} AND v.visit_status = 'SCHEDULED'
+         ORDER BY v.scheduled_at ASC NULLS LAST, v.created_at ASC
+         LIMIT 50`,
+        [user.userId],
+      ),
+      query<KunjunganRow>(
+        `SELECT ${KOLOM}
+         ${dari}
+         WHERE ${syarat} AND v.visit_status = 'COMPLETED'
+         ORDER BY v.scheduled_at DESC NULLS LAST, v.created_at DESC
+         LIMIT 20`,
+        [user.userId],
+      ),
+      query<{ visit_status: string; total: number }>(
+        `SELECT v.visit_status, count(*)::int AS total
+         FROM visits v
+         JOIN properties p ON p.id = v.property_id
+         WHERE ${syarat}
+         GROUP BY v.visit_status`,
+        [user.userId],
+      ),
+    ])
+
+    const id = selesai.map((row) => row.id)
+
+    // Penanda posisi disusun ulang untuk setiap query, bukan dibagi: dua
+    // pernyataan berbeda tidak boleh berbagi penomoran parameter, dan
+    // PostgreSQL menolak pernyataan yang menerima parameter lebih banyak
+    // daripada yang dirujuk.
+    const penanda = id.map((_, urutan) => `$${urutan + 1}`).join(', ')
+
+    const [butir, catatan] =
+      id.length === 0
+        ? [[], []]
+        : await Promise.all([
+            query<{ visit_id: string; checklist_item: string; is_checked: boolean }>(
+              `SELECT visit_id, checklist_item, is_checked
+               FROM visit_checklists
+               WHERE visit_id IN (${penanda})
+               ORDER BY created_at ASC`,
+              id,
+            ),
+            query<{ visit_id: string; category: string; content: string; created_at: Date }>(
+              `SELECT visit_id, category, content, created_at
+               FROM visit_notes
+               WHERE visit_id IN (${penanda})
+               ORDER BY created_at DESC`,
+              id,
+            ),
+          ])
+
+    const totalButir = new Map<string, number>()
+    const tercentang = new Map<string, number>()
+    const belum = new Map<string, string[]>()
+
+    for (const satu of butir) {
+      totalButir.set(satu.visit_id, (totalButir.get(satu.visit_id) ?? 0) + 1)
+
+      if (satu.is_checked) {
+        tercentang.set(satu.visit_id, (tercentang.get(satu.visit_id) ?? 0) + 1)
+      } else {
+        belum.set(satu.visit_id, [...(belum.get(satu.visit_id) ?? []), satu.checklist_item])
+      }
+    }
+
+    const hitung = new Map<string, number>()
+    const catatanPer = new Map<string, { kategori: string; isi: string; createdAt: string | null }[]>()
+
+    for (const satu of catatan) {
+      hitung.set(satu.visit_id, (hitung.get(satu.visit_id) ?? 0) + 1)
+
+      // Yang diambil hanya lima catatan terbaru per kunjungan. Catatan survei
+      // ditulis berurutan saat berdiri di depan kamar, dan yang terakhir
+      // biasanya yang paling menentukan; seluruhnya tetap terbaca di halaman
+      // detail kunjungannya.
+      const daftar = catatanPer.get(satu.visit_id) ?? []
+      if (daftar.length < 5) {
+        daftar.push({
+          kategori: satu.category,
+          isi: satu.content,
+          createdAt: waktu(satu.created_at),
+        })
+      }
+      catatanPer.set(satu.visit_id, daftar)
+    }
+
+    const jumlahPer = (status: string): number =>
+      jumlah.find((row) => row.visit_status === status)?.total ?? 0
+
+    return {
+      agenda: agenda.map(keBentuk),
+      ringkasan: selesai.map((row) => ({
+        ...keBentuk(row),
+        daftarPeriksa: {
+          tercentang: tercentang.get(row.id) ?? 0,
+          total: totalButir.get(row.id) ?? 0,
+          // Yang BELUM tercentang justru yang paling berguna: itulah hal yang
+          // tidak ditemukan di kos itu, dan yang perlu ditanyakan lagi sebelum
+          // memutuskan.
+          belum: belum.get(row.id) ?? [],
+        },
+        catatan: catatanPer.get(row.id) ?? [],
+        jumlahCatatan: hitung.get(row.id) ?? 0,
+      })),
+      meta: {
+        akanDatang: agenda.length,
+        sudahDisurvei: selesai.length,
+        dibatalkan: jumlahPer('CANCELLED'),
+        tidakHadir: jumlahPer('NO_SHOW'),
+      },
+    }
+  },
+
   async create(user: AuthUser, input: CreateVisitInput) {
     const properti = await queryOne<{ id: string; owner_id: string; name: string }>(
       `SELECT id, owner_id, name FROM properties

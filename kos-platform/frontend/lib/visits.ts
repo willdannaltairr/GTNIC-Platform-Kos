@@ -211,3 +211,51 @@ export async function addVisitNote(
     return null
   }
 }
+
+/** Hasil satu kunjungan yang sudah dilakukan, ringkas untuk dibandingkan. */
+export interface RingkasanSurvei extends Kunjungan {
+  daftarPeriksa: {
+    tercentang: number
+    total: number
+    /** Butir yang TIDAK ditemukan di kos itu. */
+    belum: string[]
+  }
+  catatan: { kategori: string; isi: string; createdAt: string | null }[]
+  jumlahCatatan: number
+}
+
+export interface RencanaSurvei {
+  /** Jadwal yang masih akan berlangsung, terdekat lebih dulu. */
+  agenda: Kunjungan[]
+  /** Kunjungan yang sudah dilakukan, terbaru lebih dulu. */
+  ringkasan: RingkasanSurvei[]
+  meta: {
+    akanDatang: number
+    sudahDisurvei: number
+    dibatalkan: number
+    tidakHadir: number
+  }
+}
+
+/**
+ * Rencana survei: agenda yang akan datang beserta ringkasan hasil yang sudah ada.
+ *
+ * Diambil dalam satu permintaan karena keduanya selalu dibuka bersama: yang
+ * sedang menyusun jadwal ingin melihat temuan survei sebelumnya, dan yang
+ * sedang membandingkan hasil ingin tahu jadwal berikutnya.
+ */
+export async function fetchRencanaSurvei(): Promise<RencanaSurvei | null> {
+  try {
+    const response = await fetch(`${API_BASE}/api/v1/visits/rencana`, {
+      credentials: 'include',
+      cache: 'no-store',
+    })
+
+    if (!response.ok) return null
+
+    const payload = (await response.json()) as { data: RencanaSurvei }
+    return payload.data
+  } catch {
+    return null
+  }
+}
