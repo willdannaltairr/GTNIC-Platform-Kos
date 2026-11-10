@@ -13,6 +13,8 @@ import {
 import { buildVerifyUrl, sendEmailVerificationEmail } from './_shared/mailer.ts'
 import { Router, type Ctx } from './_shared/router.ts'
 import { idParam, kueriObjek } from './_shared/validasi.ts'
+import { analyticsService } from './analytics.service.ts'
+import { analyticsQuerySchema } from './analytics.validator.ts'
 import { adminService } from './admin.service.ts'
 import {
   listActivityQuerySchema,
@@ -630,6 +632,25 @@ router.get('/dashboard/owner', async (ctx: Ctx) => {
   const data = await dashboardService.owner(user.userId)
 
   return jsonOk(ctx.req, { message: 'Dashboard pemilik kos', data })
+})
+
+/**
+ * Analitik pemilik kos: hunian, pendapatan, umur tagihan, dan funnel booking.
+ *
+ * Terpisah dari /dashboard/owner meski sumbernya sama: dashboard adalah yang
+ * dibuka setiap hari dan isinya harus tetap ringan, sedangkan halaman ini
+ * menghitung rentang beberapa bulan sekaligus dan hanya dibuka sesekali.
+ * Menggabungkannya berarti setiap buka dashboard ikut membayar biaya agregat
+ * yang tidak selalu dibutuhkan.
+ */
+router.get('/dashboard/owner/analitik', async (ctx: Ctx) => {
+  const user = await authenticate(ctx.req)
+  authorize(user, 'OWNER', 'ADMIN')
+
+  const query = analyticsQuerySchema.parse(kueriObjek(ctx.url))
+  const data = await analyticsService.owner(user.userId, query)
+
+  return jsonOk(ctx.req, { message: 'Analitik pemilik kos', data })
 })
 
 // ─── Favorit ────────────────────────────────────────────────────────────────
