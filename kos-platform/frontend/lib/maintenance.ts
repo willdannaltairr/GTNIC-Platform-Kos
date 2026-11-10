@@ -101,9 +101,27 @@ export interface RiwayatLaporan {
   createdAt: string | null
 }
 
+/**
+ * Satu komentar pada laporan.
+ *
+ * Percakapan dua arah antara penghuni pelapor dan pemilik propertinya. Status
+ * laporan hanya bisa dipindah pemilik, sedangkan rincian kerusakan sering perlu
+ * ditanyakan lebih dulu; tanpa tempat untuk itu, keduanya berpindah ke pesan
+ * pribadi dan riwayat penanganannya hilang dari laporannya sendiri.
+ */
+export interface KomentarLaporan {
+  id: string
+  authorId: string
+  authorName: string
+  authorRole: string
+  body: string
+  createdAt: string | null
+}
+
 export interface LaporanDetail extends LaporanPerbaikan {
   photos: FotoLaporan[]
   riwayat: RiwayatLaporan[]
+  komentar: KomentarLaporan[]
 }
 
 /** Daftar laporan beserta jumlah per status pada seluruh lingkup peran. */
@@ -240,4 +258,19 @@ export async function deleteFotoLaporan(id: string, photoId: string): Promise<{ 
     `/perbaikan/${encodeURIComponent(id)}/photos/${encodeURIComponent(photoId)}`,
     { method: 'DELETE' },
   )
+}
+
+/**
+ * Tulis satu komentar pada laporan.
+ *
+ * Yang boleh menulis sama dengan yang boleh membaca laporan itu: penghuni
+ * pelapornya, pemilik propertinya, dan admin. Penyaringnya di server, jadi
+ * tidak ada peran yang dikirim dari sini.
+ */
+export async function kirimKomentar(id: string, body: string): Promise<KomentarLaporan> {
+  return kirim<KomentarLaporan>(`/perbaikan/${encodeURIComponent(id)}/komentar`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ body }),
+  })
 }
