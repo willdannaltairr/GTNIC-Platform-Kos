@@ -57,6 +57,8 @@ import {
 } from './expenses.validator.ts'
 import { favoritesService } from './favorites.service.ts'
 import { addFavoriteSchema, propertyIdParam } from './favorites.validator.ts'
+import { savedSearchesService } from './saved-searches.service.ts'
+import { createSavedSearchSchema } from './saved-searches.validator.ts'
 import { invoicesService } from './invoices.service.ts'
 import {
   cancelInvoiceSchema,
@@ -683,6 +685,42 @@ router.delete('/favorites/:propertyId', async (ctx: Ctx) => {
   const hasil = await favoritesService.remove(user.userId, propertyIdParam(ctx.params.propertyId))
 
   return jsonOk(ctx.req, { message: 'Dihapus dari favorit', data: hasil })
+})
+
+// ─── Pencarian tersimpan ────────────────────────────────────────────────────
+
+/**
+ * Pencarian tersimpan beserta pemberitahuan kos barunya.
+ *
+ * Menuntut sesi seperti favorit, dan dengan alasan yang sama: pencarian
+ * tersimpan adalah data pribadi seseorang, tidak ada tempat untuk menyimpannya
+ * bagi tamu.
+ *
+ * Penyaringnya diterima apa adanya sebagai objek, bukan sebagai deretan kunci
+ * tetap. Itu membuat penyaring baru di halaman cari kos bisa ikut disimpan
+ * tanpa mengubah rute ini, sedangkan validatornya tetap memeriksa bentuk tiap
+ * kunci yang dikenalnya.
+ */
+router.get('/saved-searches', async (ctx: Ctx) => {
+  const user = await authenticate(ctx.req)
+  const hasil = await savedSearchesService.list(user.userId)
+
+  return jsonOk(ctx.req, { message: 'Pencarian tersimpan', data: hasil.items, meta: hasil.meta })
+})
+
+router.post('/saved-searches', async (ctx: Ctx) => {
+  const user = await authenticate(ctx.req)
+  const input = createSavedSearchSchema.parse(await readJson(ctx.req))
+  const data = await savedSearchesService.create(user.userId, input)
+
+  return jsonOk(ctx.req, { message: 'Pencarian disimpan', data }, 201)
+})
+
+router.delete('/saved-searches/:id', async (ctx: Ctx) => {
+  const user = await authenticate(ctx.req)
+  const hasil = await savedSearchesService.remove(user.userId, idParam(ctx.params.id, 'ID pencarian'))
+
+  return jsonOk(ctx.req, { message: 'Pencarian dihapus', data: hasil })
 })
 
 // ─── Kunjungan ──────────────────────────────────────────────────────────────

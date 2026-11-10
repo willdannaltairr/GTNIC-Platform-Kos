@@ -5,6 +5,7 @@ import { distanceFromPoint, roundedDistanceSql, type GeoPoint } from './_shared/
 import { HttpError } from './_shared/http.ts'
 import type { AuthUser } from './_shared/auth.ts'
 import { buildCostSummary, type CostComponentInput } from './cost-summary.ts'
+import { savedSearchesService } from './saved-searches.service.ts'
 import type {
   CreatePropertyInput,
   ListMyPropertiesQuery,
@@ -254,6 +255,8 @@ type PropertiKelolaRow = {
   cost_confidence: string
   created_at: Date
   updated_at: Date
+  /** Null berarti properti ini belum pernah terbit sama sekali. */
+  published_at: Date | null
   total_kamar: number
   kamar_tersedia: number
   kamar_terisi: number
@@ -266,7 +269,7 @@ const KOLOM_KELOLA = `
   p.id, p.owner_id, p.name, p.slug, p.description, p.address, p.province, p.city,
   p.district, p.subdistrict, p.postal_code, p.latitude, p.longitude, p.property_type,
   p.gender_policy, p.verification_status, p.publication_status, p.cost_confidence,
-  p.created_at, p.updated_at,
+  p.created_at, p.updated_at, p.published_at,
   COALESCE(k.total_kamar, 0)::int AS total_kamar,
   COALESCE(k.kamar_tersedia, 0)::int AS kamar_tersedia,
   COALESCE(k.kamar_terisi, 0)::int AS kamar_terisi,
@@ -941,14 +944,37 @@ export const propertiesService = {
       throw new HttpError(409, 'Properti harus terverifikasi dulu sebelum diterbitkan')
     }
 
+    // Yang diberitakan hanya properti yang belum pernah terbit sama sekali.
+    // Pemilik yang menarik kosnya lalu menerbitkannya lagi tidak membuat kos
+    // itu jadi kos baru bagi pembacanya, dan memberitakannya ulang akan terasa
+    // seperti spam dari platform. Karena itu patokannya `published_at`, bukan
+    // status sekarang - statusnya memang belum 'PUBLISHED' saat ini, tetapi
+    // pernah terbit sebelumnya.
+    const terbitPertamaKali =
+      publicationStatus === 'PUBLISHED' && properti.published_at === null
+
+    // Cast-nya wajib, bukan hiasan. Satu parameter yang dipakai dua kali dengan
+    // dua tipe berbeda - sebagai enum kolomnya dan sebagai teks pembandingnya -
+    // membuat PostgreSQL menolak menetapkan tipenya, dan seluruh pernyataan
+    // gagal SEBELUM barisnya sempat berubah: pemilik melihat galat 500 padahal
+    // propertinya masih draf, jadi tidak ada jejak apa pun yang bisa ditelusuri
+    // dari datanya.
     await query(
       `UPDATE properties
-       SET publication_status = $2,
-           published_at = CASE WHEN $2 = 'PUBLISHED' THEN COALESCE(published_at, now()) ELSE published_at END,
+       SET publication_status = $2::"PublicationStatus",
+           published_at = CASE WHEN $2::text = 'PUBLISHED' THEN COALESCE(published_at, now()) ELSE published_at END,
            updated_at = now()
        WHERE id = $1`,
       [propertyId, publicationStatus],
     )
+
+    if (terbitPertamaKali) {
+      // Ditungsu, bukan dilepas begitu saja: Edge Function bisa berhenti begitu
+      // responsnya terkirim, dan pemberitahuan yang belum selesai akan hilang
+      // tanpa jejak. Kegagalannya sudah ditangani di dalam service itu sendiri,
+      // jadi penerbitan properti tetap berhasil walau pemberitahuannya gagal.
+      await savedSearchesService.beriTahuKosBaru(propertyId)
+    }
 
     return this.detailMine(user, propertyId)
   },
