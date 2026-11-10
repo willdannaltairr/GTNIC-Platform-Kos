@@ -11,9 +11,9 @@ import { formatJarak, formatNumber } from '@/lib/format'
  * sendiri, bukan dari lokasi pengunjung. Karena itu kampus tetap punya angka
  * walaupun pengunjung belum mengizinkan akses lokasi.
  *
- * Tautannya menuju pencarian per kota, bukan per kampus: pencarian properti
- * belum bisa disaring berdasarkan kampus, dan menjanjikan sebaliknya akan
- * membuka halaman yang tidak sesuai labelnya.
+ * Tautannya menuju halaman kampus itu, yang mengurutkan kos menurut jaraknya
+ * dari kampus. Sebelum halaman itu ada, tautannya menuju pencarian per kota;
+ * sekarang pencarian per kota tetap disediakan di dalam halamannya.
  */
 export function CampusSection({ campuses }: { campuses: CampusPlace[] }) {
   if (campuses.length === 0) {
@@ -40,7 +40,7 @@ export function CampusSection({ campuses }: { campuses: CampusPlace[] }) {
         {campuses.map((campus) => (
           <Link
             key={campus.id}
-            href={`/kos?city=${encodeURIComponent(campus.city)}`}
+            href={`/kampus/${campus.slug}`}
             className="group flex flex-col gap-3 rounded-xl border border-border bg-card p-4 transition-colors hover:border-primary/40 hover:bg-accent/40"
           >
             <div className="flex items-start gap-3">
