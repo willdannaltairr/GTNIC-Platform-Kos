@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { ArrowRight, Loader2, Navigation } from 'lucide-react'
 import { PropertyCard } from '@/components/property-card'
+import { JudulSeksi, Seksi } from '@/components/site/kerangka'
 import { fetchProperties, type CampusPlace, type PropertyListItem, type RegionPlace } from '@/lib/api'
 
 /** Radius di sekitar tujuan. Sepuluh km kira-kira sejauh perjalanan yang masih masuk akal ditempuh harian. */
@@ -153,15 +154,13 @@ export function RuteSection({
   const memuat = hasil.tahap === 'memuat'
 
   return (
-    <section id="rute" aria-labelledby="rute-title" className="scroll-mt-20">
-      <h2 id="rute-title" className="text-xl font-bold tracking-tight sm:text-2xl">
-        Dari lokasi mana ke lokasi mana
-      </h2>
-      <p className="mt-1.5 max-w-2xl text-sm text-muted-foreground">
-        Pilih titik asal dan tujuan, misalnya dari rumah Anda sekarang ke kampus tujuan. Kos yang
-        tampil adalah yang berada dalam radius {RADIUS_TUJUAN_KM} km dari tujuan, dan tiap kartu
-        menyebut jaraknya dari kedua titik.
-      </p>
+    <Seksi id="rute">
+      <JudulSeksi
+        id="rute-title"
+        eyebrow="Dari mana ke mana"
+        title="Dari lokasi mana ke lokasi mana"
+        description={`Pilih titik asal dan tujuan, misalnya dari rumah Anda sekarang ke kampus tujuan. Kos yang tampil adalah yang berada dalam radius ${RADIUS_TUJUAN_KM} km dari tujuan, dan tiap kartu menyebut jaraknya dari kedua titik.`}
+      />
 
       <form
         onSubmit={cari}
@@ -254,6 +253,6 @@ export function RuteSection({
           </div>
         </>
       )}
-    </section>
+    </Seksi>
   )
 }

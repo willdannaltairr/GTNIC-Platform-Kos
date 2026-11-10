@@ -29,6 +29,14 @@ enabled = false
 # cert_path = "../certs/my-cert.pem"
 # key_path = "../certs/my-key.pem"
 
+[functions.api]
+# Fungsi ini memeriksa sesinya sendiri lewat cookie HttpOnly, bukan lewat header
+# Authorization. Pemeriksaan JWT bawaan platform harus dimatikan untuk fungsi
+# ini: kalau menyala, setiap panggilan dari halaman web ditolak 401 sebelum
+# sampai ke kode yang memeriksa cookienya, dan halaman masuk tidak akan pernah
+# bisa memanggil endpoint login yang memang harus terbuka.
+verify_jwt = false
+
 [db]
 # Port to use for the local database URL.
 port = 54322

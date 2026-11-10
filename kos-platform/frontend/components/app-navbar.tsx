@@ -59,8 +59,9 @@ const GROUPS: NavGroup[] = [
     href: '/#produk',
     icon: Sparkles,
     items: [
-      { label: 'KosMatch', href: '/#kosmatch', hint: 'Segera' },
+      { label: 'KosMatch', href: '/kosmatch', hint: 'Skor kecocokan' },
       { label: 'Simulasi Biaya', href: '/#truecost', hint: 'Aktif' },
+      { label: 'Bandingkan kos', href: '/bandingkan', hint: 'Aktif' },
       { label: 'Rute & Sekitar', href: '/#campusroute', hint: 'Segera' },
     ],
   },
@@ -73,7 +74,12 @@ const GROUPS: NavGroup[] = [
       { label: 'Booking', href: '/booking', hint: 'Pengajuan sewa' },
       { label: 'Kontrak sewa', href: '/kontrak', hint: 'Kesepakatan berlaku' },
       { label: 'Tagihan', href: '/tagihan', hint: 'Yang perlu dibayar' },
+      { label: 'Keuangan', href: '/keuangan', hint: 'Pemasukan dan biaya' },
       { label: 'Jadwal kunjungan', href: '/kunjungan', hint: 'Survei kos' },
+      { label: 'Pesan', href: '/pesan', hint: 'Tanya pemilik' },
+      { label: 'Ulasan', href: '/ulasan', hint: 'Penilaian kos' },
+      { label: 'Perbaikan', href: '/perbaikan', hint: 'Kerusakan kamar' },
+      { label: 'Kondisi kamar', href: '/kondisi-kamar', hint: 'Catatan masuk dan keluar' },
       { label: 'Properti saya', href: '/properti', hint: 'Kelola kos Anda' },
       { label: 'Verifikasi pemilik', href: '/verifikasi', hint: 'Dokumen identitas' },
       { label: 'Notifikasi', href: '/notifikasi', hint: 'Pemberitahuan' },
@@ -116,7 +122,7 @@ const isActive = (pathname: string, href: string): boolean => {
 }
 
 const LINK_CLASS =
-  'inline-flex h-9 items-center gap-2 whitespace-nowrap rounded-lg px-3 text-sm font-medium transition-colors'
+  'inline-flex h-9 items-center gap-2 whitespace-nowrap rounded-full px-3.5 text-sm font-medium transition-colors'
 
 /**
  * Navbar aplikasi.
@@ -161,9 +167,9 @@ export function AppNavbar() {
   return (
     <header
       ref={navRef}
-      className="sticky top-0 z-40 border-b border-border/70 bg-background/85 backdrop-blur"
+      className="sticky top-0 z-40 border-b border-border/50 bg-card/80 backdrop-blur-md"
     >
-      <div className="mx-auto flex h-16 max-w-7xl items-center gap-3 px-4 sm:px-6">
+      <div className="mx-auto flex h-16 w-full max-w-7xl items-center gap-3 px-4 sm:h-[72px] sm:px-6 lg:px-8">
         <Link
           href="/beranda"
           aria-label="KosPlatform, beranda"

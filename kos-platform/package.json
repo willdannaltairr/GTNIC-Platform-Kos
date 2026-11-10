@@ -4,25 +4,24 @@
   "private": true,
   "description": "Smart Living & Trust-Based Boarding House Platform — monorepo",
   "scripts": {
-    "dev": "node scripts/dev.mjs",
+    "dev": "npm run dev --prefix frontend",
     "build": "npm run build --prefix frontend",
     "start": "npm run start --prefix frontend",
     "dev:web": "npm run dev --prefix frontend",
-    "dev:api": "npm run dev --prefix backend",
+    "build:web": "npm run build --prefix frontend",
+    "check:api": "cd supabase/functions/api && npx --yes deno check index.ts",
+    "functions:deploy": "npx --yes supabase@latest functions deploy api --use-api --no-verify-jwt --yes",
     "db:migrate": "node backend/scripts/db-sql.mjs --migrate",
     "db:seed": "node backend/scripts/db-sql.mjs supabase/seed.sql",
     "db:setup": "node backend/scripts/db-sql.mjs --migrate && node backend/scripts/db-sql.mjs supabase/seed.sql",
     "db:push": "npx --yes supabase@latest db push",
-    "db:local": "node backend/scripts/db-local.mjs",
-    "build:web": "npm run build --prefix frontend",
-    "build:api": "npx tsc --noEmit --project backend/tsconfig.json"
+    "db:local": "node backend/scripts/db-local.mjs"
   },
   "workspaces": [
     "frontend",
     "backend"
   ],
   "devDependencies": {
-    "typescript": "^5",
-    "ts-node": "^10"
+    "typescript": "^5"
   }
 }

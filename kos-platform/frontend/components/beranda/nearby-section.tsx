@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { Loader2, LocateFixed, MapPin, ShieldAlert } from 'lucide-react'
 import { PropertyCard } from '@/components/property-card'
+import { JudulSeksi, Seksi } from '@/components/site/kerangka'
 import { fetchProperties, type PropertyListItem } from '@/lib/api'
 
 /** Radius bawaan rekomendasi "sekitar saya". */
@@ -114,34 +115,30 @@ export function NearbySection() {
   const memuat = keadaan.tahap === 'memuat' || keadaan.tahap === 'meminta'
 
   return (
-    <section id="sekitar-saya" aria-labelledby="sekitar-saya-title" className="scroll-mt-20">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h2 id="sekitar-saya-title" className="text-xl font-bold tracking-tight sm:text-2xl">
-            Sekitar Anda
-          </h2>
-          <p className="mt-1.5 text-sm text-muted-foreground">
-            Kos terdekat dari lokasi perangkat, diurutkan dari yang paling dekat dalam radius{' '}
-            {RADIUS_KM} km.
-          </p>
-        </div>
-
-        {keadaan.tahap !== 'siap' && (
-          <button
-            type="button"
-            onClick={() => void cari(RADIUS_KM)}
-            disabled={memuat}
-            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary-strong disabled:opacity-70"
-          >
-            {memuat ? (
-              <Loader2 className="size-4 animate-spin" aria-hidden="true" />
-            ) : (
-              <LocateFixed className="size-4" aria-hidden="true" />
-            )}
-            {memuat ? 'Mencari lokasi…' : 'Gunakan lokasi saya'}
-          </button>
-        )}
-      </div>
+    <Seksi id="sekitar-saya">
+      <JudulSeksi
+        id="sekitar-saya-title"
+        eyebrow="Terdekat dari Anda"
+        title="Sekitar Anda"
+        description={`Kos terdekat dari lokasi perangkat, diurutkan dari yang paling dekat dalam radius ${RADIUS_KM} km.`}
+        aksi={
+          keadaan.tahap !== 'siap' && (
+            <button
+              type="button"
+              onClick={() => void cari(RADIUS_KM)}
+              disabled={memuat}
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary-strong disabled:opacity-70"
+            >
+              {memuat ? (
+                <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+              ) : (
+                <LocateFixed className="size-4" aria-hidden="true" />
+              )}
+              {memuat ? 'Mencari lokasi…' : 'Gunakan lokasi saya'}
+            </button>
+          )
+        }
+      />
 
       {keadaan.tahap === 'diam' && (
         <p className="mt-5 rounded-2xl border border-dashed border-border bg-card p-6 text-sm leading-relaxed text-muted-foreground">
@@ -209,6 +206,6 @@ export function NearbySection() {
           </p>
         </>
       )}
-    </section>
+    </Seksi>
   )
 }

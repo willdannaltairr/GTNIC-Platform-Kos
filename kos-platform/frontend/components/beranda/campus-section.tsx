@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { GraduationCap, Navigation } from 'lucide-react'
+import { JudulSeksi, Seksi } from '@/components/site/kerangka'
 import type { CampusPlace } from '@/lib/api'
 import { formatJarak, formatNumber } from '@/lib/format'
 
@@ -17,29 +18,25 @@ import { formatJarak, formatNumber } from '@/lib/format'
 export function CampusSection({ campuses }: { campuses: CampusPlace[] }) {
   if (campuses.length === 0) {
     return (
-      <section id="kampus" aria-labelledby="kampus-title" className="scroll-mt-20">
-        <h2 id="kampus-title" className="text-xl font-bold tracking-tight sm:text-2xl">
-          Kos sekitar kampus
-        </h2>
-        <p className="mt-4 rounded-2xl border border-dashed border-border bg-card p-6 text-sm leading-relaxed text-muted-foreground">
+      <Seksi id="kampus">
+        <JudulSeksi id="kampus-title" eyebrow="Kampus" title="Kos sekitar kampus" />
+        <p className="mt-8 rounded-2xl border border-dashed border-border bg-card p-6 text-sm leading-relaxed text-muted-foreground">
           Data kampus belum dapat dimuat. Pastikan server API berjalan, lalu muat ulang halaman.
         </p>
-      </section>
+      </Seksi>
     )
   }
 
   return (
-    <section id="kampus" aria-labelledby="kampus-title" className="scroll-mt-20">
-      <div className="flex flex-col gap-1.5">
-        <h2 id="kampus-title" className="text-xl font-bold tracking-tight sm:text-2xl">
-          Kos sekitar kampus
-        </h2>
-        <p className="text-sm text-muted-foreground">
-          Kampus di Indonesia, beserta jumlah kos terverifikasi dalam radius beberapa kilometer.
-        </p>
-      </div>
+    <Seksi id="kampus">
+      <JudulSeksi
+        id="kampus-title"
+        eyebrow="Kampus"
+        title="Kos sekitar kampus"
+        description="Kampus di Indonesia, beserta jumlah kos terverifikasi dalam radius beberapa kilometer."
+      />
 
-      <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {campuses.map((campus) => (
           <Link
             key={campus.id}
@@ -78,6 +75,6 @@ export function CampusSection({ campuses }: { campuses: CampusPlace[] }) {
           </Link>
         ))}
       </div>
-    </section>
+    </Seksi>
   )
 }

@@ -2,8 +2,9 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
-import { Check, Loader2, MailCheck } from 'lucide-react'
+import { Check, Loader2, MailCheck, UserPlus } from 'lucide-react'
 import { AuthField } from '@/components/auth/auth-field'
+import { AuthMark } from '@/components/auth/auth-mark'
 import { registerAccount, type ApiError } from '@/lib/api'
 
 const ROLE_OPTIONS = [
@@ -117,11 +118,15 @@ export function RegisterForm() {
 
   return (
     <form onSubmit={submit} className="flex flex-col gap-5">
-      <div className="flex flex-col gap-1.5 text-center">
-        <h1 className="font-heading text-3xl font-bold tracking-tight">Buat akun baru</h1>
-        <p className="text-sm text-balance text-muted-foreground">
-          Satu akun untuk mencari kos atau mengelola properti. Pilih peran Anda di bawah.
-        </p>
+      <div className="flex flex-col items-center gap-4 text-center">
+        <AuthMark icon={UserPlus} />
+
+        <div className="flex flex-col gap-1.5">
+          <h1 className="font-heading text-3xl font-bold tracking-tight">Buat akun baru</h1>
+          <p className="text-sm text-balance text-muted-foreground">
+            Satu akun untuk mencari kos atau mengelola properti. Pilih peran Anda di bawah.
+          </p>
+        </div>
       </div>
 
       <fieldset>

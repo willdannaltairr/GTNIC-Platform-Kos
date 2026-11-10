@@ -71,8 +71,7 @@ async function KosResults({ query }: { query: KosQuery }) {
       <div className="rounded-2xl border border-dashed border-border bg-card p-10 text-center">
         <p className="text-sm font-semibold text-foreground">Daftar kos belum dapat dimuat.</p>
         <p className="mx-auto mt-2 max-w-md text-xs leading-relaxed text-muted-foreground">
-          Server API tidak merespons saat halaman ini dirender. Jalankan backend dengan
-          <code className="mx-1 rounded bg-muted px-1.5 py-0.5">npm run dev:api</code>
+          Server API tidak merespons saat halaman ini dirender. Periksa koneksi ke layanan API
           lalu muat ulang halaman ini.
         </p>
       </div>
@@ -163,9 +162,9 @@ export default async function KosPage({ searchParams }: { searchParams: Promise<
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
+    <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
       <header>
-        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Cari Kos</h1>
+        <h1 className="text-balance font-heading font-semibold leading-[1.08] tracking-[-0.035em] text-[clamp(1.75rem,3.6vw,2.6rem)]">Cari Kos</h1>
       </header>
 
       <div className="mt-6">

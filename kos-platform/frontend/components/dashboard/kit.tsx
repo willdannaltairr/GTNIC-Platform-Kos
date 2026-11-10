@@ -164,6 +164,45 @@ const DOKUMEN: Record<string, Label> = {
   REJECTED: { label: 'Ditolak', nada: 'bahaya' },
 }
 
+/**
+ * Status ulasan.
+ *
+ * PENDING_MODERATION ditulis "Menunggu tinjauan", bukan "Draf": ulasannya sudah
+ * terkirim dan tidak bisa ditarik lagi oleh penulisnya, yang ia tunggu adalah
+ * keputusan admin. Menulisnya "Draf" membuat penulisnya menunggu sesuatu yang
+ * tidak akan datang.
+ */
+const ULASAN: Record<string, Label> = {
+  PENDING_MODERATION: { label: 'Menunggu tinjauan', nada: 'peringatan' },
+  APPROVED: { label: 'Tayang', nada: 'sukses' },
+  REJECTED: { label: 'Ditolak', nada: 'bahaya' },
+  HIDDEN: { label: 'Disembunyikan', nada: 'netral' },
+}
+
+/**
+ * Status pemeriksaan kondisi kamar (Room Passport).
+ *
+ * DISPUTED ditulis "Dipertanyakan", bukan "Ditolak": pemilik tidak menolak
+ * pemeriksaannya, ia tidak menyetujui sebagian isinya, dan penghuninya masih
+ * bisa memperbaiki lalu meminta persetujuan lagi. Menulisnya "Ditolak" membuat
+ * penghuni mengira laporannya mati.
+ */
+const KONDISI: Record<string, Label> = {
+  DRAFT: { label: 'Draf', nada: 'netral' },
+  SUBMITTED: { label: 'Menunggu persetujuan', nada: 'peringatan' },
+  ACKNOWLEDGED: { label: 'Disetujui', nada: 'sukses' },
+  DISPUTED: { label: 'Dipertanyakan', nada: 'bahaya' },
+  COMPLETED: { label: 'Selesai', nada: 'sukses' },
+}
+
+/** Keadaan satu butir periksa kondisi kamar. */
+const KEADAAN: Record<string, Label> = {
+  BAIK: { label: 'Baik', nada: 'sukses' },
+  RUSAK_RINGAN: { label: 'Rusak ringan', nada: 'peringatan' },
+  RUSAK_BERAT: { label: 'Rusak berat', nada: 'bahaya' },
+  TIDAK_ADA: { label: 'Tidak ada', nada: 'netral' },
+}
+
 const KAMUS = {
   booking: BOOKING,
   invoice: INVOICE,
@@ -178,6 +217,9 @@ const KAMUS = {
   pemilik: VERIFIKASI_PEMILIK,
   dokumen: DOKUMEN,
   pembayaran: PEMBAYARAN,
+  ulasan: ULASAN,
+  kondisi: KONDISI,
+  keadaan: KEADAAN,
 } as const
 
 export type JenisStatus = keyof typeof KAMUS

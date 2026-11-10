@@ -1,6 +1,7 @@
 'use client'
 
 import type { FC, FormEvent, ReactNode } from 'react'
+import type { Variants } from 'motion/react'
 
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
@@ -9,9 +10,13 @@ import { MapPin, Moon, Search, Sun } from 'lucide-react'
 import { motion, useScroll, useTransform } from 'motion/react'
 import { cn } from '@/lib/utils'
 import { usePrefersReducedMotion } from '@/hooks/use-prefers-reduced-motion'
+import SplitReveal from '@/components/motion/split-reveal'
 import { HERO, HERO_CITIES, type HeroSceneId } from '@/lib/landing'
 
 const SCENE_IDS: HeroSceneId[] = ['pagi', 'malam']
+
+const EASE = [0.22, 1, 0.36, 1] as const
+const EXIT_EASE = [0.55, 0, 0.75, 0.2] as const
 
 /**
  * Posisi bintang di langit malam.
@@ -56,25 +61,45 @@ const BINTANG: { left: string; top: string; size: number; delay: number }[] = [
 ]
 
 /**
- * Judul hero, dipecah per kata.
+ * Ayunan bangunan saat hero pertama dibuka atau saat suasana diganti.
  *
- * Judul utuhnya tetap dibacakan pembaca layar lewat salinan `sr-only`, dan
- * versi per kata disembunyikan dari mereka (`aria-hidden`). Tanpa pemisahan
- * itu, judul yang sama akan terbaca dua kali: sekali utuh, sekali lagi
- * terpotong per kata tanpa spasi.
+ * Jeda pertama sengaja lebih panjang karena tirai pembuka masih menutup layar.
+ * Setelah pengunjung memilih suasana sendiri, jedanya dipersingkat supaya
+ * pergantian foto terasa langsung merespons.
  */
-const JUDUL: string[][] = [
-  ['Biaya', 'terang.'],
-  ['Kosnya', 'tenang.'],
-]
+const houseVariants = (delay: number): Variants => ({
+  below: { y: '42%', opacity: 0, scale: 0.96 },
+  shown: {
+    y: '0%',
+    opacity: 1,
+    scale: 1,
+    transition: {
+      y: { duration: 1.4, ease: EASE, delay },
+      scale: { duration: 1.4, ease: EASE, delay },
+      opacity: { duration: 0.55, ease: 'easeOut', delay },
+    },
+  },
+  hidden: {
+    y: '30%',
+    opacity: 0,
+    scale: 0.97,
+    transition: {
+      y: { duration: 0.6, ease: EXIT_EASE },
+      scale: { duration: 0.6, ease: EXIT_EASE },
+      opacity: { duration: 0.32, ease: 'easeIn' },
+    },
+  },
+})
 
 /**
  * Hero landing.
  *
  * Tinggi 175svh dengan isi yang menempel di layar, sehingga foto tetap diam
- * sementara teks pudar dan kalimat penutup muncul. Pemilih Pagi/Malam
- * mengganti foto, salinan, dan suasana langit sekaligus: pagi memakai cahaya
- * matahari di sudut kanan atas, malam memakai langit berbintang dengan bulan.
+ * sementara teks pudar dan kalimat penutup muncul. Bingkai foto mengecil dan
+ * membulat saat digulir, langit bergerak lebih lambat dari bangunan, dan kabut
+ * mengambang pelan di kedua sisi. Pemilih Pagi/Malam mengganti foto, salinan,
+ * dan suasana langit sekaligus: pagi memakai cahaya matahari di sudut kanan
+ * atas, malam memakai langit berbintang dengan bulan.
  *
  * Formulir pencarian di bagian bawah mengarah ke halaman masuk, bukan langsung
  * ke /kos: hasil pencarian hanya bisa dibuka dengan akun, jadi menembak /kos
@@ -85,22 +110,39 @@ const HeroSection: FC = (): ReactNode => {
   const [scene, setScene] = useState<HeroSceneId>('pagi')
   const [keyword, setKeyword] = useState('')
   const [city, setCity] = useState('')
+  const [hasInteracted, setHasInteracted] = useState(false)
   const still = usePrefersReducedMotion()
   const sectionRef = useRef<HTMLElement>(null)
 
-  const { scrollYProgress } = useScroll({ target: sectionRef, offset: ['start start', 'end start'] })
-  const lineOpacity = useTransform(scrollYProgress, [0, 0.55], [0, 1])
-  const lineBlur = useTransform(scrollYProgress, [0, 0.55], ['blur(0px)', 'blur(10px)'])
-  const lineScale = useTransform(scrollYProgress, [0, 0.55], [1, 0.92])
+  // Progres dihitung dari awal bagian sampai ujungnya menyentuh ujung layar.
+  // Dengan begitu seluruh gerakan hero selesai tepat sebelum bagian berikutnya
+  // masuk, bukan setelah hero sudah lama ditinggalkan.
+  const { scrollYProgress } = useScroll({ target: sectionRef, offset: ['start start', 'end end'] })
+  const frameClip = useTransform(
+    scrollYProgress,
+    [0, 1],
+    ['inset(0% 0% 0% 0% round 0px)', 'inset(11% 5% 11% 5% round 44px)'],
+  )
+  const frameScale = useTransform(scrollYProgress, [0, 1], [1, 1.14])
+  const titleY = useTransform(scrollYProgress, [0, 0.6], [0, -140])
+  const selectorY = useTransform(scrollYProgress, [0, 0.6], [0, 120])
+  const introOpacity = useTransform(scrollYProgress, [0, 0.45], [1, 0])
+  const overlayOpacity = useTransform(scrollYProgress, [0.55, 0.85], [0, 1])
+  const lineScale = useTransform(scrollYProgress, [0.55, 1], [0.92, 1])
+  const lineBlur = useTransform(scrollYProgress, [0.55, 0.85], ['blur(10px)', 'blur(0px)'])
 
   const malam = scene === 'malam'
-  const active = HERO.scenes[scene]
+  const houseEntranceDelay = hasInteracted ? 0.42 : 0.9
 
   // Tandai suasana di elemen dokumen supaya komponen lain (mis. header) bisa
   // ikut menyesuaikan tanpa berbagi state React.
   useEffect(() => {
     if (malam) document.documentElement.dataset.heroScene = 'malam'
     else delete document.documentElement.dataset.heroScene
+
+    return () => {
+      delete document.documentElement.dataset.heroScene
+    }
   }, [malam])
 
   const submit = (event: FormEvent<HTMLFormElement>): void => {
@@ -112,15 +154,28 @@ const HeroSection: FC = (): ReactNode => {
     router.push('/masuk')
   }
 
+  const chooseScene = (id: HeroSceneId): void => {
+    setHasInteracted(true)
+    setScene(id)
+  }
+
   return (
-    <section ref={sectionRef} aria-labelledby="hero-title" className="relative h-[175svh] bg-background">
+    <section
+      ref={sectionRef}
+      aria-labelledby="hero-title"
+      className={cn('relative bg-background', still ? 'h-svh' : 'h-[175svh]')}
+    >
       <div className="sticky top-0 h-[100svh] overflow-hidden">
-        <div aria-hidden="true" className="absolute inset-0 overflow-hidden">
-          <div className="absolute inset-0">
+        <motion.div
+          aria-hidden="true"
+          className="absolute inset-0 overflow-hidden"
+          style={still ? undefined : { clipPath: frameClip }}
+        >
+          <motion.div className="absolute inset-0" style={still ? undefined : { scale: frameScale }}>
             <div
               className={cn(
                 'absolute inset-0 transition-colors duration-[1400ms]',
-                malam ? 'bg-[#0d1219]' : 'bg-[#dcdccb]',
+                malam ? 'bg-[#1b232c]' : 'bg-[#dcdccb]',
               )}
             />
 
@@ -129,8 +184,9 @@ const HeroSection: FC = (): ReactNode => {
               <div
                 key={`backdrop-${id}`}
                 className={cn(
-                  'absolute inset-0 transition-opacity duration-[1400ms] ease-in-out',
-                  id === scene ? 'opacity-100' : 'opacity-0',
+                  'absolute inset-0 transform-gpu will-change-[opacity]',
+                  id === 'malam' && 'transition-opacity duration-[1400ms] ease-in-out',
+                  id !== scene && 'opacity-0',
                 )}
               >
                 <Image
@@ -175,7 +231,7 @@ const HeroSection: FC = (): ReactNode => {
                 }}
               />
 
-              <div className="absolute right-[17%] top-[17%] size-8 rounded-full bg-[#eef1f6] opacity-85 shadow-[0_0_48px_14px_rgba(206,218,240,0.28)] sm:size-11" />
+              <div className="absolute right-[7%] top-[32%] size-8 rounded-full bg-[#eef1f6] opacity-85 shadow-[0_0_48px_14px_rgba(206,218,240,0.28)] sm:right-[17%] sm:top-[17%] sm:size-11" />
 
               {BINTANG.map((bintang, index) => (
                 <span
@@ -192,46 +248,73 @@ const HeroSection: FC = (): ReactNode => {
               ))}
             </div>
 
+            {/* Kabut tipis di langit dan di kaki bangunan. Lapisan ini bergerak
+                sangat pelan, arahnya bergantian, sehingga foto terasa hidup
+                tanpa menarik perhatian dari judul. */}
+            <div className="hero-fog-slow absolute -inset-x-[15%] top-[22%] h-[34%]">
+              <div
+                className={cn(
+                  'absolute inset-0 bg-[radial-gradient(50%_50%_at_30%_50%,rgba(244,241,230,0.65),transparent),radial-gradient(45%_45%_at_75%_55%,rgba(244,241,230,0.5),transparent)] transition-opacity duration-[1400ms]',
+                  malam ? 'opacity-0' : 'opacity-100',
+                )}
+              />
+
+              <div
+                className={cn(
+                  'absolute inset-0 bg-[radial-gradient(50%_50%_at_30%_50%,rgba(70,84,98,0.45),transparent),radial-gradient(45%_45%_at_75%_55%,rgba(70,84,98,0.35),transparent)] transition-opacity duration-[1400ms]',
+                  malam ? 'opacity-100' : 'opacity-0',
+                )}
+              />
+            </div>
+
             {/* Foto rumah: hanya suasana yang aktif yang terlihat. Bangunannya
                 naik sedikit saat halaman dibuka, jadi hero-nya terasa datang
                 dari bawah alih-alih muncul begitu saja.
 
-                Visibilitas suasana diatur pembungkus ini, bukan elemen motion
-                di dalamnya. Animasi motion menulis opacity: 1 sebagai gaya
-                inline, dan gaya inline menang atas kelas opacity-0. Kalau
-                keduanya menempel di elemen yang sama, kedua foto tetap
-                terlihat dan foto malam yang dirender terakhir selalu menimpa
-                foto pagi: mode siang jadi menampilkan suasana malam. */}
+                Visibilitas suasana diatur oleh varian motion, bukan kelas
+                opacity. Kalau kelas dan varian dipasang di elemen yang sama,
+                gaya inline dari motion akan menang dan kedua foto tetap
+                terlihat, foto malam yang dirender terakhir selalu menimpa
+                foto pagi. */}
             {SCENE_IDS.map((id) => (
-              <div
+              <motion.div
                 key={id}
-                className={cn(
-                  'absolute inset-0 transition-opacity duration-[1400ms] ease-in-out',
-                  id === scene ? 'opacity-100' : 'pointer-events-none opacity-0',
-                )}
+                variants={houseVariants(houseEntranceDelay)}
+                initial={still ? false : 'below'}
+                animate={id === scene ? 'shown' : 'hidden'}
+                className="absolute inset-0 transform-gpu will-change-[transform,opacity]"
               >
-                <motion.div
-                  initial={still ? false : { opacity: 0, y: '42%', scale: 0.96 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  transition={{ duration: 1.4, delay: id === 'pagi' ? 0.1 : 0.2, ease: [0.22, 1, 0.36, 1] }}
-                  className="absolute inset-0 will-change-[transform,opacity]"
-                >
-                  {/* Bingkai foto: di layar kecil bangunan ditaruh di bawah judul
-                      sebagai panel 16:9, lalu di layar lebar foto mengisi seluruh
-                      panggung dengan tepi yang melebur. */}
-                  <div className="hero-house-mask absolute bottom-[16%] left-1/2 aspect-video w-[150%] -translate-x-1/2 sm:bottom-[12%] sm:w-[125%] md:w-[110%] lg:inset-0 lg:aspect-auto lg:w-full lg:translate-x-0">
-                    <Image
-                      src={HERO.scenes[id].image}
-                      alt={HERO.scenes[id].imageAlt}
-                      fill
-                      priority={id === 'pagi'}
-                      sizes="(min-width: 1024px) 100vw, 150vw"
-                      className="object-cover object-[50%_78%]"
-                    />
-                  </div>
-                </motion.div>
-              </div>
+                {/* Bingkai foto: di layar kecil bangunan ditaruh di bawah judul
+                    sebagai panel 16:9, lalu di layar lebar foto mengisi seluruh
+                    panggung dengan tepi yang melebur. */}
+                <div className="hero-house-mask absolute bottom-[16%] left-1/2 aspect-video w-[150%] -translate-x-1/2 sm:bottom-[12%] sm:w-[125%] md:w-[110%] lg:inset-0 lg:aspect-auto lg:w-full lg:translate-x-0">
+                  <Image
+                    src={HERO.scenes[id].image}
+                    alt={HERO.scenes[id].imageAlt}
+                    fill
+                    priority={id === 'pagi'}
+                    sizes="(min-width: 1024px) 100vw, 150vw"
+                    className="object-cover object-[50%_78%]"
+                  />
+                </div>
+              </motion.div>
             ))}
+
+            <div className="hero-fog absolute -inset-x-[15%] bottom-[2%] h-[36%]">
+              <div
+                className={cn(
+                  'absolute inset-0 bg-[radial-gradient(45%_55%_at_25%_60%,rgba(238,236,224,0.8),transparent),radial-gradient(40%_50%_at_70%_70%,rgba(238,236,224,0.7),transparent)] transition-opacity duration-[1400ms]',
+                  malam ? 'opacity-0' : 'opacity-100',
+                )}
+              />
+
+              <div
+                className={cn(
+                  'absolute inset-0 bg-[radial-gradient(45%_55%_at_25%_60%,rgba(52,64,76,0.6),transparent),radial-gradient(40%_50%_at_70%_70%,rgba(52,64,76,0.5),transparent)] transition-opacity duration-[1400ms]',
+                  malam ? 'opacity-100' : 'opacity-0',
+                )}
+              />
+            </div>
 
             <div
               className={cn(
@@ -243,8 +326,10 @@ const HeroSection: FC = (): ReactNode => {
                   tetap terbaca, bukan menutupi seluruh bagian tengah. */}
               <div className="absolute inset-x-0 top-0 h-[42%] bg-gradient-to-b from-[#e9e7db]/80 via-[#e9e7db]/30 to-transparent" />
               {/* Scrim bawah lebih pekat: deskripsi dan formulir pencarian perlu
-                  latar yang tenang untuk terbaca di atas foto. */}
-              <div className="absolute inset-x-0 bottom-0 h-[34%] bg-gradient-to-t from-[#e4e2d4] via-[#e4e2d4]/55 to-transparent" />
+                  latar yang tenang untuk terbaca di atas foto. Di layar kecil
+                  porsinya diperbesar karena pemilih suasana, deskripsi, dan
+                  formulir bertumpuk menutupi bagian bawah foto. */}
+              <div className="absolute inset-x-0 bottom-0 h-[54%] bg-gradient-to-t from-[#e4e2d4] via-[#e4e2d4]/90 to-transparent sm:h-[40%] sm:via-[#e4e2d4]/70 lg:h-[34%] lg:via-[#e4e2d4]/55" />
             </div>
 
             <div
@@ -254,20 +339,18 @@ const HeroSection: FC = (): ReactNode => {
               )}
             >
               <div className="absolute inset-x-0 top-0 h-[42%] bg-gradient-to-b from-[#121920]/75 via-[#121920]/25 to-transparent" />
-              <div className="absolute inset-x-0 bottom-0 h-[34%] bg-gradient-to-t from-[#151c23] via-[#151c23]/60 to-transparent" />
+              <div className="absolute inset-x-0 bottom-0 h-[54%] bg-gradient-to-t from-[#151c23] via-[#151c23]/90 to-transparent sm:h-[40%] sm:via-[#151c23]/70 lg:h-[34%] lg:via-[#151c23]/60" />
             </div>
-          </div>
+          </motion.div>
 
-          <div
-            className={cn(
-              'absolute inset-0 bg-forest/40 transition-opacity duration-[1400ms]',
-              malam ? 'opacity-100' : 'opacity-0',
-            )}
-          />
-        </div>
+          {!still && <motion.div className="absolute inset-0 bg-forest/40" style={{ opacity: overlayOpacity }} />}
+        </motion.div>
 
         <div className="relative mx-auto flex h-full max-w-7xl flex-col items-center justify-between px-4 pb-8 pt-28 text-center sm:px-6 sm:pb-10 sm:pt-32 lg:px-8">
-          <div className="max-w-3xl">
+          <motion.div
+            style={still ? undefined : { y: titleY, opacity: introOpacity }}
+            className="max-w-3xl"
+          >
             {/* Label di atas judul, bukan paragraf di tengah foto: teks sepanjang
                 itu tidak akan pernah terbaca di atas foto yang gelap tanpa
                 menutupi gambarnya. Keterangan suasana sudah ada di bawah. */}
@@ -275,7 +358,7 @@ const HeroSection: FC = (): ReactNode => {
               <motion.span
                 initial={still ? false : { opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+                transition={{ duration: 0.7, delay: 0.85, ease: EASE }}
                 className={cn(
                   'inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium backdrop-blur-md transition-colors duration-700',
                   malam
@@ -292,57 +375,36 @@ const HeroSection: FC = (): ReactNode => {
               id="hero-title"
               className="mt-4 font-heading text-[2.9rem] font-normal leading-[1.02] tracking-[-0.05em] sm:text-6xl lg:text-[5.25rem]"
             >
-              {JUDUL.map((baris, barisKe) => (
-                <span
-                  key={baris.join(' ')}
-                  className={cn(
-                    'block transition-colors duration-1000',
-                    barisKe === 0
-                      ? malam
-                        ? 'text-white'
-                        : 'text-primary-strong'
-                      : malam
-                        ? 'text-leaf'
-                        : 'text-primary-strong/60',
-                  )}
-                >
-                  <span className="sr-only">{baris.join(' ')}</span>
+              <SplitReveal
+                text="Biaya terang."
+                trigger="mount"
+                delay={1.05}
+                className={cn(
+                  'block transition-colors duration-1000',
+                  malam ? 'text-white' : 'text-primary-strong',
+                )}
+              />
 
-                  <span aria-hidden="true">
-                    {baris.map((kata, kataKe) => (
-                      <span
-                        key={kata}
-                        // Baris kata dipotong rapat ke tinggi hurufnya, jadi
-                        // kata yang bergeser dari bawah tidak terlihat sebelum
-                        // waktunya. Padding mengembalikan ruang untuk ekor
-                        // huruf yang turun, mis. pada "y" dan "g".
-                        className="-my-[0.12em] mr-[0.28em] inline-block overflow-hidden py-[0.12em] align-bottom last:mr-0"
-                      >
-                        <motion.span
-                          initial={still ? false : { y: '115%' }}
-                          animate={{ y: 0 }}
-                          transition={{
-                            duration: 1,
-                            delay: 0.15 + barisKe * 0.12 + kataKe * 0.09,
-                            ease: [0.22, 1, 0.36, 1],
-                          }}
-                          className="inline-block will-change-transform"
-                        >
-                          {kata}
-                        </motion.span>
-                      </span>
-                    ))}
-                  </span>
-                </span>
-              ))}
+              <SplitReveal
+                text="Kosnya tenang."
+                trigger="mount"
+                delay={1.3}
+                className={cn(
+                  'block transition-colors duration-1000',
+                  malam ? 'text-leaf' : 'text-white',
+                )}
+              />
             </h1>
-          </div>
+          </motion.div>
 
-          <div className="w-full max-w-2xl">
+          <motion.div
+            style={still ? undefined : { y: selectorY, opacity: introOpacity }}
+            className="w-full max-w-2xl"
+          >
             <motion.div
               initial={still ? false : { opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.9, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
+              transition={{ duration: 0.9, delay: 1.7, ease: EASE }}
               className="flex flex-col items-center gap-5"
             >
               {/* Pemilih suasana: mengganti foto, salinan, langit, dan warna teks. */}
@@ -363,12 +425,14 @@ const HeroSection: FC = (): ReactNode => {
                     <button
                       key={id}
                       type="button"
-                      onClick={() => setScene(id)}
+                      onClick={() => chooseScene(id)}
                       aria-pressed={isActive}
                       className="relative min-h-16 rounded-xl px-3 py-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                     >
                       {isActive && (
-                        <span
+                        <motion.span
+                          layoutId="hero-scene-pill"
+                          transition={{ type: 'spring', stiffness: 360, damping: 34 }}
                           aria-hidden="true"
                           className={cn(
                             'absolute inset-0 rounded-xl shadow-[0_14px_30px_-18px_rgba(14,26,18,0.55)]',
@@ -408,17 +472,6 @@ const HeroSection: FC = (): ReactNode => {
                     </button>
                   )
                 })}
-              </div>
-
-              <div aria-live="polite" className="min-h-[3.25rem]">
-                <p
-                  className={cn(
-                    'text-sm leading-relaxed transition-colors duration-700 sm:text-[15px]',
-                    malam ? 'text-forest-foreground/85' : 'text-forest',
-                  )}
-                >
-                  {active.description}
-                </p>
               </div>
 
               {/* Pencarian langsung dari hero, hasilnya dibuka di /kos. */}
@@ -465,18 +518,17 @@ const HeroSection: FC = (): ReactNode => {
                 </button>
               </form>
             </motion.div>
-          </div>
+          </motion.div>
         </div>
 
-        {/* Kalimat penutup yang muncul saat hero digulir. */}
+        {/* Kalimat penutup yang muncul saat hero digulir. Latar hutan di atas
+            foto memberi warna yang cukup gelap, sehingga teks putih tetap
+            terbaca di kedua suasana. */}
         {!still && (
           <motion.p
             aria-hidden="true"
-            style={{ opacity: lineOpacity, filter: lineBlur, scale: lineScale }}
-            className={cn(
-              'pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 px-6 text-center font-heading text-4xl font-light tracking-[-0.04em] drop-shadow-[0_2px_24px_rgba(11,36,20,0.45)] sm:text-6xl lg:text-7xl',
-              malam ? 'text-white' : 'text-primary-strong',
-            )}
+            style={{ opacity: overlayOpacity, filter: lineBlur, scale: lineScale }}
+            className="pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 px-6 text-center font-heading text-4xl font-light tracking-[-0.04em] text-white drop-shadow-[0_2px_24px_rgba(11,36,20,0.45)] sm:text-6xl lg:text-7xl"
           >
             Semua biaya, sejak awal.
           </motion.p>

@@ -71,7 +71,7 @@ export async function RecommendedSection() {
 
             <p className="mx-auto mt-2 max-w-md text-xs leading-relaxed text-muted-foreground">
               {result === null
-                ? 'Server API tidak merespons saat halaman ini dirender. Jalankan backend (npm run dev:api) lalu muat ulang halaman.'
+                ? 'Server API tidak merespons saat halaman ini dirender. Periksa koneksi ke layanan API lalu muat ulang halaman.'
                 : 'Properti akan tampil di sini setelah pemilik melengkapi data dan admin memverifikasinya.'}
             </p>
           </div>

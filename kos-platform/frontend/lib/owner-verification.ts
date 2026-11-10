@@ -12,7 +12,9 @@
  * lengkap, pengajuan sudah dikirim) dan penggunanya perlu membaca yang mana.
  */
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000'
+// Alamat dasar dipilih menurut sisi tempat kodenya berjalan; penjelasannya ada
+// di `api-alamat.ts`.
+import { API_BASE } from './api-alamat'
 
 /** Jenis dokumen yang bisa diunggah, beserta sebutannya. */
 export const JENIS_DOKUMEN = [

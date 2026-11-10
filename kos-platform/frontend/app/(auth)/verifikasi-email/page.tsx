@@ -29,8 +29,8 @@ export default async function VerifikasiEmailPage({
   return (
     <AuthShell
       image={{
-        src: '/images/kos-2.jpg',
-        alt: 'Kamar kos rapi dengan jendela lebar, meja belajar, dan tanaman kecil di sudutnya.',
+        src: '/images/auth-verifikasi.jpg',
+        alt: 'Tanaman hijau di dekat jendela besar dengan pemandangan taman.',
       }}
     >
       <VerifyEmailPanel token={token ?? ''} />

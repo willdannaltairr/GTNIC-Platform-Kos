@@ -96,7 +96,7 @@ export default function AdminPemilikDetailPage() {
 
   if (status === 'memuat' || !siap) {
     return (
-      <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
+      <div className="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
         <div className="h-8 w-56 animate-pulse rounded bg-muted" />
         <div className="mt-6 h-80 animate-pulse rounded-2xl bg-muted" />
       </div>
@@ -105,8 +105,8 @@ export default function AdminPemilikDetailPage() {
 
   if (!user) {
     return (
-      <div className="mx-auto max-w-md px-4 py-20 text-center sm:px-6">
-        <h1 className="text-xl font-bold tracking-tight">Masuk untuk meninjau pemilik</h1>
+      <div className="mx-auto w-full max-w-md px-4 py-20 text-center sm:px-6 lg:px-8">
+        <h1 className="text-balance font-heading text-2xl font-semibold tracking-[-0.03em]">Masuk untuk meninjau pemilik</h1>
         <Link
           href="/masuk"
           className="mt-6 inline-flex h-11 items-center rounded-xl bg-primary px-6 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary-strong"
@@ -119,8 +119,8 @@ export default function AdminPemilikDetailPage() {
 
   if (!admin) {
     return (
-      <div className="mx-auto max-w-md px-4 py-20 text-center sm:px-6">
-        <h1 className="text-xl font-bold tracking-tight">Halaman ini untuk admin</h1>
+      <div className="mx-auto w-full max-w-md px-4 py-20 text-center sm:px-6 lg:px-8">
+        <h1 className="text-balance font-heading text-2xl font-semibold tracking-[-0.03em]">Halaman ini untuk admin</h1>
         <Link
           href="/admin"
           className="mt-6 inline-flex h-11 items-center rounded-xl border border-border px-6 text-sm font-medium transition-colors hover:bg-muted"
@@ -133,7 +133,7 @@ export default function AdminPemilikDetailPage() {
 
   if (!data) {
     return (
-      <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6">
+      <div className="mx-auto w-full max-w-3xl px-4 py-16 sm:px-6 lg:px-8">
         <EmptyRow>
           Data pemilik tidak ditemukan. Pastikan tautannya benar, lalu kembali ke daftar pemilik.
         </EmptyRow>
@@ -154,7 +154,7 @@ export default function AdminPemilikDetailPage() {
   const kurang = JENIS_DOKUMEN.filter((jenis) => jenis.wajib && !ada.has(jenis.value))
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-10">
+    <div className="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
       <Link
         href="/admin/pemilik"
         className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
@@ -165,7 +165,7 @@ export default function AdminPemilikDetailPage() {
 
       <header className="mt-4 flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{data.fullName}</h1>
+          <h1 className="text-balance font-heading font-semibold leading-[1.08] tracking-[-0.035em] text-[clamp(1.75rem,3.6vw,2.6rem)]">{data.fullName}</h1>
           <p className="mt-1 text-sm text-muted-foreground">{data.email}</p>
           <p className="mt-0.5 text-xs text-muted-foreground">
             {data.phoneNumber ?? 'Nomor telepon belum diisi'}

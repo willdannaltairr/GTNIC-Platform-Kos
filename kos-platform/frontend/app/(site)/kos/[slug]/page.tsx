@@ -4,7 +4,11 @@ import { notFound } from 'next/navigation'
 import { cache } from 'react'
 import { AlertTriangle, CheckCircle2, MapPin, ShieldCheck, UserRound } from 'lucide-react'
 import { BookingPanel } from '@/components/kos/booking-panel'
+import { HubungiPemilik } from '@/components/kos/hubungi-pemilik'
+import { TombolBandingkan } from '@/components/kos/tombol-bandingkan'
+import { Bintang } from '@/components/ulasan/bintang'
 import { fetchProperty } from '@/lib/api'
+import { fetchUlasanProperti } from '@/lib/reviews'
 import {
   BATHROOM_LABEL,
   COST_CONFIDENCE_CLASS,
@@ -14,6 +18,7 @@ import {
   formatLastConfirmed,
   formatNumber,
   formatRupiah,
+  formatTanggal,
 } from '@/lib/format'
 
 const STATUS_CLASS: Record<string, string> = {
@@ -27,6 +32,11 @@ const STATUS_CLASS: Record<string, string> = {
 // cache() mendedupe pemanggilan API dalam satu request, sehingga
 // generateMetadata dan komponen halaman hanya menembak API sekali.
 const getProperty = cache(async (slug: string) => fetchProperty(slug))
+
+// Ulasan diambil terpisah karena kegagalannya tidak boleh menjatuhkan halaman:
+// kos yang belum punya ulasan, atau permintaan yang gagal, tetap harus bisa
+// dibaca. cache() juga membuat satu request hanya menembak API sekali.
+const getUlasan = cache(async (slug: string) => fetchUlasanProperti(slug))
 
 /**
  * notFound() dipanggil di sini juga, bukan hanya di komponen halaman.
@@ -62,9 +72,11 @@ export default async function PropertyDetailPage({
 
   const summary = property.costSummary
   const [primaryImage, ...restImages] = property.images
+  const ulasan = await getUlasan(slug)
+  const ringkasanUlasan = ulasan?.meta.ringkasan
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
+    <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
       <nav className="text-xs text-muted-foreground">
         <Link href="/kos" className="hover:text-foreground">
           Cari Kos
@@ -75,7 +87,7 @@ export default async function PropertyDetailPage({
 
       <header className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{property.name}</h1>
+          <h1 className="text-balance font-heading font-semibold leading-[1.08] tracking-[-0.035em] text-[clamp(1.75rem,3.6vw,2.6rem)]">{property.name}</h1>
           <p className="mt-2 flex items-center gap-1.5 text-sm text-muted-foreground">
             <MapPin className="h-4 w-4 shrink-0" aria-hidden />
             {property.address}, {property.district}, {property.city}, {property.province}
@@ -240,6 +252,86 @@ export default async function PropertyDetailPage({
               </ul>
             </section>
           )}
+
+          {/* Ulasan penghuni */}
+          <section>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <h2 className="text-lg font-bold tracking-tight">
+                Ulasan penghuni
+                {ringkasanUlasan && ringkasanUlasan.jumlahTayang > 0 && (
+                  <span className="ml-2 text-sm font-normal text-muted-foreground">
+                    {ringkasanUlasan.jumlahTayang} ulasan
+                  </span>
+                )}
+              </h2>
+
+              {ringkasanUlasan?.rataRata != null && (
+                <span className="flex items-center gap-2">
+                  <Bintang nilai={ringkasanUlasan.rataRata} ukuran="md" />
+                  <span className="text-sm font-semibold">{ringkasanUlasan.rataRata} dari 5</span>
+                </span>
+              )}
+            </div>
+
+            {/* Rincian per aspek ditampilkan karena yang membacanya sedang
+                memutuskan hal yang berbeda-beda: ada yang mementingkan
+                kebersihan, ada yang mementingkan kecepatan pemilik menjawab. */}
+            {ringkasanUlasan && ringkasanUlasan.jumlahTayang > 0 && (
+              <dl className="mt-3 grid gap-x-6 gap-y-2 sm:grid-cols-2">
+                {(
+                  [
+                    ['Kebersihan', ringkasanUlasan.kebersihan],
+                    ['Lokasi', ringkasanUlasan.lokasi],
+                    ['Fasilitas', ringkasanUlasan.fasilitas],
+                    ['Layanan pemilik', ringkasanUlasan.layananPemilik],
+                  ] as const
+                ).map(([label, nilai]) =>
+                  nilai == null ? null : (
+                    <div key={label} className="flex items-center justify-between gap-2">
+                      <dt className="text-xs text-muted-foreground">{label}</dt>
+                      <dd className="flex items-center gap-1.5">
+                        <Bintang nilai={nilai} ukuran="sm" />
+                        <span className="text-xs font-medium">{nilai}</span>
+                      </dd>
+                    </div>
+                  ),
+                )}
+              </dl>
+            )}
+
+            <div className="mt-4 space-y-3">
+              {ulasan === null ? (
+                <p className="rounded-xl border border-dashed border-border px-4 py-6 text-center text-sm text-muted-foreground">
+                  Ulasan belum bisa dimuat saat ini.
+                </p>
+              ) : ulasan.items.length === 0 ? (
+                <p className="rounded-xl border border-dashed border-border px-4 py-6 text-center text-sm text-muted-foreground">
+                  Belum ada ulasan untuk kos ini. Ulasan ditulis penghuni yang pernah menempati
+                  kamarnya, dan tayang setelah ditinjau admin.
+                </p>
+              ) : (
+                ulasan.items.map((item) => (
+                  <article key={item.id} className="rounded-xl border border-border bg-card p-4">
+                    <div className="flex flex-wrap items-start justify-between gap-2">
+                      <div>
+                        <p className="text-sm font-semibold">{item.tenantName}</p>
+                        <p className="mt-0.5 text-xs text-muted-foreground">
+                          {formatTanggal(item.createdAt)}
+                        </p>
+                      </div>
+                      <Bintang nilai={item.rating} ukuran="sm" sertakanAngka />
+                    </div>
+
+                    {item.content && (
+                      <p className="mt-2.5 text-sm leading-relaxed text-muted-foreground">
+                        {item.content}
+                      </p>
+                    )}
+                  </article>
+                ))
+              )}
+            </div>
+          </section>
         </div>
 
         {/* Kolom kanan: biaya, ketersediaan, pemilik */}
@@ -257,6 +349,11 @@ export default async function PropertyDetailPage({
                 monthlyPrice: room.monthlyPrice,
               }))}
           />
+
+          {/* Perbandingan ditaruh tepat di bawah pengajuan: keduanya keputusan
+              yang diambil sambil membaca rincian biaya, dan tombol yang
+              terkubur di bawah pemilik hampir tidak pernah ditemukan. */}
+          <TombolBandingkan slug={property.slug} varian="lebar" />
 
           {/* Simulasi biaya */}
           <div className="rounded-2xl border border-border bg-card p-5">
@@ -367,6 +464,11 @@ export default async function PropertyDetailPage({
               Kontak pemilik ditampilkan setelah Anda masuk dan mengajukan permintaan sewa, agar
               data pribadi tidak tersebar bebas.
             </p>
+
+            <HubungiPemilik
+              propertyId={property.id}
+              namaPemilik={property.owner.businessName ?? property.owner.name}
+            />
           </div>
         </aside>
       </div>

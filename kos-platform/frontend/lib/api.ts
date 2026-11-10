@@ -6,7 +6,9 @@
  * empty state yang jujur alih-alih layar putih.
  */
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000'
+// Alamat dasar dipilih menurut sisi tempat kodenya berjalan; penjelasannya ada
+// di `api-alamat.ts`.
+import { API_BASE } from './api-alamat'
 
 export type CostConfidence = 'COMPLETE' | 'PARTIAL' | 'NEEDS_CONFIRMATION'
 

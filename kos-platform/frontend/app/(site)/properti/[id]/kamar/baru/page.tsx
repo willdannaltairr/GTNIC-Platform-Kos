@@ -57,7 +57,7 @@ export default function KamarBaruPage() {
 
   if (status === 'memuat' || !siap) {
     return (
-      <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6">
+      <div className="mx-auto w-full max-w-2xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
         <div className="h-8 w-56 animate-pulse rounded bg-muted" />
         <div className="mt-6 h-96 animate-pulse rounded-2xl bg-muted" />
       </div>
@@ -66,8 +66,8 @@ export default function KamarBaruPage() {
 
   if (!user) {
     return (
-      <div className="mx-auto max-w-md px-4 py-20 text-center sm:px-6">
-        <h1 className="text-xl font-bold tracking-tight">Masuk untuk menambah kamar</h1>
+      <div className="mx-auto w-full max-w-md px-4 py-20 text-center sm:px-6 lg:px-8">
+        <h1 className="text-balance font-heading text-2xl font-semibold tracking-[-0.03em]">Masuk untuk menambah kamar</h1>
         <Link
           href="/masuk"
           className="mt-6 inline-flex h-11 items-center rounded-xl bg-primary px-6 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary-strong"
@@ -80,8 +80,8 @@ export default function KamarBaruPage() {
 
   if (!properti) {
     return (
-      <div className="mx-auto max-w-md px-4 py-20 text-center sm:px-6">
-        <h1 className="text-xl font-bold tracking-tight">Properti tidak ditemukan</h1>
+      <div className="mx-auto w-full max-w-md px-4 py-20 text-center sm:px-6 lg:px-8">
+        <h1 className="text-balance font-heading text-2xl font-semibold tracking-[-0.03em]">Properti tidak ditemukan</h1>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
           Properti ini mungkin sudah dihapus, atau bukan milik akun Anda.
         </p>
@@ -96,7 +96,7 @@ export default function KamarBaruPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6 sm:py-10">
+    <div className="mx-auto w-full max-w-2xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
       <Link
         href={`/properti/${properti.id}`}
         className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
@@ -106,7 +106,7 @@ export default function KamarBaruPage() {
       </Link>
 
       <header className="mt-4">
-        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Tambah kamar</h1>
+        <h1 className="text-balance font-heading font-semibold leading-[1.08] tracking-[-0.035em] text-[clamp(1.75rem,3.6vw,2.6rem)]">Tambah kamar</h1>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
           Kamar baru untuk <span className="font-medium text-foreground">{properti.name}</span>.
           Foto bisa ditambahkan setelah kamarnya tersimpan.

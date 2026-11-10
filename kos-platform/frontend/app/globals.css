@@ -330,8 +330,30 @@
     animation: kos-twinkle 3.6s ease-in-out infinite;
   }
 
+  /* Kabut hero bergerak sangat pelan dan bergantian arah. Jaraknya hanya enam
+     persen, cukup untuk membuat foto terasa bernapas tanpa menggeser fokus
+     dari judul. */
+  @keyframes kos-fog-drift {
+    0% {
+      transform: translate(-6%);
+    }
+    100% {
+      transform: translate(6%);
+    }
+  }
+
+  .hero-fog {
+    animation: kos-fog-drift 26s ease-in-out infinite alternate;
+  }
+
+  .hero-fog-slow {
+    animation: kos-fog-drift 38s ease-in-out infinite alternate-reverse;
+  }
+
   @media (prefers-reduced-motion: reduce) {
-    .hero-star {
+    .hero-star,
+    .hero-fog,
+    .hero-fog-slow {
       animation: none;
     }
   }

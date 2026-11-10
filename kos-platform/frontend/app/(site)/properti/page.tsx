@@ -76,7 +76,7 @@ export default function PropertiSayaPage() {
 
   if (status === 'memuat' || !siap) {
     return (
-      <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
+      <div className="mx-auto w-full max-w-5xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
         <div className="h-8 w-56 animate-pulse rounded bg-muted" />
         <div className="mt-6 h-80 animate-pulse rounded-2xl bg-muted" />
       </div>
@@ -85,8 +85,8 @@ export default function PropertiSayaPage() {
 
   if (!user) {
     return (
-      <div className="mx-auto max-w-md px-4 py-20 text-center sm:px-6">
-        <h1 className="text-xl font-bold tracking-tight">Masuk untuk mengelola properti</h1>
+      <div className="mx-auto w-full max-w-md px-4 py-20 text-center sm:px-6 lg:px-8">
+        <h1 className="text-balance font-heading text-2xl font-semibold tracking-[-0.03em]">Masuk untuk mengelola properti</h1>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
           Properti terikat ke akun pemiliknya, jadi daftarnya hanya bisa dibuka setelah masuk.
         </p>
@@ -103,10 +103,10 @@ export default function PropertiSayaPage() {
   const bolehKelola = user.role === 'OWNER' || user.role === 'ADMIN'
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-10">
+    <div className="mx-auto w-full max-w-5xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Properti saya</h1>
+          <h1 className="text-balance font-heading font-semibold leading-[1.08] tracking-[-0.035em] text-[clamp(1.75rem,3.6vw,2.6rem)]">Properti saya</h1>
           <p className="mt-2 text-sm text-muted-foreground">
             Daftarkan kos, lengkapi isinya, lalu ajukan untuk ditinjau admin.
           </p>

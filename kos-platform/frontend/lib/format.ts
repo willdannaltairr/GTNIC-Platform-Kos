@@ -90,3 +90,19 @@ export const formatTanggal = (value: string | null | undefined): string => {
   if (Number.isNaN(waktu.getTime())) return '-'
   return tanggal.format(waktu)
 }
+
+/** Tanggal dan jam untuk percakapan: "8 Nov 2026, 14.05". */
+const tanggalJam = new Intl.DateTimeFormat('id-ID', {
+  day: 'numeric',
+  month: 'short',
+  year: 'numeric',
+  hour: '2-digit',
+  minute: '2-digit',
+})
+
+export const formatTanggalJam = (value: string | null | undefined): string => {
+  if (!value) return '-'
+  const waktu = new Date(value)
+  if (Number.isNaN(waktu.getTime())) return '-'
+  return tanggalJam.format(waktu)
+}

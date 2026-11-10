@@ -7,6 +7,7 @@ import { TypeSection } from '@/components/beranda/type-section'
 import { PopularAreasSection } from '@/components/beranda/popular-areas-section'
 import { CampusSection } from '@/components/beranda/campus-section'
 import { fetchCampuses, fetchRegions } from '@/lib/api'
+import { JudulHalaman, Wadah } from '@/components/site/kerangka'
 
 export const metadata: Metadata = {
   title: 'Beranda',
@@ -19,7 +20,7 @@ function KartuSkeleton() {
   return (
     <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
       {Array.from({ length: 3 }).map((_, index) => (
-        <div key={index} className="h-72 animate-pulse rounded-xl bg-muted" />
+        <div key={index} className="h-72 animate-pulse rounded-2xl bg-muted" />
       ))}
     </div>
   )
@@ -28,11 +29,16 @@ function KartuSkeleton() {
 /**
  * Beranda aplikasi, halaman pertama setelah pengunjung masuk ke platform.
  *
- * Berbeda dari landing page: di sini navigasinya sidebar, dan isinya langsung
- * rekomendasi yang bergantung pada lokasi, bukan cerita tentang produk.
- * Karena itu "Beranda" di sidebar menunjuk ke sini, bukan ke landing page -
- * pengunjung yang sudah berada di dalam platform tidak dilempar balik ke
- * halaman pemasaran setiap kali menekan menu pertama.
+ * Berbeda dari landing page: di sini navigasinya navbar aplikasi, isinya
+ * langsung rekomendasi yang bergantung pada lokasi alih-alih cerita tentang
+ * produk, dan tiap bagiannya dipisahkan garis rambut tipis dengan judul kecil
+ * di atas judul besarnya. Karena itu "Beranda" di navbar menunjuk ke sini,
+ * bukan ke landing page: pengunjung yang sudah berada di dalam platform tidak
+ * dilempar balik ke halaman pemasaran setiap kali menekan menu pertama.
+ *
+ * Tata letaknya memakai kerangka bersama di `components/site/kerangka.tsx`,
+ * yang dipakai seluruh halaman aplikasi supaya judul, jarak tepi, dan irama
+ * bagiannya sama di mana pun pengunjung berpindah.
  */
 export default async function BerandaPage() {
   // Diambil di sini, bukan di masing-masing bagian, karena dua bagian memakai
@@ -41,26 +47,23 @@ export default async function BerandaPage() {
   const [campuses, regions] = await Promise.all([fetchCampuses({ limit: 12 }), fetchRegions(12)])
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10">
-      <header className="text-center">
-        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
-          Mau cari kos di mana?
-        </h1>
-        <p className="mx-auto mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground">
-          Mulai dari yang paling dekat dengan Anda, atau tentukan sendiri titik asal dan tujuannya.
-        </p>
-      </header>
+    <Wadah>
+      <JudulHalaman
+        eyebrow="Rekomendasi kos"
+        title="Mau cari kos di mana?"
+        description="Mulai dari yang paling dekat dengan Anda, atau tentukan sendiri titik asal dan tujuannya. Setiap bagian di bawah menjawab satu cara menemukannya."
+      />
 
-      <div className="mt-6">
+      <div className="mt-8">
         <BerandaSearch />
       </div>
 
-      <div className="mt-12 space-y-14">
+      <div className="mt-12">
         <NearbySection />
 
         <RuteSection campuses={campuses ?? []} regions={regions ?? []} />
 
-        <Suspense fallback={KartuSkeleton()}>
+        <Suspense fallback={<KartuSkeleton />}>
           <TypeSection
             type="KOS_PUTRA"
             title="Kos putra"
@@ -69,7 +72,7 @@ export default async function BerandaPage() {
           />
         </Suspense>
 
-        <Suspense fallback={KartuSkeleton()}>
+        <Suspense fallback={<KartuSkeleton />}>
           <TypeSection
             type="KOS_PUTRI"
             title="Kos putri"
@@ -82,6 +85,6 @@ export default async function BerandaPage() {
 
         <CampusSection campuses={campuses ?? []} />
       </div>
-    </div>
+    </Wadah>
   )
 }

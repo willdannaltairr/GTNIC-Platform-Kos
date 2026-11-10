@@ -6,7 +6,9 @@
  * perannya ada di backend, jadi fungsi di sini tidak menerima id pengguna.
  */
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000'
+// Alamat dasar dipilih menurut sisi tempat kodenya berjalan; penjelasannya ada
+// di `api-alamat.ts`.
+import { API_BASE } from './api-alamat'
 
 export type KunjunganStatus = 'SCHEDULED' | 'COMPLETED' | 'CANCELLED' | 'NO_SHOW'
 

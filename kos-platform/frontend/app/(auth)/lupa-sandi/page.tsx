@@ -21,8 +21,8 @@ export default function LupaSandiPage() {
   return (
     <AuthShell
       image={{
-        src: '/images/kos-5.jpg',
-        alt: 'Ruang kos dengan jendela besar dan cahaya pagi menerpa lantai kayu.',
+        src: '/images/auth-lupa-sandi.jpg',
+        alt: 'Vas bunga lili dengan dedaunan hijau di dekat jendela yang terkena cahaya pagi.',
       }}
     >
       <ForgotPasswordForm />
