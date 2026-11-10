@@ -54,7 +54,7 @@ export default function DashboardPage() {
 
   if (status === 'memuat' || !siap) {
     return (
-      <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
+      <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
         <div className="h-8 w-56 animate-pulse rounded bg-muted" />
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }).map((_, index) => (
@@ -67,8 +67,8 @@ export default function DashboardPage() {
 
   if (!user) {
     return (
-      <div className="mx-auto max-w-md px-4 py-20 text-center sm:px-6">
-        <h1 className="text-xl font-bold tracking-tight">Masuk untuk membuka dashboard</h1>
+      <div className="mx-auto w-full max-w-md px-4 py-20 text-center sm:px-6 lg:px-8">
+        <h1 className="text-balance font-heading text-2xl font-semibold tracking-[-0.03em]">Masuk untuk membuka dashboard</h1>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
           Dashboard berisi sewa, tagihan, dan permintaan perbaikan milik akun Anda.
         </p>
@@ -86,10 +86,10 @@ export default function DashboardPage() {
   const pemilik = user.role === 'OWNER' || user.role === 'ADMIN'
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10">
+    <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Halo, {namaDepan}</h1>
+          <h1 className="text-balance font-heading font-semibold leading-[1.08] tracking-[-0.035em] text-[clamp(1.75rem,3.6vw,2.6rem)]">Halo, {namaDepan}</h1>
           <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
             {pemilik
               ? 'Ringkasan properti, booking, dan tagihan yang perlu tindakan Anda.'

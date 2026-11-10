@@ -167,7 +167,7 @@ export default function KeuanganPage() {
 
   if (status === 'memuat' || !siap) {
     return (
-      <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
+      <div className="mx-auto w-full max-w-4xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
         <div className="h-8 w-52 animate-pulse rounded bg-muted" />
         <div className="mt-6 h-72 animate-pulse rounded-2xl bg-muted" />
       </div>
@@ -176,8 +176,8 @@ export default function KeuanganPage() {
 
   if (!user) {
     return (
-      <div className="mx-auto max-w-md px-4 py-20 text-center sm:px-6">
-        <h1 className="text-xl font-bold tracking-tight">Masuk untuk membuka keuangan</h1>
+      <div className="mx-auto w-full max-w-md px-4 py-20 text-center sm:px-6 lg:px-8">
+        <h1 className="text-balance font-heading text-2xl font-semibold tracking-[-0.03em]">Masuk untuk membuka keuangan</h1>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
           Catatan pemasukan dan pengeluaran terikat ke properti Anda, jadi hanya bisa dibuka
           pemiliknya.
@@ -194,8 +194,8 @@ export default function KeuanganPage() {
 
   if (!pemilik) {
     return (
-      <div className="mx-auto max-w-md px-4 py-20 text-center sm:px-6">
-        <h1 className="text-xl font-bold tracking-tight">Halaman ini untuk pemilik kos</h1>
+      <div className="mx-auto w-full max-w-md px-4 py-20 text-center sm:px-6 lg:px-8">
+        <h1 className="text-balance font-heading text-2xl font-semibold tracking-[-0.03em]">Halaman ini untuk pemilik kos</h1>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
           Pembukuan ini mencatat biaya operasional properti, dan itu urusan pemiliknya. Tagihan
           sewa Anda sendiri ada di halaman tagihan.
@@ -211,10 +211,10 @@ export default function KeuanganPage() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 sm:py-10">
+    <div className="mx-auto w-full max-w-4xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Keuangan properti</h1>
+          <h1 className="text-balance font-heading font-semibold leading-[1.08] tracking-[-0.035em] text-[clamp(1.75rem,3.6vw,2.6rem)]">Keuangan properti</h1>
           <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
             Uang yang sudah masuk, biaya operasional, dan selisihnya. Pemasukan dihitung dari
             pembayaran yang berhasil, bukan dari tagihan yang terbit.

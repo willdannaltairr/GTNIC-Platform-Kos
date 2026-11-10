@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { Building2, MapPin } from 'lucide-react'
+import { JudulSeksi, Seksi } from '@/components/site/kerangka'
 import type { RegionPlace } from '@/lib/api'
 import { formatNumber } from '@/lib/format'
 
@@ -17,29 +18,25 @@ import { formatNumber } from '@/lib/format'
 export function PopularAreasSection({ regions }: { regions: RegionPlace[] }) {
   if (regions.length === 0) {
     return (
-      <section aria-labelledby="area-title">
-        <h2 id="area-title" className="text-xl font-bold tracking-tight sm:text-2xl">
-          Area kos terpopuler
-        </h2>
-        <p className="mt-4 rounded-2xl border border-dashed border-border bg-card p-6 text-sm leading-relaxed text-muted-foreground">
+      <Seksi id="area">
+        <JudulSeksi id="area-title" eyebrow="Daerah" title="Area kos terpopuler" />
+        <p className="mt-8 rounded-2xl border border-dashed border-border bg-card p-6 text-sm leading-relaxed text-muted-foreground">
           Data daerah belum dapat dimuat. Pastikan server API berjalan, lalu muat ulang halaman.
         </p>
-      </section>
+      </Seksi>
     )
   }
 
   return (
-    <section aria-labelledby="area-title">
-      <div className="flex flex-col gap-1.5">
-        <h2 id="area-title" className="text-xl font-bold tracking-tight sm:text-2xl">
-          Area kos terpopuler
-        </h2>
-        <p className="text-sm text-muted-foreground">
-          Daerah dengan kos terverifikasi terbanyak di platform ini.
-        </p>
-      </div>
+    <Seksi id="area">
+      <JudulSeksi
+        id="area-title"
+        eyebrow="Daerah"
+        title="Area kos terpopuler"
+        description="Daerah dengan kos terverifikasi terbanyak di platform ini."
+      />
 
-      <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {regions.map((region) => {
           // Kotak kota dan kecamatan disaring lewat parameter yang berbeda.
           const href =
@@ -77,6 +74,6 @@ export function PopularAreasSection({ regions }: { regions: RegionPlace[] }) {
           )
         })}
       </div>
-    </section>
+    </Seksi>
   )
 }

@@ -122,7 +122,7 @@ const isActive = (pathname: string, href: string): boolean => {
 }
 
 const LINK_CLASS =
-  'inline-flex h-9 items-center gap-2 whitespace-nowrap rounded-lg px-3 text-sm font-medium transition-colors'
+  'inline-flex h-9 items-center gap-2 whitespace-nowrap rounded-full px-3.5 text-sm font-medium transition-colors'
 
 /**
  * Navbar aplikasi.
@@ -167,9 +167,9 @@ export function AppNavbar() {
   return (
     <header
       ref={navRef}
-      className="sticky top-0 z-40 border-b border-border/70 bg-background/85 backdrop-blur"
+      className="sticky top-0 z-40 border-b border-border/50 bg-card/80 backdrop-blur-md"
     >
-      <div className="mx-auto flex h-16 max-w-7xl items-center gap-3 px-4 sm:px-6">
+      <div className="mx-auto flex h-16 w-full max-w-7xl items-center gap-3 px-4 sm:h-[72px] sm:px-6 lg:px-8">
         <Link
           href="/beranda"
           aria-label="KosPlatform, beranda"

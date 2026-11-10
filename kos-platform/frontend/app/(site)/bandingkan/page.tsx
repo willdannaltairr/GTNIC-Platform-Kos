@@ -98,7 +98,7 @@ export default function BandingkanPage() {
 
   if (!siap) {
     return (
-      <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
+      <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
         <div className="h-8 w-56 animate-pulse rounded bg-muted" />
         <div className="mt-6 h-96 animate-pulse rounded-2xl bg-muted" />
       </div>
@@ -106,10 +106,10 @@ export default function BandingkanPage() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10">
+    <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Bandingkan kos</h1>
+          <h1 className="text-balance font-heading font-semibold leading-[1.08] tracking-[-0.035em] text-[clamp(1.75rem,3.6vw,2.6rem)]">Bandingkan kos</h1>
           <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
             {daftar.length > 0
               ? `${daftar.length} dari maksimal ${MAKS_BANDINGKAN} kos. Angka yang ditampilkan berasal dari data pemiliknya.`

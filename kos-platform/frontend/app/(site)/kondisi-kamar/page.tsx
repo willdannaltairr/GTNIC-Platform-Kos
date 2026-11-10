@@ -68,7 +68,7 @@ export default function KondisiKamarPage() {
 
   if (status === 'memuat' || !siap) {
     return (
-      <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
+      <div className="mx-auto w-full max-w-4xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
         <div className="h-8 w-56 animate-pulse rounded bg-muted" />
         <div className="mt-6 h-72 animate-pulse rounded-2xl bg-muted" />
       </div>
@@ -77,8 +77,8 @@ export default function KondisiKamarPage() {
 
   if (!user) {
     return (
-      <div className="mx-auto max-w-md px-4 py-20 text-center sm:px-6">
-        <h1 className="text-xl font-bold tracking-tight">Masuk untuk membuka catatan kondisi kamar</h1>
+      <div className="mx-auto w-full max-w-md px-4 py-20 text-center sm:px-6 lg:px-8">
+        <h1 className="text-balance font-heading text-2xl font-semibold tracking-[-0.03em]">Masuk untuk membuka catatan kondisi kamar</h1>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
           Pemeriksaan kondisi terikat ke sewa yang sedang atau pernah berjalan, jadi riwayatnya
           hanya bisa dibuka setelah masuk.
@@ -97,10 +97,10 @@ export default function KondisiKamarPage() {
   const menunggu = (daftar ?? []).filter((item) => item.status === 'SUBMITTED').length
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 sm:py-10">
+    <div className="mx-auto w-full max-w-4xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
+          <h1 className="text-balance font-heading font-semibold leading-[1.08] tracking-[-0.035em] text-[clamp(1.75rem,3.6vw,2.6rem)]">
             {penghuni ? 'Kondisi kamar saya' : 'Catatan kondisi kamar'}
           </h1>
           <p className="mt-2 text-sm leading-relaxed text-muted-foreground">

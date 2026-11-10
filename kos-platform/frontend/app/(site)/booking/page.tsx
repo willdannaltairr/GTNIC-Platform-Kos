@@ -87,7 +87,7 @@ export default function BookingPage() {
 
   if (status === 'memuat' || !siap) {
     return (
-      <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
+      <div className="mx-auto w-full max-w-4xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
         <div className="h-8 w-48 animate-pulse rounded bg-muted" />
         <div className="mt-6 h-72 animate-pulse rounded-2xl bg-muted" />
       </div>
@@ -96,8 +96,8 @@ export default function BookingPage() {
 
   if (!user) {
     return (
-      <div className="mx-auto max-w-md px-4 py-20 text-center sm:px-6">
-        <h1 className="text-xl font-bold tracking-tight">Masuk untuk melihat booking</h1>
+      <div className="mx-auto w-full max-w-md px-4 py-20 text-center sm:px-6 lg:px-8">
+        <h1 className="text-balance font-heading text-2xl font-semibold tracking-[-0.03em]">Masuk untuk melihat booking</h1>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
           Pengajuan sewa terikat ke akun, jadi riwayatnya hanya bisa dibuka setelah masuk.
         </p>
@@ -114,9 +114,9 @@ export default function BookingPage() {
   const pemilik = user.role === 'OWNER' || user.role === 'ADMIN'
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 sm:py-10">
+    <div className="mx-auto w-full max-w-4xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
       <header>
-        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
+        <h1 className="text-balance font-heading font-semibold leading-[1.08] tracking-[-0.035em] text-[clamp(1.75rem,3.6vw,2.6rem)]">
           {pemilik ? 'Pengajuan sewa' : 'Booking saya'}
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
