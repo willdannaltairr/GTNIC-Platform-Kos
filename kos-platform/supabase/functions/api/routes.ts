@@ -115,6 +115,7 @@ import {
   listMyPropertiesQuerySchema,
   listPropertiesQuerySchema,
   setPublicationSchema,
+  similarPropertiesQuerySchema,
   updatePropertySchema,
 } from './properties.validator.ts'
 import { roomsService } from './rooms.service.ts'
@@ -477,6 +478,20 @@ router.get('/properties', async (ctx: Ctx) => {
   const hasil = await propertiesService.listPublic(query)
 
   return jsonOk(ctx.req, { message: 'Daftar properti', data: hasil.items, meta: hasil.meta })
+})
+
+/**
+ * Kos lain yang mirip dengan satu properti.
+ *
+ * Diletakkan sebelum rute `/properties/:slug` karena keduanya punya jumlah
+ * segmen yang berbeda, jadi tidak ada yang tertutupi; yang membuatnya terpisah
+ * adalah artinya, bukan urutannya.
+ */
+router.get('/properties/:slug/serupa', async (ctx: Ctx) => {
+  const query = similarPropertiesQuerySchema.parse(kueriObjek(ctx.url))
+  const data = await propertiesService.similar(ctx.params.slug, query.limit)
+
+  return jsonOk(ctx.req, { message: 'Kos serupa', data, meta: { total: data.length } })
 })
 
 router.get('/properties/:slug', async (ctx: Ctx) => {
