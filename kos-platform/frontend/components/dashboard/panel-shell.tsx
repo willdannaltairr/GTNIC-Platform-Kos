@@ -11,11 +11,9 @@ import {
   Building2,
   Calculator,
   CalendarClock,
-  ChartLine,
   ClipboardCheck,
   CreditCard,
   FileText,
-  Heart,
   Home,
   LayoutDashboard,
   LogOut,
@@ -60,7 +58,6 @@ const KELOMPOK: KelompokSidebar[] = [
     judul: 'Hari ini',
     tautan: [
       { href: '/dashboard', label: 'Ringkasan', icon: LayoutDashboard },
-      { href: '/dashboard/analitik', label: 'Analitik', icon: ChartLine, peran: ['OWNER', 'ADMIN'] },
       { href: '/dashboard/kamar', label: 'Kamar dan penyewa', icon: Home, peran: ['OWNER', 'ADMIN'] },
       { href: '/dashboard/kalender', label: 'Kalender bayar', icon: CalendarClock, peran: ['OWNER', 'ADMIN'] },
       { href: '/perbaikan', label: 'Laporan kerusakan', icon: Wrench },
@@ -87,8 +84,7 @@ const KELOMPOK: KelompokSidebar[] = [
   {
     judul: 'Akun',
     tautan: [
-      { href: '/favorit', label: 'Kos favorit', icon: Heart },
-      { href: '/pencarian-tersimpan', label: 'Pencarian tersimpan', icon: Bookmark },
+      { href: '/pencarian-tersimpan', label: 'Pencarian tersimpan', icon: Bookmark, peran: ['TENANT'] },
       { href: '/verifikasi', label: 'Verifikasi pemilik', icon: BadgeCheck, peran: ['OWNER', 'ADMIN'] },
     ],
   },
@@ -145,7 +141,7 @@ export function PanelShell({ children }: { children: React.ReactNode }) {
     <div className="flex h-full flex-col gap-6 overflow-y-auto px-4 py-5">
       <Link
         href="/beranda"
-        aria-label="KosPlatform, beranda"
+        aria-label="HuniKos, beranda"
         className="shrink-0 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
         <Logo />

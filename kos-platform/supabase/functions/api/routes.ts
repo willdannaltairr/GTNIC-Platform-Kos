@@ -13,8 +13,6 @@ import {
 import { buildVerifyUrl, sendEmailVerificationEmail } from './_shared/mailer.ts'
 import { Router, type Ctx } from './_shared/router.ts'
 import { idParam, kueriObjek } from './_shared/validasi.ts'
-import { analyticsService } from './analytics.service.ts'
-import { analyticsQuerySchema } from './analytics.validator.ts'
 import { adminService } from './admin.service.ts'
 import {
   listActivityQuerySchema,
@@ -55,8 +53,6 @@ import {
   ringkasanKeuanganQuerySchema,
   updateExpenseSchema,
 } from './expenses.validator.ts'
-import { favoritesService } from './favorites.service.ts'
-import { addFavoriteSchema, propertyIdParam } from './favorites.validator.ts'
 import { savedSearchesService } from './saved-searches.service.ts'
 import { createSavedSearchSchema } from './saved-searches.validator.ts'
 import { invoicesService } from './invoices.service.ts'
@@ -634,57 +630,6 @@ router.get('/dashboard/owner', async (ctx: Ctx) => {
   const data = await dashboardService.owner(user.userId)
 
   return jsonOk(ctx.req, { message: 'Dashboard pemilik kos', data })
-})
-
-/**
- * Analitik pemilik kos: hunian, pendapatan, umur tagihan, dan funnel booking.
- *
- * Terpisah dari /dashboard/owner meski sumbernya sama: dashboard adalah yang
- * dibuka setiap hari dan isinya harus tetap ringan, sedangkan halaman ini
- * menghitung rentang beberapa bulan sekaligus dan hanya dibuka sesekali.
- * Menggabungkannya berarti setiap buka dashboard ikut membayar biaya agregat
- * yang tidak selalu dibutuhkan.
- */
-router.get('/dashboard/owner/analitik', async (ctx: Ctx) => {
-  const user = await authenticate(ctx.req)
-  authorize(user, 'OWNER', 'ADMIN')
-
-  const query = analyticsQuerySchema.parse(kueriObjek(ctx.url))
-  const data = await analyticsService.owner(user.userId, query)
-
-  return jsonOk(ctx.req, { message: 'Analitik pemilik kos', data })
-})
-
-// ─── Favorit ────────────────────────────────────────────────────────────────
-
-/**
- * Seluruh endpoint favorit menuntut sesi. Daftar favorit adalah data pribadi,
- * dan tamu tidak punya tempat menyimpannya.
- *
- * Id pengguna selalu diambil dari sesi, tidak pernah dari permintaan: menerima
- * id pengguna dari klien berarti siapa pun bisa membaca atau mengubah daftar
- * favorit orang lain.
- */
-router.get('/favorites', async (ctx: Ctx) => {
-  const user = await authenticate(ctx.req)
-  const hasil = await favoritesService.list(user.userId)
-
-  return jsonOk(ctx.req, { message: 'Daftar favorit', data: hasil.items, meta: hasil.meta })
-})
-
-router.post('/favorites', async (ctx: Ctx) => {
-  const user = await authenticate(ctx.req)
-  const input = addFavoriteSchema.parse(await readJson(ctx.req))
-  const hasil = await favoritesService.add(user.userId, input.propertyId)
-
-  return jsonOk(ctx.req, { message: 'Ditambahkan ke favorit', data: hasil }, 201)
-})
-
-router.delete('/favorites/:propertyId', async (ctx: Ctx) => {
-  const user = await authenticate(ctx.req)
-  const hasil = await favoritesService.remove(user.userId, propertyIdParam(ctx.params.propertyId))
-
-  return jsonOk(ctx.req, { message: 'Dihapus dari favorit', data: hasil })
 })
 
 // ─── Pencarian tersimpan ────────────────────────────────────────────────────
