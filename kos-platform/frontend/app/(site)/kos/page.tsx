@@ -3,6 +3,7 @@ import { Suspense } from 'react'
 import { KosFilters, type KosFilterState } from '@/components/kos/kos-filters'
 import { Pagination } from '@/components/pagination'
 import { PropertyCard } from '@/components/property-card'
+import { JudulHalaman, Seksi } from '@/components/site/kerangka'
 import { fetchProperties } from '@/lib/api'
 
 export const metadata: Metadata = {
@@ -162,16 +163,20 @@ export default async function KosPage({ searchParams }: { searchParams: Promise<
   }
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
-      <header>
-        <h1 className="text-balance font-heading font-semibold leading-[1.08] tracking-[-0.035em] text-[clamp(1.75rem,3.6vw,2.6rem)]">Cari Kos</h1>
-      </header>
+    <>
+      <Seksi garis={false}>
+        <JudulHalaman
+          eyebrow="Pencarian"
+          title="Cari kos"
+          description="Saring menurut kota, kecamatan, rentang harga, tipe kamar, dan fasilitas. Pilihan Anda ditulis kembali ke alamat halaman, jadi hasil yang sama bisa dibagikan atau dibuka lagi nanti."
+        />
 
-      <div className="mt-6">
-        <KosFilters initial={initial} />
-      </div>
+        <div className="mt-8">
+          <KosFilters initial={initial} />
+        </div>
+      </Seksi>
 
-      <div className="mt-8">
+      <Seksi>
         {/*
           Skeleton pemuatan dipasang lewat Suspense di sini, bukan lewat
           loading.tsx: loading.tsx pada segmen /kos juga membungkus rute
@@ -181,7 +186,7 @@ export default async function KosPage({ searchParams }: { searchParams: Promise<
         <Suspense fallback={<KosResultsSkeleton />}>
           <KosResults query={query} />
         </Suspense>
-      </div>
-    </div>
+      </Seksi>
+    </>
   )
 }

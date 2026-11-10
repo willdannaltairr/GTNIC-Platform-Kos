@@ -2,96 +2,47 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useEffect, useRef, useState } from 'react'
-import { ChevronDown, Compass, Heart, Home, LayoutDashboard, MapPin, Menu, Search, ShieldCheck, Sparkles, X } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import {
+  Heart,
+  Home,
+  LayoutDashboard,
+  MapPin,
+  Menu,
+  Search,
+  ShieldCheck,
+  Sparkles,
+  X,
+} from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { Logo } from '@/components/landing/logo'
 import { NotificationBell } from '@/components/notifications/notification-bell'
 import { AccountActions } from '@/components/session/account-actions'
 import { useSession } from '@/components/session/session-provider'
-import { LOCATIONS } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 
-interface SubItem {
-  label: string
-  href: string
-  /** Keterangan pendamping: daerah untuk kawasan, status untuk alat. */
-  hint?: string
-}
-
-interface NavGroup {
+interface NavLink {
   label: string
   href: string
   icon: LucideIcon
-  items: SubItem[]
 }
 
 /**
- * Isi navigasi aplikasi.
+ * Navigasi utama aplikasi.
  *
- * Daftarnya mencerminkan apa yang benar-benar ada di platform. Alat yang belum
- * bisa dipakai diberi keterangan "Segera" apa adanya, menu yang menjanjikan
- * halaman kosong lebih buruk daripada menu yang jujur.
+ * Enam tautan sebaris, tanpa dropdown: halaman-halaman yang dulu tersembunyi di
+ * dalam menu turun sekarang punya halaman sendiri (`/kawasan`, `/alat`, dan
+ * `/saya`), sehingga navbar tidak perlu lagi menyimpan tiga puluh tautan di
+ * dalam panel yang harus dibuka dulu. Yang tersisa di sini hanyalah pintu masuk
+ * tingkat pertama, dan sisanya dijelajahi lewat halaman hub itu.
  */
-const GROUPS: NavGroup[] = [
-  {
-    label: 'Rekomendasi',
-    href: '/beranda',
-    icon: Compass,
-    items: [
-      { label: 'Sekitar saya', href: '/beranda#sekitar-saya', hint: 'Pakai lokasi GPS' },
-      { label: 'Rute lokasi', href: '/beranda#rute', hint: 'Dari mana ke mana' },
-      { label: 'Sekitar kampus', href: '/beranda#kampus', hint: 'Kampus di Indonesia' },
-    ],
-  },
-  {
-    label: 'Kawasan',
-    href: '/kos',
-    icon: MapPin,
-    items: LOCATIONS.map((location) => ({
-      label: location.city,
-      href: location.href,
-      hint: location.area,
-    })),
-  },
-  {
-    label: 'Alat',
-    href: '/#produk',
-    icon: Sparkles,
-    items: [
-      { label: 'KosMatch', href: '/kosmatch', hint: 'Skor kecocokan' },
-      { label: 'Simulasi Biaya', href: '/#truecost', hint: 'Aktif' },
-      { label: 'Bandingkan kos', href: '/bandingkan', hint: 'Aktif' },
-      { label: 'Rute & Sekitar', href: '/#campusroute', hint: 'Segera' },
-    ],
-  },
-  {
-    label: 'Saya',
-    href: '/favorit',
-    icon: Heart,
-    items: [
-      { label: 'Kos favorit', href: '/favorit', hint: 'Yang Anda simpan' },
-      { label: 'Booking', href: '/booking', hint: 'Pengajuan sewa' },
-      { label: 'Kontrak sewa', href: '/kontrak', hint: 'Kesepakatan berlaku' },
-      { label: 'Tagihan', href: '/tagihan', hint: 'Yang perlu dibayar' },
-      { label: 'Keuangan', href: '/keuangan', hint: 'Pemasukan dan biaya' },
-      { label: 'Jadwal kunjungan', href: '/kunjungan', hint: 'Survei kos' },
-      { label: 'Pesan', href: '/pesan', hint: 'Tanya pemilik' },
-      { label: 'Ulasan', href: '/ulasan', hint: 'Penilaian kos' },
-      { label: 'Perbaikan', href: '/perbaikan', hint: 'Kerusakan kamar' },
-      { label: 'Kondisi kamar', href: '/kondisi-kamar', hint: 'Catatan masuk dan keluar' },
-      { label: 'Properti saya', href: '/properti', hint: 'Kelola kos Anda' },
-      { label: 'Verifikasi pemilik', href: '/verifikasi', hint: 'Dokumen identitas' },
-      { label: 'Notifikasi', href: '/notifikasi', hint: 'Pemberitahuan' },
-    ],
-  },
-]
-
-/** Tautan tunggal di navbar, di luar kelompok dropdown. */
-const LINKS: { label: string; href: string; icon: LucideIcon }[] = [
+const LINKS: NavLink[] = [
   { label: 'Beranda', href: '/beranda', icon: Home },
   { label: 'Cari Kos', href: '/kos', icon: Search },
+  { label: 'Kawasan', href: '/kawasan', icon: MapPin },
+  { label: 'Alat', href: '/alat', icon: Sparkles },
   { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+  { label: 'Saya', href: '/saya', icon: Heart },
 ]
 
 /**
@@ -102,11 +53,7 @@ const LINKS: { label: string; href: string; icon: LucideIcon }[] = [
  * pun yang bukan admin, dan menyembunyikan tautannya tidak pernah menjadi
  * batas keamanan.
  */
-const LINK_ADMIN: { label: string; href: string; icon: LucideIcon } = {
-  label: 'Panel admin',
-  href: '/admin',
-  icon: ShieldCheck,
-}
+const LINK_ADMIN: NavLink = { label: 'Panel admin', href: '/admin', icon: ShieldCheck }
 
 /**
  * Menu dianggap aktif bila alamatnya sama persis, atau merupakan halaman anak
@@ -116,76 +63,49 @@ const LINK_ADMIN: { label: string; href: string; icon: LucideIcon } = {
  * /kos?city=Depok berada di halaman yang sama, jadi keduanya bukan menu
  * berbeda yang perlu ditandai sendiri-sendiri.
  */
-const isActive = (pathname: string, href: string): boolean => {
-  if (href.startsWith('/#')) return false
-  return pathname === href || pathname.startsWith(`${href}/`)
-}
-
-const LINK_CLASS =
-  'inline-flex h-9 items-center gap-2 whitespace-nowrap rounded-full px-3.5 text-sm font-medium transition-colors'
+const isActive = (pathname: string, href: string): boolean =>
+  pathname === href || pathname.startsWith(`${href}/`)
 
 /**
- * Navbar aplikasi.
+ * Bentuk tautan navbar: teks biasa, bukan pil.
  *
- * Menggantikan sidebar: navigasi utama berada di atas, sehingga isi halaman
- * memakai lebar penuh. Menu yang punya anak (Rekomendasi, Kawasan, Alat)
- * disimpan sebagai dropdown supaya navbar tetap satu baris di layar lebar.
+ * Tautan berikon di dalam pil membuat enam menu memakan hampir seluruh lebar
+ * navbar dan menyisakan sedikit ruang untuk lonceng dan nama akun. Sebagai teks
+ * biasa, keenamnya muat dalam satu baris dan yang membedakan menu aktif dari
+ * yang lain cukup warnanya.
  */
+const LINK_CLASS =
+  'inline-flex h-9 items-center whitespace-nowrap px-3 text-sm font-medium transition-colors'
+
+/** Navbar aplikasi: navbar di atas, isi halaman memakai lebar penuh. */
 export function AppNavbar() {
   const pathname = usePathname()
   const { user } = useSession()
-  const [terbuka, setTerbuka] = useState<string | null>(null)
   const [menuPonsel, setMenuPonsel] = useState(false)
-  const navRef = useRef<HTMLElement>(null)
 
-  // Dropdown ditutup saat klik di luar navbar atau saat Escape ditekan.
-  // Keduanya tanpa ini membuat panel menggantung di atas isi halaman.
+  // Pindah halaman menutup menu ponsel: panel yang masih terbuka di halaman
+  // baru menutupi isinya.
   useEffect(() => {
-    const onDown = (event: MouseEvent): void => {
-      if (navRef.current && !navRef.current.contains(event.target as Node)) setTerbuka(null)
-    }
-    const onKey = (event: KeyboardEvent): void => {
-      if (event.key === 'Escape') setTerbuka(null)
-    }
-
-    document.addEventListener('mousedown', onDown)
-    document.addEventListener('keydown', onKey)
-
-    return () => {
-      document.removeEventListener('mousedown', onDown)
-      document.removeEventListener('keydown', onKey)
-    }
-  }, [])
-
-  // Pindah halaman menutup semua panel: dropdown yang masih terbuka di
-  // halaman baru menutupi isinya.
-  useEffect(() => {
-    setTerbuka(null)
     setMenuPonsel(false)
   }, [pathname])
 
+  const tautan = user?.role === 'ADMIN' ? [...LINKS, LINK_ADMIN] : LINKS
+
   return (
-    <header
-      ref={navRef}
-      className="sticky top-0 z-40 border-b border-border/50 bg-card/80 backdrop-blur-md"
-    >
+    <header className="sticky top-0 z-40 border-b border-border/60 bg-card/80 backdrop-blur-md">
       <div className="mx-auto flex h-16 w-full max-w-7xl items-center gap-3 px-4 sm:h-[72px] sm:px-6 lg:px-8">
         <Link
           href="/beranda"
           aria-label="KosPlatform, beranda"
-          className="rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="flex shrink-0 items-center gap-2.5 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           <Logo />
         </Link>
 
-        {/* Navigasi mendatar baru muncul di layar lebar (xl). Sebelumnya di
-            layar sedang, tujuh menu ditambah lonceng dan nama akun tidak lagi
-            muat sebaris, dan label seperti "Cari Kos" terpotong jadi dua baris
-            sehingga tinggi navbar ikut berubah. Di bawah xl semuanya masuk ke
-            menu ponsel. */}
-        <nav aria-label="Navigasi utama" className="ml-4 hidden items-center gap-1 xl:flex">
-          {(user?.role === 'ADMIN' ? [...LINKS, LINK_ADMIN] : LINKS).map((link) => {
-            const Icon = link.icon
+        {/* Navigasi mendatar baru muncul di layar lebar (xl). Di bawahnya,
+            enam menu ditambah lonceng dan nama akun tidak lagi muat sebaris. */}
+        <nav aria-label="Navigasi utama" className="ml-6 hidden items-center gap-0.5 xl:flex">
+          {tautan.map((link) => {
             const active = isActive(pathname, link.href)
 
             return (
@@ -195,67 +115,11 @@ export function AppNavbar() {
                 aria-current={active ? 'page' : undefined}
                 className={cn(
                   LINK_CLASS,
-                  active
-                    ? 'bg-accent text-accent-foreground'
-                    : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+                  active ? 'text-primary' : 'text-muted-foreground hover:text-primary',
                 )}
               >
-                <Icon className="size-4 shrink-0" aria-hidden="true" />
                 {link.label}
               </Link>
-            )
-          })}
-
-          {GROUPS.map((group) => {
-            const Icon = group.icon
-            const dibuka = terbuka === group.label
-            const adaAktif =
-              isActive(pathname, group.href) ||
-              group.items.some((item) => isActive(pathname, item.href))
-
-            return (
-              <div key={group.label} className="relative">
-                <button
-                  type="button"
-                  onClick={() => setTerbuka(dibuka ? null : group.label)}
-                  aria-expanded={dibuka}
-                  className={cn(
-                    LINK_CLASS,
-                    adaAktif
-                      ? 'bg-accent text-accent-foreground'
-                      : 'text-muted-foreground hover:bg-muted hover:text-foreground',
-                  )}
-                >
-                  <Icon className="size-4 shrink-0" aria-hidden="true" />
-                  {group.label}
-                  <ChevronDown
-                    className={cn('size-3.5 shrink-0 transition-transform', dibuka && 'rotate-180')}
-                    aria-hidden="true"
-                  />
-                </button>
-
-                {dibuka && (
-                  <ul className="absolute left-0 top-full z-50 mt-2 w-64 rounded-xl border border-border bg-card p-1.5 shadow-xl shadow-forest/5">
-                    {group.items.map((item) => (
-                      <li key={`${item.label}-${item.href}`}>
-                        <Link
-                          href={item.href}
-                          className="block rounded-lg px-3 py-2 transition-colors hover:bg-muted"
-                        >
-                          <span className="block truncate text-sm text-foreground">
-                            {item.label}
-                          </span>
-                          {item.hint && (
-                            <span className="mt-0.5 block truncate text-[11px] text-muted-foreground/70">
-                              {item.hint}
-                            </span>
-                          )}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
             )
           })}
         </nav>
@@ -269,7 +133,7 @@ export function AppNavbar() {
             onClick={() => setMenuPonsel((nilai) => !nilai)}
             aria-expanded={menuPonsel}
             aria-label={menuPonsel ? 'Tutup menu' : 'Buka menu'}
-            className="grid size-10 place-items-center rounded-lg border border-border xl:hidden"
+            className="grid size-10 place-items-center rounded-full border border-border xl:hidden"
           >
             {menuPonsel ? (
               <X className="size-5" aria-hidden="true" />
@@ -281,16 +145,24 @@ export function AppNavbar() {
       </div>
 
       {menuPonsel && (
-        <div className="border-t border-border bg-background xl:hidden">
+        <div className="border-t border-border bg-card xl:hidden">
           <nav aria-label="Navigasi utama" className="mx-auto max-w-7xl px-4 py-3 sm:px-6">
-            <ul className="space-y-1">
-              {(user?.role === 'ADMIN' ? [...LINKS, LINK_ADMIN] : LINKS).map((link) => {
+            <ul className="space-y-0.5">
+              {tautan.map((link) => {
                 const Icon = link.icon
+                const active = isActive(pathname, link.href)
+
                 return (
                   <li key={link.href}>
                     <Link
                       href={link.href}
-                      className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                      aria-current={active ? 'page' : undefined}
+                      className={cn(
+                        'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors',
+                        active
+                          ? 'bg-accent text-accent-foreground'
+                          : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+                      )}
                     >
                       <Icon className="size-4 shrink-0" aria-hidden="true" />
                       {link.label}
@@ -298,26 +170,6 @@ export function AppNavbar() {
                   </li>
                 )
               })}
-
-              {GROUPS.map((group) => (
-                <li key={group.label} className="pt-2">
-                  <p className="px-3 pb-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/70">
-                    {group.label}
-                  </p>
-                  <ul className="space-y-0.5">
-                    {group.items.map((item) => (
-                      <li key={`${item.label}-${item.href}`}>
-                        <Link
-                          href={item.href}
-                          className="block rounded-lg px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                        >
-                          {item.label}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </li>
-              ))}
             </ul>
           </nav>
         </div>

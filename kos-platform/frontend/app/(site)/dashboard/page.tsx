@@ -10,6 +10,7 @@ import {
   type DashboardTenant,
 } from '@/lib/dashboard'
 import { EmptyRow, Panel, StatCard, StatusBadge } from '@/components/dashboard/kit'
+import { JudulHalaman, Seksi, Wadah, WadahPesan } from '@/components/site/kerangka'
 import { formatRupiah, formatTanggal } from '@/lib/format'
 
 /**
@@ -54,31 +55,31 @@ export default function DashboardPage() {
 
   if (status === 'memuat' || !siap) {
     return (
-      <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
+      <Wadah>
         <div className="h-8 w-56 animate-pulse rounded bg-muted" />
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }).map((_, index) => (
             <div key={index} className="h-24 animate-pulse rounded-2xl bg-muted" />
           ))}
         </div>
-      </div>
+      </Wadah>
     )
   }
 
   if (!user) {
     return (
-      <div className="mx-auto w-full max-w-md px-4 py-20 text-center sm:px-6 lg:px-8">
+      <WadahPesan>
         <h1 className="text-balance font-heading text-2xl font-semibold tracking-[-0.03em]">Masuk untuk membuka dashboard</h1>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
           Dashboard berisi sewa, tagihan, dan permintaan perbaikan milik akun Anda.
         </p>
         <Link
           href="/masuk"
-          className="mt-6 inline-flex h-11 items-center rounded-xl bg-primary px-6 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary-strong"
+          className="mt-6 inline-flex h-11 items-center rounded-full bg-primary px-6 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary-strong"
         >
           Masuk
         </Link>
-      </div>
+      </WadahPesan>
     )
   }
 
@@ -86,27 +87,29 @@ export default function DashboardPage() {
   const pemilik = user.role === 'OWNER' || user.role === 'ADMIN'
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
-      <header className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="text-balance font-heading font-semibold leading-[1.08] tracking-[-0.035em] text-[clamp(1.75rem,3.6vw,2.6rem)]">Halo, {namaDepan}</h1>
-          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-            {pemilik
+    <>
+      <Seksi garis={false}>
+        <JudulHalaman
+          eyebrow="Dashboard"
+          title={`Halo, ${namaDepan}`}
+          description={
+            pemilik
               ? 'Ringkasan properti, booking, dan tagihan yang perlu tindakan Anda.'
-              : 'Ringkasan sewa, tagihan, dan permintaan perbaikan Anda.'}
-          </p>
-        </div>
-
-        <Link
-          href={pemilik ? '/kos' : '/beranda'}
-          className="inline-flex h-10 items-center rounded-xl border border-border px-4 text-sm font-medium transition-colors hover:bg-muted"
-        >
-          {pemilik ? 'Lihat daftar kos' : 'Cari kos'}
-        </Link>
-      </header>
+              : 'Ringkasan sewa, tagihan, dan permintaan perbaikan Anda.'
+          }
+          aksi={
+            <Link
+              href={pemilik ? '/kos' : '/beranda'}
+              className="inline-flex h-11 items-center rounded-full border border-border px-6 text-sm font-semibold transition-colors hover:border-primary/40 hover:bg-accent/40"
+            >
+              {pemilik ? 'Lihat daftar kos' : 'Cari kos'}
+            </Link>
+          }
+        />
+      </Seksi>
 
       {pemilik ? <TampilanPemilik data={owner} /> : <TampilanPenghuni data={tenant} />}
-    </div>
+    </>
   )
 }
 
@@ -114,9 +117,11 @@ export default function DashboardPage() {
 function TampilanPenghuni({ data }: { data: DashboardTenant | null }) {
   if (!data) {
     return (
-      <p className="mt-8 rounded-2xl border border-dashed border-border px-5 py-10 text-center text-sm text-muted-foreground">
-        Dashboard belum bisa dimuat. Pastikan server API berjalan, lalu muat ulang halaman.
-      </p>
+      <Seksi>
+        <p className="rounded-2xl border border-dashed border-border px-5 py-10 text-center text-sm text-muted-foreground">
+          Dashboard belum bisa dimuat. Pastikan server API berjalan, lalu muat ulang halaman.
+        </p>
+      </Seksi>
     )
   }
 
@@ -124,20 +129,23 @@ function TampilanPenghuni({ data }: { data: DashboardTenant | null }) {
 
   return (
     <>
-      <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <StatCard label="Sewa aktif" value={r.sewaAktif} />
-        <StatCard label="Booking menunggu" value={r.bookingMenunggu} hint="Menunggu keputusan pemilik" />
-        <StatCard
-          label="Tagihan belum dibayar"
-          value={r.tagihanBelumDibayar}
-          hint={r.totalTagihanBelumDibayar > 0 ? formatRupiah(r.totalTagihanBelumDibayar) : undefined}
-        />
-        <StatCard label="Perbaikan terbuka" value={r.perbaikanTerbuka} />
-        <StatCard label="Kos favorit" value={r.favorit} />
-        <StatCard label="Kunjungan terjadwal" value={r.kunjunganTerjadwal} />
-      </div>
+      <Seksi>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <StatCard label="Sewa aktif" value={r.sewaAktif} />
+          <StatCard label="Booking menunggu" value={r.bookingMenunggu} hint="Menunggu keputusan pemilik" />
+          <StatCard
+            label="Tagihan belum dibayar"
+            value={r.tagihanBelumDibayar}
+            hint={r.totalTagihanBelumDibayar > 0 ? formatRupiah(r.totalTagihanBelumDibayar) : undefined}
+          />
+          <StatCard label="Perbaikan terbuka" value={r.perbaikanTerbuka} />
+          <StatCard label="Kos favorit" value={r.favorit} />
+          <StatCard label="Kunjungan terjadwal" value={r.kunjunganTerjadwal} />
+        </div>
+      </Seksi>
 
-      <div className="mt-8 grid gap-6 lg:grid-cols-2">
+      <Seksi>
+        <div className="grid gap-6 lg:grid-cols-2">
         <Panel title="Sewa aktif" description="Kontrak yang sedang berjalan.">
           {data.sewa.length === 0 ? (
             <EmptyRow>Belum ada sewa aktif. Kontrak muncul di sini setelah pemilik menyetujui booking Anda.</EmptyRow>
@@ -236,7 +244,8 @@ function TampilanPenghuni({ data }: { data: DashboardTenant | null }) {
             </ul>
           )}
         </Panel>
-      </div>
+        </div>
+      </Seksi>
     </>
   )
 }
@@ -245,9 +254,11 @@ function TampilanPenghuni({ data }: { data: DashboardTenant | null }) {
 function TampilanPemilik({ data }: { data: DashboardOwner | null }) {
   if (!data) {
     return (
-      <p className="mt-8 rounded-2xl border border-dashed border-border px-5 py-10 text-center text-sm text-muted-foreground">
-        Dashboard belum bisa dimuat. Pastikan server API berjalan, lalu muat ulang halaman.
-      </p>
+      <Seksi>
+        <p className="rounded-2xl border border-dashed border-border px-5 py-10 text-center text-sm text-muted-foreground">
+          Dashboard belum bisa dimuat. Pastikan server API berjalan, lalu muat ulang halaman.
+        </p>
+      </Seksi>
     )
   }
 
@@ -255,7 +266,8 @@ function TampilanPemilik({ data }: { data: DashboardOwner | null }) {
 
   return (
     <>
-      <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <Seksi>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <StatCard
           label="Properti"
           value={r.properti}
@@ -387,7 +399,8 @@ function TampilanPemilik({ data }: { data: DashboardOwner | null }) {
             </ul>
           )}
         </Panel>
-      </div>
+        </div>
+      </Seksi>
     </>
   )
 }
