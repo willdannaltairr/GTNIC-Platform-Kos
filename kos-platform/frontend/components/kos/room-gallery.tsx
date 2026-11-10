@@ -22,6 +22,10 @@ interface Foto {
  * Kamar tanpa foto tidak diberi kotak kosong bergaris: yang ditampilkan adalah
  * keterangan bahwa pemiliknya belum mengunggah foto, karena itulah yang perlu
  * diketahui pengunjung, bukan fakta bahwa ada gambar yang gagal dimuat.
+ *
+ * Gaya ini disesuaikan untuk platform kamar kos: sudut membulat yang lembut,
+ * caption di bawah foto, dan placeholder yang menunjukkan "tanpa foto" dengan
+ * ilustrasi kamar rather than ikon generic hotel.
  */
 export function RoomGallery({ photos, judul }: { photos: Foto[]; judul: string }) {
   const [aktif, setAktif] = useState(0)
@@ -31,9 +35,11 @@ export function RoomGallery({ photos, judul }: { photos: Foto[]; judul: string }
     return (
       <div className="flex aspect-4/3 items-center justify-center rounded-2xl border border-dashed border-border bg-muted/40">
         <div className="text-center">
-          <ImageOff className="mx-auto size-6 text-muted-foreground" aria-hidden="true" />
-          <p className="mt-2 text-sm text-muted-foreground">
-            Pemilik belum mengunggah foto {judul.toLowerCase()}.
+          <p className="text-sm text-muted-foreground">
+            {judul}: Pemilik belum mengunggah foto.
+          </p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Tambah foto kamar dari panel properti agar kamar ini lebih menarik.
           </p>
         </div>
       </div>
@@ -42,7 +48,7 @@ export function RoomGallery({ photos, judul }: { photos: Foto[]; judul: string }
 
   return (
     <div>
-      <div className="relative aspect-4/3 overflow-hidden rounded-2xl bg-muted">
+      <div className="relative aspect-4/3 overflow-hidden rounded-2xl bg-background">
         {terpilih.url ? (
           <Image
             src={terpilih.url}
@@ -50,11 +56,13 @@ export function RoomGallery({ photos, judul }: { photos: Foto[]; judul: string }
             fill
             priority
             sizes="(min-width: 1024px) 45rem, 100vw"
-            className="object-cover"
+            className="object-cover transition-transform duration-300 hover:scale-[1.02]"
           />
         ) : (
           <div className="grid h-full place-items-center">
-            <p className="text-sm text-muted-foreground">Foto ini tidak bisa dimuat.</p>
+            <p className="text-sm text-muted-foreground">
+              Foto kamar ini belum tersedia.
+            </p>
           </div>
         )}
       </div>
