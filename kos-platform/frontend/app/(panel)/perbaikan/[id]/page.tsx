@@ -6,6 +6,7 @@ import { useParams } from 'next/navigation'
 import { ArrowLeft, Camera, Loader2, Trash2 } from 'lucide-react'
 import { useSession } from '@/components/session/session-provider'
 import { EmptyRow, Panel, StatusBadge } from '@/components/dashboard/kit'
+import { UtasKomentar } from '@/components/perbaikan/utas-komentar'
 import {
   deleteFotoLaporan,
   fetchLaporanDetail,
@@ -396,6 +397,18 @@ export default function PerbaikanDetailPage() {
               fotonya.
             </p>
           )}
+        </Panel>
+
+        <Panel
+          title="Percakapan"
+          description="Tempat penghuni menjelaskan dan pemilik menanggapi, tercatat bersama laporan ini."
+        >
+          <UtasKomentar
+            laporanId={data.id}
+            komentar={data.komentar ?? []}
+            namaSaya={user.full_name}
+            peranSaya={user.role}
+          />
         </Panel>
 
         <Panel title="Riwayat" description="Perjalanan status laporan ini, terlama lebih dulu.">

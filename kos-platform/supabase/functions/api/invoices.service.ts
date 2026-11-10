@@ -26,6 +26,20 @@ import {
 /** Jatuh tempo bawaan bila pemilik tidak menyebutkannya. */
 const JATUH_TEMPO_HARI = 7
 
+/**
+ * Tanggal jatuh tempo untuk dibaca penghuni: "10 Nov 2026".
+ *
+ * Zonanya dipatok WIB, bukan zona mesin yang melayani permintaan: Edge Function
+ * berjalan di UTC, dan jatuh tempo yang jatuh pada malam hari di Indonesia akan
+ * terbaca sehari lebih awal kalau tanggalnya diambil apa adanya dari UTC.
+ */
+const tanggalBaca = new Intl.DateTimeFormat('id-ID', {
+  day: 'numeric',
+  month: 'short',
+  year: 'numeric',
+  timeZone: 'Asia/Jakarta',
+})
+
 interface TagihanRow {
   id: string
   invoice_number: string
@@ -518,5 +532,65 @@ export const invoicesService = {
     })
 
     return this.detail(user, id)
+  },
+
+  /**
+   * Kirim pengingat pembayaran ke penghuni.
+   *
+   * Pengingat ini atas permintaan pemilik, bukan otomatis: belum ada penjadwal
+   * di platform ini, dan pengingat yang dikirim pengguna adalah yang paling
+   * jelas asalnya kalau penghuni bertanya. Yang diingatkan hanya tagihan yang
+   * memang sedang menunggu bayaran.
+   *
+   * Draf, tagihan batal, dan tagihan lunas ditolak dengan pesan yang menyebut
+   * sebabnya. Mengirim pengingat untuk tagihan yang belum berlaku atau sudah
+   * selesai membuat penghuni memeriksa sesuatu yang tidak perlu dibayar, dan
+   * kebiasaan itu membuat ia berhenti membaca pengingat berikutnya.
+   */
+  async ingatkan(user: AuthUser, id: string) {
+    const tagihan = await ambil(user, id)
+
+    if (user.role !== 'ADMIN' && tagihan.owner_id !== user.userId) {
+      throw new HttpError(403, 'Hanya pemilik properti yang bisa mengirim pengingat tagihan ini')
+    }
+
+    if (tagihan.invoice_status === 'DRAFT') {
+      throw new HttpError(409, 'Tagihan masih draf. Kirim tagihannya dulu sebelum mengingatkan penghuni')
+    }
+
+    if (tagihan.invoice_status === 'CANCELLED') {
+      throw new HttpError(409, 'Tagihan ini sudah dibatalkan')
+    }
+
+    if (tagihan.invoice_status === 'PAID') {
+      throw new HttpError(409, 'Tagihan ini sudah lunas')
+    }
+
+    // Yang disebut adalah sisa yang belum dibayar, bukan jumlah totalnya:
+    // tagihan yang sudah dibayar sebagian akan menyesatkan kalau penghuni
+    // diminta menyiapkan uang sebesar totalnya.
+    const total = angka(tagihan.total_amount)
+    const sisa = Math.max(0, total - angka(tagihan.dibayar))
+
+    const bagian = [
+      `Tagihan ${tagihan.invoice_number} sebesar Rp${sisa.toLocaleString('id-ID')}`,
+      tagihan.property_name ? `untuk ${tagihan.property_name}` : null,
+      tagihan.due_date ? `jatuh tempo ${tanggalBaca.format(new Date(tagihan.due_date))}` : null,
+    ].filter(Boolean)
+
+    await notificationsService.create({
+      userId: tagihan.tenant_id,
+      jenis: 'INVOICE_DUE_SOON',
+      judul: 'Pengingat pembayaran',
+      pesan: `${bagian.join(' ')}.`,
+      entityType: 'invoice',
+      entityId: tagihan.id,
+    })
+
+    return {
+      terkirim: true,
+      ke: tagihan.tenant_name,
+      jenis: 'INVOICE_DUE_SOON',
+    }
   },
 }

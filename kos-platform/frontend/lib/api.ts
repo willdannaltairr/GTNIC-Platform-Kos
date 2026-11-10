@@ -144,6 +144,25 @@ export interface RegisterPayload {
   email: string
   password: string
   role: 'TENANT' | 'OWNER'
+  /**
+   * Kos pertama pemilik, diisi sekalian saat mendaftar.
+   *
+   * Hanya bermakna untuk peran OWNER; server mengabaikannya untuk peran lain.
+   * Fasilitasnya dikirim sebagai slug, bukan id: slug sudah dipakai di seluruh
+   * penyaring platform, sedangkan id fasilitas tidak pernah tampil di layar
+   * mana pun.
+   */
+  property?: {
+    name: string
+    description?: string
+    address: string
+    province: string
+    city: string
+    district: string
+    propertyType: 'KOS_PUTRA' | 'KOS_PUTRI' | 'KOS_CAMPUR'
+    genderPolicy: 'putra' | 'putri' | 'campur'
+    facilitySlugs?: string[]
+  }
 }
 
 export interface LoginPayload {
@@ -275,6 +294,8 @@ async function postAuth<T>(path: string, body: unknown): Promise<T> {
 export async function registerAccount(payload: RegisterPayload) {
   return postAuth<{
     user: { id: string; full_name: string; email: string; role: string }
+    /** Kos pertama pemilik; null bila bukan pemilik atau isiannya dilewati. */
+    property: { id: string; name: string; slug: string } | null
     verifyToken?: string
   }>('/auth/register', payload)
 }

@@ -111,8 +111,34 @@ export interface BookingOwner {
   createdAt: string | null
 }
 
+/**
+ * Satu kamar milik pemilik, beserta penghuninya dan status bayar periode
+ * berjalan. Kamar yang belum berpenghuni tetap ikut terkirim dengan
+ * `tenantName` bernilai null, supaya kamar kosongnya terlihat di dashboard
+ * alih-alih menghilang dari daftar.
+ */
+export interface KamarPemilik {
+  id: string
+  roomNumber: string
+  propertyName: string
+  propertySlug: string
+  availabilityStatus: string
+  monthlyPrice: number
+  tenantName: string | null
+  contractId: string | null
+  contractStatus: string | null
+  contractEndDate: string | null
+  invoiceId: string | null
+  invoiceNumber: string | null
+  dueDate: string | null
+  totalAmount: number | null
+  paidAmount: number | null
+  invoiceStatus: string | null
+}
+
 export interface DashboardOwner {
   ringkasan: RingkasanOwner
+  kamar: KamarPemilik[]
   properti: PropertiOwner[]
   booking: BookingOwner[]
   tagihan: TagihanOwner[]

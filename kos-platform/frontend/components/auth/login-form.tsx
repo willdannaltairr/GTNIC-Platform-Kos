@@ -45,7 +45,7 @@ export function LoginForm() {
     setError(null)
 
     try {
-      await loginAccount({ email, password })
+      const hasil = await loginAccount({ email, password })
 
       // Sesi di klien dimuat ulang sebelum berpindah halaman. Provider hanya
       // membaca sesi sekali saat dipasang, dan halaman masuk berpindah dengan
@@ -54,10 +54,13 @@ export function LoginForm() {
       await reload()
 
       setDone(true)
-      // Beranda adalah halaman pertama yang isinya rekomendasi, kos terdekat,
-      // rute lokasi ke lokasi, dan area terpopuler. Pengunjung yang baru masuk
-      // melanjutkan di sana, bukan dilempar kembali ke landing page.
-      router.push('/beranda')
+
+      // Pemilik kos diarahkan ke panelnya, bukan ke beranda pencari kos.
+      // Halaman pertama yang ia butuhkan adalah kamar, tagihan, dan laporan
+      // penyewanya; beranda berisi rekomendasi kos untuk dicari tidak menjawab
+      // satu pun dari ketiganya.
+      const pemilik = hasil?.user?.role === 'OWNER' || hasil?.user?.role === 'ADMIN'
+      router.push(pemilik ? '/dashboard' : '/beranda')
       router.refresh()
     } catch (caught) {
       setError(caught as ApiError)

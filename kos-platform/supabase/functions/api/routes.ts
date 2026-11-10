@@ -85,6 +85,7 @@ import {
 } from './room-condition.validator.ts'
 import { maintenanceService } from './maintenance.service.ts'
 import {
+  createCommentSchema,
   createMaintenanceSchema,
   listMaintenanceQuerySchema,
   maintenanceIdParam,
@@ -164,6 +165,9 @@ router.post('/auth/register', async ({ req }) => {
       message: 'Registrasi berhasil',
       data: {
         user: hasil.user,
+        // Kos pertama pemilik yang mendaftar sambil mengisinya; null bila bukan
+        // pemilik atau isian itu dilewati.
+        property: hasil.property,
         // Token mentah hanya untuk pengembangan, sama seperti alur lupa sandi,
         // supaya alurnya bisa dicoba tanpa penyedia email.
         ...(tokenPengembangan() ? { verifyToken: hasil.verifyToken } : {}),
@@ -820,6 +824,15 @@ router.post('/invoices/:id/batalkan', async (ctx: Ctx) => {
   return jsonOk(ctx.req, { message: 'Tagihan dibatalkan', data })
 })
 
+// Pengingat pembayaran: satu notifikasi ke penghuni, dikirim atas permintaan
+// pemilik propertinya. Bukan penagihan otomatis, lihat `ingatkan` di service.
+router.post('/invoices/:id/ingatkan', async (ctx: Ctx) => {
+  const user = await authenticate(ctx.req)
+  const data = await invoicesService.ingatkan(user, invoiceIdParam(ctx.params.id))
+
+  return jsonOk(ctx.req, { message: `Pengingat terkirim ke ${data.ke}`, data })
+})
+
 // ─── Keuangan properti ──────────────────────────────────────────────────────
 
 /**
@@ -1001,6 +1014,16 @@ router.post('/perbaikan/:id/photos', async (ctx: Ctx) => {
   const data = await maintenanceService.addPhoto(user, maintenanceIdParam(ctx.params.id), berkas)
 
   return jsonOk(ctx.req, { message: 'Foto laporan ditambahkan', data }, 201)
+})
+
+// Percakapan pada satu laporan. Penghuni dan pemilik propertinya sama-sama
+// boleh menulis; siapa yang berhak diperiksa di service.
+router.post('/perbaikan/:id/komentar', async (ctx: Ctx) => {
+  const user = await authenticate(ctx.req)
+  const input = createCommentSchema.parse(await readJson(ctx.req))
+  const data = await maintenanceService.komentar(user, maintenanceIdParam(ctx.params.id), input)
+
+  return jsonOk(ctx.req, { message: 'Komentar terkirim', data }, 201)
 })
 
 router.delete('/perbaikan/:id/photos/:photoId', async (ctx: Ctx) => {

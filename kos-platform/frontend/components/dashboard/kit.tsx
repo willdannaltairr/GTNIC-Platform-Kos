@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import type { LucideIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 /**
@@ -295,5 +296,260 @@ export function EmptyRow({ children }: { children: ReactNode }) {
     <p className="rounded-xl border border-dashed border-border px-4 py-6 text-center text-sm text-muted-foreground">
       {children}
     </p>
+  )
+}
+
+/**
+ * Kartu angka dengan ikon.
+ *
+ * Bentuknya lebih panjang daripada `StatCard` di atas: ikon di kanan atas,
+ * angka besar di bawahnya, lalu satu baris keterangan. Dipakai dashboard yang
+ * menampilkan banyak angka sekaligus, karena ikon membuat mata menemukan kartu
+ * yang dicari tanpa membaca labelnya satu per satu.
+ */
+export function StatKartu({
+  label,
+  value,
+  hint,
+  icon: Icon,
+}: {
+  label: string
+  value: ReactNode
+  hint?: string
+  icon: LucideIcon
+}) {
+  return (
+    <div className="rounded-2xl border border-border bg-card p-5">
+      <div className="flex items-start justify-between gap-3">
+        <p className="text-[13px] font-medium text-muted-foreground">{label}</p>
+        <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-accent text-accent-foreground">
+          <Icon className="size-4" aria-hidden="true" />
+        </span>
+      </div>
+
+      <p className="mt-3 text-3xl font-semibold tabular-nums tracking-[-0.03em]">{value}</p>
+
+      {hint && <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">{hint}</p>}
+    </div>
+  )
+}
+
+/** Satu baris isian di dalam kartu: judul, nilai, dan batang kemajuan. */
+export function ProgresBar({
+  label,
+  keterangan,
+  nilai,
+  teks,
+}: {
+  label: string
+  keterangan?: string
+  /** 0–100. Di luar rentang itu dipotong, bukan dibiarkan melebihi batangnya. */
+  nilai: number
+  teks: string
+}) {
+  const lebar = Math.min(100, Math.max(0, nilai))
+
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="flex items-baseline justify-between gap-3">
+        <p className="truncate text-sm font-medium">{label}</p>
+        <span className="shrink-0 text-xs font-medium tabular-nums text-muted-foreground">
+          {teks}
+        </span>
+      </div>
+
+      {keterangan && <p className="text-xs leading-relaxed text-muted-foreground">{keterangan}</p>}
+
+      <div
+        role="progressbar"
+        aria-label={label}
+        aria-valuenow={Math.round(lebar)}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        className="h-2 w-full overflow-hidden rounded-full bg-secondary"
+      >
+        <div
+          className="h-full rounded-full bg-primary transition-[width] duration-500 ease-out"
+          style={{ width: `${lebar}%` }}
+        />
+      </div>
+    </div>
+  )
+}
+
+export interface TitikGrafik {
+  /** Label sumbu mendatar: "Sep", "Okt", dan seterusnya. */
+  label: string
+  /** Deret utama: digambar sebagai bidang bergradasi. */
+  utama: number
+  /** Deret pembanding: digambar sebagai garis putus-putus. */
+  pembanding: number
+}
+
+/**
+ * Grafik bidang dua deret.
+ *
+ * Digambar sebagai SVG langsung, bukan lewat pustaka grafik. Alasannya ukuran
+ * dan ketergantungan: yang dibutuhkan hanya dua deret dan satu sumbu, sedangkan
+ * pustaka grafik menambah ratusan kilobita ke bundel untuk kemampuan yang tidak
+ * dipakai. Kalau nanti grafiknya perlu interaksi (tooltip, zoom, pilih deret),
+ * baru pustaka itu sepadan.
+ *
+ * `preserveAspectRatio="none"` membuat gambarnya mengisi lebar kartu berapa pun,
+ * dan `vector-effect="non-scaling-stroke"` menjaga tebal garisnya tetap sama
+ * walaupun gambarnya ikut meregang.
+ *
+ * Angka nol semua digambar sebagai garis rata di dasar, bukan sebagai grafik
+ * kosong: bulan tanpa pemasukan tetap harus terlihat sebagai bulan yang memang
+ * nol, bukan sebagai bulan yang datanya gagal dimuat.
+ */
+export function GrafikArea({
+  titik,
+  labelUtama,
+  labelPembanding,
+  format,
+}: {
+  titik: TitikGrafik[]
+  labelUtama: string
+  labelPembanding: string
+  /** Pemformat angka untuk keterangan; bawaan rupiah ringkas. */
+  format?: (nilai: number) => string
+}) {
+  const LEBAR = 640
+  const TINGGI = 200
+  const ATAS = 16
+  const BAWAH = TINGGI - 16
+
+  const nilaiMaks = Math.max(1, ...titik.map((item) => Math.max(item.utama, item.pembanding)))
+  const langkah = titik.length > 1 ? LEBAR / (titik.length - 1) : LEBAR
+
+  const x = (index: number): number => index * langkah
+  const y = (nilai: number): number => BAWAH - (nilai / nilaiMaks) * (BAWAH - ATAS)
+
+  const garis = (pilih: (item: TitikGrafik) => number): string =>
+    titik.map((item, index) => `${index === 0 ? 'M' : 'L'} ${x(index)} ${y(pilih(item))}`).join(' ')
+
+  const bidang = `${garis((item) => item.utama)} L ${x(titik.length - 1)} ${BAWAH} L 0 ${BAWAH} Z`
+
+  const cetak = format ?? ((nilai: number) => nilai.toLocaleString('id-ID'))
+
+  const totalUtama = titik.reduce((jumlah, item) => jumlah + item.utama, 0)
+  const totalPembanding = titik.reduce((jumlah, item) => jumlah + item.pembanding, 0)
+
+  return (
+    <div>
+      <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs">
+        <span className="inline-flex items-center gap-2">
+          <span aria-hidden="true" className="h-2.5 w-2.5 rounded-sm bg-primary" />
+          <span className="text-muted-foreground">
+            {labelUtama} <span className="font-medium text-foreground">{cetak(totalUtama)}</span>
+          </span>
+        </span>
+
+        <span className="inline-flex items-center gap-2">
+          <span
+            aria-hidden="true"
+            className="h-0 w-4 border-t-2 border-dashed border-muted-foreground/60"
+          />
+          <span className="text-muted-foreground">
+            {labelPembanding}{' '}
+            <span className="font-medium text-foreground">{cetak(totalPembanding)}</span>
+          </span>
+        </span>
+      </div>
+
+      <svg
+        viewBox={`0 0 ${LEBAR} ${TINGGI}`}
+        preserveAspectRatio="none"
+        role="img"
+        aria-label={`Grafik ${labelUtama} dan ${labelPembanding} per bulan`}
+        className="mt-4 h-44 w-full sm:h-52"
+      >
+        <defs>
+          <linearGradient id="grafik-utama" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="var(--primary)" stopOpacity="0.28" />
+            <stop offset="100%" stopColor="var(--primary)" stopOpacity="0.02" />
+          </linearGradient>
+        </defs>
+
+        {[0, 0.5, 1].map((bagian) => (
+          <line
+            key={bagian}
+            x1="0"
+            x2={LEBAR}
+            y1={ATAS + bagian * (BAWAH - ATAS)}
+            y2={ATAS + bagian * (BAWAH - ATAS)}
+            stroke="var(--border)"
+            strokeDasharray="4 4"
+            vectorEffect="non-scaling-stroke"
+          />
+        ))}
+
+        <path d={bidang} fill="url(#grafik-utama)" />
+
+        <path
+          d={garis((item) => item.utama)}
+          fill="none"
+          stroke="var(--primary)"
+          strokeWidth="2"
+          strokeLinejoin="round"
+          strokeLinecap="round"
+          vectorEffect="non-scaling-stroke"
+        />
+
+        <path
+          d={garis((item) => item.pembanding)}
+          fill="none"
+          stroke="var(--muted-foreground)"
+          strokeWidth="2"
+          strokeDasharray="5 4"
+          strokeLinejoin="round"
+          strokeLinecap="round"
+          vectorEffect="non-scaling-stroke"
+        />
+      </svg>
+
+      <div className="mt-2 flex justify-between text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
+        {titik.map((item) => (
+          <span key={item.label}>{item.label}</span>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+/** Satu baris catatan aktivitas: ikon, kalimat, dan waktunya. */
+export function BarisAktivitas({
+  judul,
+  pesan,
+  waktu,
+  icon: Icon,
+  belumDibaca = false,
+}: {
+  judul: string
+  pesan: string
+  waktu: string
+  icon: LucideIcon
+  belumDibaca?: boolean
+}) {
+  return (
+    <li className="flex items-start gap-3">
+      <span
+        className={cn(
+          'grid size-8 shrink-0 place-items-center rounded-full',
+          belumDibaca ? 'bg-accent text-accent-foreground' : 'bg-muted text-muted-foreground',
+        )}
+      >
+        <Icon className="size-3.5" aria-hidden="true" />
+      </span>
+
+      <div className="min-w-0 flex-1">
+        <p className="text-sm leading-snug">
+          <span className="font-medium">{judul}</span>{' '}
+          <span className="text-muted-foreground">{pesan}</span>
+        </p>
+        <p className="mt-0.5 text-xs text-muted-foreground">{waktu}</p>
+      </div>
+    </li>
   )
 }
