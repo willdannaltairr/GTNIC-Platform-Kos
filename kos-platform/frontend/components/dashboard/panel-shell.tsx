@@ -10,6 +10,7 @@ import {
   Building2,
   Calculator,
   CalendarClock,
+  ChartLine,
   ClipboardCheck,
   CreditCard,
   FileText,
@@ -58,6 +59,7 @@ const KELOMPOK: KelompokSidebar[] = [
     judul: 'Hari ini',
     tautan: [
       { href: '/dashboard', label: 'Ringkasan', icon: LayoutDashboard },
+      { href: '/dashboard/analitik', label: 'Analitik', icon: ChartLine, peran: ['OWNER', 'ADMIN'] },
       { href: '/dashboard/kamar', label: 'Kamar dan penyewa', icon: Home, peran: ['OWNER', 'ADMIN'] },
       { href: '/dashboard/kalender', label: 'Kalender bayar', icon: CalendarClock, peran: ['OWNER', 'ADMIN'] },
       { href: '/perbaikan', label: 'Laporan kerusakan', icon: Wrench },
