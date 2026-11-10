@@ -42,11 +42,11 @@ const ALAT: Alat[] = [
     icon: Sparkles,
   },
   {
-    href: '/kos',
+    href: '/simulasi-biaya',
     label: 'Simulasi biaya total',
     ringkas: 'Bukan hanya harga sewa bulanan',
     keterangan:
-      'Buka kos mana pun, lalu lihat rincian biaya bulanan dan biaya masuknya: sewa, listrik, air, internet, deposit, dan biaya sekali bayar lain, dipisahkan antara yang sudah pasti dan yang masih perkiraan.',
+      'Pilih kos, tentukan lama tinggal, lalu lihat seluruh komponen biayanya: sewa, listrik, air, internet, deposit, dan biaya sekali bayar lain, dipisahkan antara yang sudah pasti dan yang masih perkiraan.',
     icon: Calculator,
   },
   {
