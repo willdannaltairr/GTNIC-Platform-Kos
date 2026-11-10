@@ -86,6 +86,11 @@ export function TombolSimpanPencarian({
     )
   }
 
+  // Pencarian tersimpan milik pencari kos, bukan pemilik. Bagi pemilik,
+  // pemberitahuan "ada kos baru yang cocok" adalah derau: yang ia pantau
+  // adalah kamar dan penyewanya sendiri, bukan kos orang lain.
+  if (user.role !== 'TENANT') return null
+
   return (
     <div className="flex flex-col gap-2">
       {terbuka ? (
