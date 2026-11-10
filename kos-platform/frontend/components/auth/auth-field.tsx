@@ -54,7 +54,7 @@ export function AuthField({
         {label}
       </label>
 
-      <div className="relative mt-1.5">
+      <div className="relative mt-1">
         <input
           id={id}
           name={name}
@@ -65,7 +65,7 @@ export function AuthField({
           minLength={minLength}
           autoComplete={autoComplete}
           placeholder={placeholder}
-          className={`w-full rounded-full bg-card px-5 py-3 text-sm text-foreground outline-none ring-1 ring-border/70 transition-shadow placeholder:text-muted-foreground/70 focus:ring-2 focus:ring-primary ${
+          className={`w-full rounded-full bg-card px-5 py-2.5 text-sm text-foreground outline-none ring-1 ring-border/70 transition-shadow placeholder:text-muted-foreground/70 focus:ring-2 focus:ring-primary ${
             isPassword ? 'pr-12' : ''
           }`}
         />

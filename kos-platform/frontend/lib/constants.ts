@@ -139,7 +139,7 @@ export const FAQS = [
   {
     question: 'Apakah mencari kos di sini gratis?',
     answer:
-      'Ya. Mencari, membandingkan, dan menyimpan kos favorit gratis untuk pencari kos. Biaya hanya berlaku pada transaksi sewa yang Anda sepakati dengan pemilik.',
+      'Ya. Mencari, membandingkan, dan menyimpan pencarian kos gratis untuk pencari kos. Biaya hanya berlaku pada transaksi sewa yang Anda sepakati dengan pemilik.',
   },
   {
     question: 'Apa itu Cost Confidence?',

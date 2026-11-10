@@ -102,12 +102,12 @@ export function LoginForm() {
 
   return (
     <div>
-      <form onSubmit={submit} className="flex flex-col gap-5">
-        <div className="flex flex-col items-center gap-4 text-center">
+      <form onSubmit={submit} className="flex flex-col gap-4">
+        <div className="flex flex-col items-center gap-3 text-center">
           <AuthMark icon={LogIn} />
 
-          <div className="flex flex-col gap-1.5">
-            <h1 className="font-heading text-3xl font-bold tracking-tight">Masuk ke akun Anda</h1>
+          <div className="flex flex-col gap-1">
+            <h1 className="font-heading text-2xl font-bold tracking-tight">Masuk ke akun Anda</h1>
             <p className="text-sm text-balance text-muted-foreground">
               Masuk untuk membuka daftar kos terverifikasi, menyimpan kos yang ingin
               Anda sewa, dan mengajukan sewa.

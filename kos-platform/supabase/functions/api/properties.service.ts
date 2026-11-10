@@ -539,13 +539,13 @@ export const propertiesService = {
   /**
    * Beberapa properti sekaligus berdasarkan id, dalam bentuk kartu daftar.
    *
-   * Dipakai halaman favorit. Pengunjung membuka halaman itu untuk melihat
-   * kosnya, jadi mengirim daftar id saja memaksa frontend memanggil API sekali
-   * lagi untuk setiap baris.
+   * Dipakai bagian kos serupa. Bentuk kartunya diambil dari fungsi yang sama
+   * dengan daftar pencarian, jadi kartu di bagian itu tidak pernah berbeda isi
+   * dari kartu di halaman cari kos.
    *
    * Hanya properti yang masih terpublikasi dan terverifikasi yang dikembalikan.
    * Properti yang ditarik pemiliknya akan mengarah ke halaman yang tidak ada,
-   * dan satu kartu seperti itu membuat seluruh daftar favorit terasa rusak.
+   * dan satu kartu seperti itu membuat seluruh daftar terasa rusak.
    */
   async listPublicByIds(ids: string[]) {
     const rows = await fetchListRows(ids, undefined, undefined, true)

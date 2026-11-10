@@ -71,7 +71,7 @@ const initials = (name: string): string =>
 export function AuthShell({ image, quote, formWidth = 'max-w-sm', footer, children }: AuthShellProps) {
   return (
     <div className="grid min-h-0 flex-1 lg:grid-cols-2 lg:gap-4 lg:p-4">
-      <div className="flex min-h-0 flex-col overflow-y-auto bg-background px-6 py-8 sm:px-10">
+      <div className="flex min-h-0 flex-col overflow-y-auto bg-background px-6 py-5 sm:px-10">
         <Link
           href="/"
           aria-label="HuniKos, beranda"
@@ -80,7 +80,7 @@ export function AuthShell({ image, quote, formWidth = 'max-w-sm', footer, childr
           <Logo />
         </Link>
 
-        <div className={`m-auto w-full py-8 ${formWidth}`}>{children}</div>
+        <div className={`m-auto w-full py-4 ${formWidth}`}>{children}</div>
 
         {footer && (
           <div className="flex shrink-0 flex-wrap items-center justify-between gap-x-4 gap-y-1.5 text-xs leading-relaxed">

@@ -14,10 +14,10 @@ import type { LucideIcon } from 'lucide-react'
  */
 export function AuthMark({ icon: Icon }: { icon: LucideIcon }) {
   return (
-    <span className="relative grid size-14 place-items-center">
+    <span className="relative grid size-12 place-items-center">
       <span aria-hidden="true" className="absolute inset-0 scale-125 rounded-full bg-primary/10" />
-      <span className="relative grid size-14 place-items-center rounded-full bg-card text-primary ring-1 ring-primary/15">
-        <Icon className="size-6" aria-hidden="true" />
+      <span className="relative grid size-12 place-items-center rounded-full bg-card text-primary ring-1 ring-primary/15">
+        <Icon className="size-5" aria-hidden="true" />
       </span>
     </span>
   )
