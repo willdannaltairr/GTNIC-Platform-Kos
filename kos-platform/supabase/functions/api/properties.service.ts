@@ -986,6 +986,21 @@ export const propertiesService = {
         availabilityStatus: room.availability_status,
         facilities: room.facility_names,
       })),
+      // Komponen biaya ikut dikirim satu per satu, bukan hanya totalnya.
+      // Halaman simulasi biaya harus bisa menunjukkan biaya mana yang sudah
+      // dikonfirmasi pemilik dan mana yang masih perkiraan; dari angka total
+      // saja perbedaan itu hilang, dan seluruhnya terbaca sebagai satu angka
+      // pasti. Isinya sama dengan yang sudah tampil di halaman properti.
+      costs: costRows.map((component) => ({
+        id: component.id,
+        name: component.name,
+        amount: Number(component.amount),
+        billingType: component.billing_type,
+        isMandatory: component.is_mandatory,
+        isRefundable: component.is_refundable,
+        confidence: component.cost_confidence,
+        description: component.description,
+      })),
       costSummary: buildCostSummary(costInputs, minMonthlyPrice),
       availabilityConfirmedDaysAgo: days,
       isAvailabilityStale: days === null || days > AVAILABILITY_STALE_DAYS,
