@@ -159,6 +159,19 @@ export const listMyPropertiesQuerySchema = z.object({
   limit: z.coerce.number().int().min(1).max(50).default(20),
 })
 
+/**
+ * Query daftar kos serupa.
+ *
+ * Batasnya enam, bukan dua puluh: yang dicari pembaca di bagian itu adalah dua
+ * sampai tiga pembanding terdekat. Daftar panjang di bawah halaman properti
+ * justru membuat halaman terasa belum selesai, dan yang paling sering terjadi
+ * adalah pembacanya berhenti di kos pertama.
+ */
+export const similarPropertiesQuerySchema = z.object({
+  limit: z.coerce.number().int().min(1).max(6).default(3),
+})
+
 export type CreatePropertyInput = z.infer<typeof createPropertySchema>
 export type UpdatePropertyInput = z.infer<typeof updatePropertySchema>
 export type ListMyPropertiesQuery = z.infer<typeof listMyPropertiesQuerySchema>
+export type SimilarPropertiesQuery = z.infer<typeof similarPropertiesQuerySchema>

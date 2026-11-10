@@ -39,6 +39,18 @@ export interface PropertyListItem {
   distanceFromOriginKm: number | null
 }
 
+/**
+ * Kos serupa: kartu properti yang sama seperti daftar pencarian, ditambah
+ * alasan mengapa kos itu muncul di daftar ini.
+ *
+ * Alasannya diisi server karena yang menentukan sebuah kos masuk daftar itu
+ * adalah urutan penyaring di SQL. Menyimpulkannya ulang di frontend akan
+ * menghasilkan keterangan yang berbeda dari kenyataan.
+ */
+export interface PropertySerupa extends PropertyListItem {
+  alasan: string[]
+}
+
 /** Kampus acuan beserta jumlah kos terverifikasi di sekitarnya. */
 export interface CampusPlace {
   id: string
@@ -239,6 +251,31 @@ export async function fetchProperty(slug: string): Promise<PropertyDetail | null
     if (!response.ok) return null
 
     const payload = (await response.json()) as { data: PropertyDetail }
+    return payload.data
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Kos yang mirip dengan satu properti, beserta alasan kemiripannya.
+ *
+ * `alasan` diisi server, bukan disimpulkan frontend dari daftar fasilitas:
+ * yang menentukan sebuah kos masuk daftar ini adalah urutan penyaring di SQL,
+ * dan menyimpulkannya ulang di sini akan menghasilkan keterangan yang berbeda
+ * dari kenyataan. Alasan yang tidak bisa dipercaya lebih buruk daripada tidak
+ * ada alasan sama sekali.
+ */
+export async function fetchSimilarProperties(slug: string): Promise<PropertySerupa[] | null> {
+  try {
+    const response = await fetch(
+      `${API_BASE}/api/v1/properties/${encodeURIComponent(slug)}/serupa`,
+      { cache: 'no-store' },
+    )
+
+    if (!response.ok) return null
+
+    const payload = (await response.json()) as { data: PropertySerupa[] }
     return payload.data
   } catch {
     return null

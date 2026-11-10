@@ -29,11 +29,20 @@ export function PropertyCard({
   property,
   gated = false,
   jarakDari = 'lokasi Anda',
+  alasan = [],
 }: {
   property: PropertyListItem
   gated?: boolean
   /** Sebutan titik yang jadi acuan `distanceKm`, mis. "tujuan" atau "kampus". */
   jarakDari?: string
+  /**
+   * Alasan kos ini muncul di daftar rekomendasi, diisi server.
+   *
+   * Kosong di daftar pencarian biasa, dan kartunya tidak menampilkan apa pun
+   * untuk itu: baris "alasan" yang kosong terbaca sebagai bagian yang gagal
+   * dimuat, bukan sebagai bagian yang memang tidak berlaku di sana.
+   */
+  alasan?: string[]
 }) {
   const available = property.availableRooms
   const total = property.totalRooms
@@ -116,6 +125,19 @@ export function PropertyCard({
               </span>
             )}
           </p>
+        )}
+
+        {alasan.length > 0 && (
+          <ul className="flex flex-wrap gap-1.5">
+            {alasan.map((satu) => (
+              <li
+                key={satu}
+                className="inline-flex items-center rounded-full bg-accent px-2.5 py-1 text-[11px] font-medium text-accent-foreground ring-1 ring-primary/15"
+              >
+                {satu}
+              </li>
+            ))}
+          </ul>
         )}
 
         <div className="flex flex-wrap gap-1.5">
