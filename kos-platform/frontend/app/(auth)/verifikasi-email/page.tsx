@@ -5,7 +5,7 @@ import { VerifyEmailPanel } from '@/components/auth/verify-email-panel'
 
 export const metadata: Metadata = {
   title: 'Verifikasi email',
-  description: 'Pastikan alamat email akun KosPlatform Anda supaya pemberitahuan penting sampai.',
+  description: 'Pastikan alamat email akun HuniKos Anda supaya pemberitahuan penting sampai.',
 }
 
 /**

@@ -6,7 +6,7 @@
  * tujuan lebih dulu; bila ada yang membatalkannya, penggulungan bawaan tidak
  * dijalankan dan bagian tersebut yang mengatur posisinya.
  */
-export const ANCHOR_SCROLL_EVENT = 'kosplatform:anchor-scroll'
+export const ANCHOR_SCROLL_EVENT = 'HuniKos:anchor-scroll'
 
 export interface AnchorScrollDetail {
   /** Nama jangkar tanpa tanda pagar. */

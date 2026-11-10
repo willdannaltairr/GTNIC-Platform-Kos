@@ -29,14 +29,14 @@ export function SiteFooter() {
         />
 
         <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap text-[14vw] font-extrabold uppercase leading-none tracking-tighter text-foreground/[0.03] sm:-bottom-10 lg:-bottom-14">
-          KosPlatform.
+          HuniKos.
         </div>
       </div>
 
       <div className="relative z-10 mx-auto w-full max-w-7xl px-4 pb-8 pt-14 sm:px-6 sm:pt-16 lg:px-8 lg:pt-20">
         <div className="grid grid-cols-2 gap-x-6 gap-y-10 md:grid-cols-3 lg:grid-cols-[1.6fr_repeat(3,minmax(0,1fr))] lg:gap-x-8">
           <div className="col-span-2 max-w-sm md:col-span-1">
-            <Link href="/" aria-label="KosPlatform" className="inline-flex items-center gap-2.5">
+            <Link href="/" aria-label="HuniKos" className="inline-flex items-center gap-2.5">
               <Logo />
             </Link>
 
@@ -69,7 +69,7 @@ export function SiteFooter() {
 
         <div className="mt-12 border-t border-border/70 pt-6 text-xs leading-relaxed text-muted-foreground">
           <p>
-            KosPlatform adalah proyek pengembangan platform kos. Seluruh properti dan akun demo
+            HuniKos adalah proyek pengembangan platform kos. Seluruh properti dan akun demo
             berisi data fiktif untuk keperluan demonstrasi. Pembayaran pada mode demo diproses
             melalui sandbox penyedia pembayaran dan tidak melibatkan uang sungguhan.
           </p>

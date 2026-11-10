@@ -6,7 +6,7 @@ import { ForgotPasswordForm } from '@/components/auth/forgot-password-form'
 export const metadata: Metadata = {
   title: 'Lupa sandi',
   description:
-    'Minta tautan untuk membuat sandi baru bagi akun KosPlatform Anda lewat email terdaftar.',
+    'Minta tautan untuk membuat sandi baru bagi akun HuniKos Anda lewat email terdaftar.',
 }
 
 /**

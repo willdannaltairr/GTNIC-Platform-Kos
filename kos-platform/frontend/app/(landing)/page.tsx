@@ -18,7 +18,7 @@ import HouseSection from '@/components/landing/house-section'
 import MotionProvider from '@/components/motion/motion-provider'
 
 export const metadata: Metadata = {
-  title: 'KosPlatform, Cari & Sewa Kos dengan Biaya Transparan',
+  title: 'HuniKos, Cari & Sewa Kos dengan Biaya Transparan',
   description:
     'Bandingkan estimasi biaya total, jarak ke kampus atau kantor, dan ketersediaan kamar sebelum survei. Platform kos dengan informasi yang bisa diperiksa.',
 }

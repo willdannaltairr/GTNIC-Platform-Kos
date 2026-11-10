@@ -74,7 +74,7 @@ export function AuthShell({ image, quote, formWidth = 'max-w-sm', footer, childr
       <div className="flex min-h-0 flex-col overflow-y-auto bg-background px-6 py-8 sm:px-10">
         <Link
           href="/"
-          aria-label="KosPlatform, beranda"
+          aria-label="HuniKos, beranda"
           className="inline-flex shrink-0 self-start rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           <Logo />

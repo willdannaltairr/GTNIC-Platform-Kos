@@ -128,7 +128,10 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     setStatus('tamu')
     // Landing page adalah pintu masuk platform, jadi sesi yang baru berakhir
     // berhenti di sana alih-alih tertinggal di halaman yang butuh akun.
-    router.push('/')
+    // `replace`, bukan `push`: halaman yang baru saja ditinggalkan tidak perlu
+    // tersimpan di riwayat, sebab tombol kembali sesudah keluar hanya akan
+    // memantul ke halaman masuk lewat gerbang halaman.
+    router.replace('/')
     // Halaman server component masih memegang data milik sesi lama; refresh
     // memastikan tidak ada sisa nama atau properti yang tertinggal di layar.
     router.refresh()

@@ -16,7 +16,7 @@ const IntroCurtain: FC = (): ReactNode => {
       <div className="intro-curtain-inner flex items-center gap-3">
         <LogoMark tone="light" className="size-10" />
 
-        <span className="font-heading text-4xl font-medium tracking-[-0.04em] text-white">KosPlatform</span>
+        <span className="font-heading text-4xl font-medium tracking-[-0.04em] text-white">HuniKos</span>
       </div>
 
       <span className="intro-curtain-bar absolute bottom-0 left-0 h-[2px] w-full origin-left bg-leaf" />

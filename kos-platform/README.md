@@ -1,8 +1,8 @@
-# KosPlatform
+# HuniKos
 
 **Cari kos dengan informasi yang bisa diperiksa, bukan sekadar harga sewa yang terpampang.**
 
-KosPlatform adalah marketplace pencarian dan pengelolaan kos. Web-nya menyusun ulang
+HuniKos adalah marketplace pencarian dan pengelolaan kos. Web-nya menyusun ulang
 informasi sewa supaya bisa dipercaya sebelum keputusan diambil: berapa total biayanya,
 seberapa jauh jaraknya, dan kapan kamarnya benar-benar tersedia.
 
@@ -396,6 +396,10 @@ Password semua akun: `KosDemo123!` (data fiktif, hanya untuk demo lokal).
 | admin@kosplatform.test | ADMIN |
 | owner1@kosplatform.test · owner2@kosplatform.test | OWNER |
 | tenant1@kosplatform.test … tenant5@kosplatform.test | TENANT |
+
+Alamat emailnya sengaja tidak ikut berganti saat mereknya berubah: akun itu sudah
+ada di database, dan mengganti tulisan di dokumentasi saja akan membuat pembaca
+mencoba alamat yang tidak pernah ada.
 
 Seed juga mengisi 6 properti contoh (Kos Melati Putri, Kos Anggrek Campur, Kos Cendana Putra,
 Kos Bougenville Putri, Kos Flamboyan Campur, Kos Kenanga Putri) di Bandung, Depok, Jakarta

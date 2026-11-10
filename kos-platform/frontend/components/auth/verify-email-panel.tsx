@@ -118,7 +118,7 @@ export function VerifyEmailPanel({ token }: { token: string }) {
         <p className="text-sm text-balance text-muted-foreground">
           {pesan
             ? pesan
-            : 'Halaman ini memverifikasi alamat email akun KosPlatform. Buka tautan yang kami kirim ke email Anda, atau minta tautan baru di bawah.'}
+            : 'Halaman ini memverifikasi alamat email akun HuniKos. Buka tautan yang kami kirim ke email Anda, atau minta tautan baru di bawah.'}
         </p>
       </div>
 
