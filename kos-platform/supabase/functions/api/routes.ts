@@ -106,7 +106,11 @@ import {
   webhookSchema,
 } from './payments.validator.ts'
 import { placesService } from './places.service.ts'
-import { listCampusesQuerySchema, listRegionsQuerySchema } from './places.validator.ts'
+import {
+  campusDetailQuerySchema,
+  listCampusesQuerySchema,
+  listRegionsQuerySchema,
+} from './places.validator.ts'
 import { matchService } from './match.service.ts'
 import { matchQuerySchema } from './match.validator.ts'
 import { propertiesService } from './properties.service.ts'
@@ -322,6 +326,23 @@ router.get('/places/campuses', async (ctx: Ctx) => {
     message: 'Daftar kampus',
     data,
     meta: { total: data.length, radiusKm: query.radiusKm },
+  })
+})
+
+/**
+ * Satu kampus beserta kos di sekitarnya, terdekat lebih dulu.
+ *
+ * Jumlah segmennya berbeda dari daftar kampus, jadi urutan pendaftarannya tidak
+ * bisa saling menutupi.
+ */
+router.get('/places/campuses/:slug', async (ctx: Ctx) => {
+  const query = campusDetailQuerySchema.parse(Object.fromEntries(ctx.url.searchParams))
+  const hasil = await placesService.campusDetail(ctx.params.slug, query)
+
+  return jsonOk(ctx.req, {
+    message: 'Kampus beserta kos di sekitarnya',
+    data: hasil.items,
+    meta: { campus: hasil.campus, radiusKm: hasil.radiusKm, total: hasil.items.length },
   })
 })
 
