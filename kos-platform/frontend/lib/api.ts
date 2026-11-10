@@ -83,6 +83,23 @@ export interface CostProjection {
   total: number
 }
 
+/**
+ * Satu komponen biaya yang dicatat pemilik.
+ *
+ * Dikirim satu per satu, bukan hanya totalnya, supaya halaman yang menghitung
+ * biaya bisa memisahkan yang sudah dikonfirmasi dari yang masih perkiraan.
+ */
+export interface CostComponent {
+  id: string
+  name: string
+  amount: number
+  billingType: 'MONTHLY' | 'FIXED' | 'VARIABLE' | 'ONE_TIME'
+  isMandatory: boolean
+  isRefundable: boolean
+  confidence: CostConfidence
+  description: string | null
+}
+
 export interface CostSummary {
   monthlyRent: number | null
   monthlyFixed: number
@@ -135,6 +152,7 @@ export interface PropertyDetail {
     facilities: string[]
   }[]
   costSummary: CostSummary
+  costs: CostComponent[]
   availabilityConfirmedDaysAgo: number | null
   isAvailabilityStale: boolean
 }

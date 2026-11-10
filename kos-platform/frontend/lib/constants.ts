@@ -191,6 +191,7 @@ export const FOOTER_LINKS = [
     title: 'Alat',
     links: [
       { href: '/kosmatch', label: 'KosMatch' },
+      { href: '/simulasi-biaya', label: 'Simulasi biaya' },
       { href: '/bandingkan', label: 'Bandingkan kos' },
       { href: '/beranda#rute', label: 'Rute dan sekitar' },
       { href: '/kondisi-kamar', label: 'Kondisi kamar' },
