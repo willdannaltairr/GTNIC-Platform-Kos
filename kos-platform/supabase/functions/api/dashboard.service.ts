@@ -44,6 +44,29 @@ export interface RingkasanTenant {
   kunjunganTerjadwal: number
 }
 
+/**
+ * Satu kamar milik pemilik, beserta penghuninya dan status bayar periode
+ * berjalan. Kamar tanpa penghuni tetap ikut dengan penghuni bernilai null.
+ */
+export interface KamarPemilik {
+  id: string
+  roomNumber: string
+  propertyName: string
+  propertySlug: string
+  availabilityStatus: string
+  monthlyPrice: number
+  tenantName: string | null
+  contractId: string | null
+  contractStatus: string | null
+  contractEndDate: string | null
+  invoiceId: string | null
+  invoiceNumber: string | null
+  dueDate: string | null
+  totalAmount: number | null
+  paidAmount: number | null
+  invoiceStatus: string | null
+}
+
 export interface RingkasanOwner {
   properti: number
   propertiTerverifikasi: number
@@ -214,7 +237,57 @@ export const dashboardService = {
       [userId],
     )
 
-    const [properti, booking, tagihan, perbaikan] = await Promise.all([
+    const [kamar, properti, booking, tagihan, perbaikan] = await Promise.all([
+      /**
+       * Kamar beserta penghuninya dan status bayar periode berjalan.
+       *
+       * Satu baris per kamar, bukan per tagihan: yang dilihat pemilik di
+       * dashboard adalah "kamar ini sudah dibayar atau belum", dan kamar tanpa
+       * penghuni tetap harus muncul supaya kamar kosongnya terlihat, bukan
+       * menghilang dari daftar.
+       *
+       * Kontrak aktif dicari lewat LEFT JOIN supaya kamar kosong ikut terbawa.
+       * Tagihan terbaru diambil lewat LATERAL, diurutkan dari jatuh tempo
+       * terdekat ke belakang; tagihan periode berjalan selalu yang paling akhir
+       * terbit, jadi urutan tanggal terbit lebih tepat daripada tanggal jatuh
+       * tempo yang bisa saja kosong pada draf.
+       */
+      query<Record<string, unknown>>(
+        `SELECT r.id, r.room_number, r.availability_status, r.monthly_price,
+                p.name AS property_name, p.slug AS property_slug,
+                u.full_name AS tenant_name,
+                c.id AS contract_id, c.contract_status, c.end_date,
+                i.id AS invoice_id, i.invoice_number, i.due_date,
+                i.total_amount, i.invoice_status, COALESCE(i.dibayar, 0) AS paid_amount
+         FROM rooms r
+         JOIN properties p ON p.id = r.property_id
+         LEFT JOIN LATERAL (
+           SELECT c.id, c.tenant_id, c.contract_status, c.end_date
+           FROM contracts c
+           WHERE c.room_id = r.id AND c.contract_status = 'ACTIVE'
+           ORDER BY c.created_at DESC
+           LIMIT 1
+         ) c ON true
+         LEFT JOIN users u ON u.id = c.tenant_id
+         LEFT JOIN LATERAL (
+           SELECT inv.id, inv.invoice_number, inv.due_date, inv.total_amount,
+                  inv.invoice_status, bayar.amount AS dibayar
+           FROM invoices inv
+           LEFT JOIN (
+             SELECT invoice_id, sum(amount) AS amount
+             FROM payments
+             WHERE payment_status = 'SUCCESS'
+             GROUP BY invoice_id
+           ) bayar ON bayar.invoice_id = inv.id
+           WHERE inv.contract_id = c.id
+           ORDER BY inv.issue_date DESC NULLS LAST, inv.created_at DESC
+           LIMIT 1
+         ) i ON true
+         WHERE p.owner_id = $1 AND p.deleted_at IS NULL
+         ORDER BY p.name ASC, r.room_number ASC
+         LIMIT 60`,
+        [userId],
+      ),
       query<Record<string, unknown>>(
         `SELECT p.id, p.name, p.slug, p.city, p.verification_status, p.publication_status,
                 COALESCE(k.total_kamar, 0)::int AS total_kamar,
@@ -302,6 +375,24 @@ export const dashboardService = {
         perbaikanTerbuka: angka(r.perbaikan_terbuka),
         pendapatanBulanIni: angka(r.pendapatan_bulan_ini),
       } satisfies RingkasanOwner,
+      kamar: kamar.map((row) => ({
+        id: row.id as string,
+        roomNumber: row.room_number as string,
+        propertyName: row.property_name as string,
+        propertySlug: row.property_slug as string,
+        availabilityStatus: row.availability_status as string,
+        monthlyPrice: angka(row.monthly_price),
+        tenantName: (row.tenant_name as string | null) ?? null,
+        contractId: (row.contract_id as string | null) ?? null,
+        contractStatus: (row.contract_status as string | null) ?? null,
+        contractEndDate: tanggal(row.end_date),
+        invoiceId: (row.invoice_id as string | null) ?? null,
+        invoiceNumber: (row.invoice_number as string | null) ?? null,
+        dueDate: tanggal(row.due_date),
+        totalAmount: row.total_amount === null ? null : angka(row.total_amount),
+        paidAmount: row.paid_amount === null ? null : angka(row.paid_amount),
+        invoiceStatus: (row.invoice_status as string | null) ?? null,
+      })),
       properti: properti.map((row) => ({
         id: row.id as string,
         name: row.name as string,
