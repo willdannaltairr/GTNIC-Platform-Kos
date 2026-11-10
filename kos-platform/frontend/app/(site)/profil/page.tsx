@@ -6,6 +6,7 @@ import { Loader2 } from 'lucide-react'
 import { useSession } from '@/components/session/session-provider'
 import { resendEmailVerification } from '@/lib/api'
 import { fetchProfile, updateProfile, type SessionProfile } from '@/lib/session'
+import { JudulHalaman, Seksi, Wadah, WadahPesan } from '@/components/site/kerangka'
 import { formatTanggal } from '@/lib/format'
 
 const ROLE_LABEL: Record<string, string> = {
@@ -126,176 +127,181 @@ export default function ProfilPage() {
 
   if (status === 'memuat' || !siap) {
     return (
-      <div className="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
+      <Wadah lebar="sempit">
         <div className="h-8 w-40 animate-pulse rounded bg-muted" />
         <div className="mt-6 h-64 animate-pulse rounded-2xl bg-muted" />
-      </div>
+      </Wadah>
     )
   }
 
   if (!user || !profil) {
     return (
-      <div className="mx-auto w-full max-w-md px-4 py-20 text-center sm:px-6 lg:px-8">
+      <WadahPesan>
         <h1 className="text-balance font-heading text-2xl font-semibold tracking-[-0.03em]">Masuk untuk melihat profil</h1>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
           Profil berisi data akun Anda, jadi hanya bisa dibuka setelah masuk.
         </p>
         <Link
           href="/masuk"
-          className="mt-6 inline-flex h-11 items-center rounded-xl bg-primary px-6 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary-strong"
+          className="mt-6 inline-flex h-11 items-center rounded-full bg-primary px-6 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary-strong"
         >
           Masuk
         </Link>
-      </div>
+      </WadahPesan>
     )
   }
 
   return (
-    <div className="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
-      <header>
-        <h1 className="text-balance font-heading font-semibold leading-[1.08] tracking-[-0.035em] text-[clamp(1.75rem,3.6vw,2.6rem)]">Profil saya</h1>
-        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-          Data akun dan kontak yang dipakai di seluruh platform.
-        </p>
-      </header>
+    <>
+      <Seksi garis={false} lebar="sempit">
+        <JudulHalaman
+          eyebrow="Akun"
+          title="Profil saya"
+          description="Data akun dan kontak yang dipakai di seluruh platform. Email tidak bisa diubah dari sini karena dipakai untuk masuk dan verifikasi akun."
+        />
+      </Seksi>
 
-      <section className="mt-6 rounded-2xl border border-border bg-card p-5">
-        <div className="flex items-center gap-4">
-          <span
-            aria-hidden="true"
-            className="grid size-14 shrink-0 place-items-center rounded-full bg-primary text-lg font-bold text-primary-foreground"
-          >
-            {initials(profil.full_name)}
-          </span>
-
-          <div className="min-w-0">
-            <p className="truncate text-base font-semibold">{profil.full_name}</p>
-            <p className="truncate text-sm text-muted-foreground">{profil.email}</p>
-          </div>
-        </div>
-
-        <dl className="mt-5 grid gap-4 border-t border-border pt-5 sm:grid-cols-2">
-          <div>
-            <dt className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-              Peran
-            </dt>
-            <dd className="mt-1 text-sm">{ROLE_LABEL[profil.role] ?? profil.role}</dd>
-          </div>
-
-          <div>
-            <dt className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-              Status akun
-            </dt>
-            <dd className="mt-1 text-sm">
-              {STATUS_LABEL[profil.account_status] ?? profil.account_status}
-            </dd>
-          </div>
-
-          <div>
-            <dt className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-              Terdaftar
-            </dt>
-            <dd className="mt-1 text-sm">{formatTanggal(profil.created_at)}</dd>
-          </div>
-
-          <div>
-            <dt className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-              Masuk terakhir
-            </dt>
-            <dd className="mt-1 text-sm">{formatTanggal(profil.last_login_at)}</dd>
-          </div>
-
-          <div>
-            <dt className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-              Email terverifikasi
-            </dt>
-            <dd className="mt-1 text-sm">
-              {profil.email_verified_at
-                ? formatTanggal(profil.email_verified_at)
-                : 'Belum diverifikasi'}
-            </dd>
-          </div>
-        </dl>
-
-        {/* Tautan verifikasi hanya masuk akal selama emailnya belum dipastikan,
-            jadi tombolnya tidak ditampilkan sama sekali setelah terverifikasi.
-            Alamatnya ditentukan server dari sesi, bukan dari isian di sini. */}
-        {!profil.email_verified_at && (
-          <div className="mt-5 flex flex-wrap items-center gap-3 border-t border-border pt-5">
-            <button
-              type="button"
-              onClick={kirimVerifikasi}
-              disabled={mengirimVerifikasi}
-              className="inline-flex h-11 items-center gap-2 rounded-xl border border-border bg-background px-5 text-sm font-semibold transition-colors hover:border-primary/40 disabled:opacity-70"
+      <Seksi lebar="sempit">
+        <div className="rounded-2xl border border-border bg-card p-5">
+          <div className="flex items-center gap-4">
+            <span
+              aria-hidden="true"
+              className="grid size-14 shrink-0 place-items-center rounded-full bg-primary text-lg font-bold text-primary-foreground"
             >
-              {mengirimVerifikasi && <Loader2 className="size-4 animate-spin" aria-hidden="true" />}
-              {mengirimVerifikasi ? 'Mengirim...' : 'Kirim tautan verifikasi'}
-            </button>
-            <p className="text-xs leading-relaxed text-muted-foreground">
-              {pesanVerifikasi ??
-                'Kami kirim tautan ke alamat email di atas untuk memastikan alamatnya benar.'}
-            </p>
-          </div>
-        )}
-      </section>
-
-      <section className="mt-6 rounded-2xl border border-border bg-card p-5">
-        <h2 className="text-sm font-semibold tracking-tight">Ubah data</h2>
-        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-          Email tidak bisa diubah dari sini karena dipakai untuk masuk dan verifikasi akun.
-        </p>
-
-        <form onSubmit={kirim} className="mt-4 grid gap-4">
-          <label className="grid gap-1.5">
-            <span className="text-xs font-medium text-foreground">Nama lengkap</span>
-            <input
-              value={nama}
-              onChange={(event) => setNama(event.target.value)}
-              required
-              minLength={2}
-              className="h-11 rounded-xl border border-border bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            />
-          </label>
-
-          <label className="grid gap-1.5">
-            <span className="text-xs font-medium text-foreground">Nomor telepon</span>
-            <input
-              value={telepon}
-              onChange={(event) => setTelepon(event.target.value)}
-              inputMode="tel"
-              placeholder="08xxxxxxxxxx"
-              className="h-11 rounded-xl border border-border bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            />
-            <span className="text-[11px] text-muted-foreground">
-              Dipakai pemilik kos atau calon penghuni untuk menghubungi Anda.
+              {initials(profil.full_name)}
             </span>
-          </label>
 
-          {pesan && (
-            <p
-              role="status"
-              className={
-                pesan.nada === 'sukses'
-                  ? 'rounded-xl bg-emerald-50 px-3 py-2.5 text-sm text-emerald-700 ring-1 ring-emerald-200'
-                  : 'rounded-xl bg-rose-50 px-3 py-2.5 text-sm text-rose-700 ring-1 ring-rose-200'
-              }
-            >
-              {pesan.teks}
-            </p>
-          )}
-
-          <div className="flex items-center gap-3">
-            <button
-              type="submit"
-              disabled={simpan}
-              className="inline-flex h-11 items-center gap-2 rounded-xl bg-primary px-5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary-strong disabled:opacity-70"
-            >
-              {simpan && <Loader2 className="size-4 animate-spin" aria-hidden="true" />}
-              {simpan ? 'Menyimpan...' : 'Simpan perubahan'}
-            </button>
+            <div className="min-w-0">
+              <p className="truncate text-base font-semibold">{profil.full_name}</p>
+              <p className="truncate text-sm text-muted-foreground">{profil.email}</p>
+            </div>
           </div>
-        </form>
-      </section>
-    </div>
+
+          <dl className="mt-5 grid gap-4 border-t border-border pt-5 sm:grid-cols-2">
+            <div>
+              <dt className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                Peran
+              </dt>
+              <dd className="mt-1 text-sm">{ROLE_LABEL[profil.role] ?? profil.role}</dd>
+            </div>
+
+            <div>
+              <dt className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                Status akun
+              </dt>
+              <dd className="mt-1 text-sm">
+                {STATUS_LABEL[profil.account_status] ?? profil.account_status}
+              </dd>
+            </div>
+
+            <div>
+              <dt className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                Terdaftar
+              </dt>
+              <dd className="mt-1 text-sm">{formatTanggal(profil.created_at)}</dd>
+            </div>
+
+            <div>
+              <dt className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                Masuk terakhir
+              </dt>
+              <dd className="mt-1 text-sm">{formatTanggal(profil.last_login_at)}</dd>
+            </div>
+
+            <div>
+              <dt className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                Email terverifikasi
+              </dt>
+              <dd className="mt-1 text-sm">
+                {profil.email_verified_at
+                  ? formatTanggal(profil.email_verified_at)
+                  : 'Belum diverifikasi'}
+              </dd>
+            </div>
+          </dl>
+
+          {/* Tautan verifikasi hanya masuk akal selama emailnya belum dipastikan,
+              jadi tombolnya tidak ditampilkan sama sekali setelah terverifikasi.
+              Alamatnya ditentukan server dari sesi, bukan dari isian di sini. */}
+          {!profil.email_verified_at && (
+            <div className="mt-5 flex flex-wrap items-center gap-3 border-t border-border pt-5">
+              <button
+                type="button"
+                onClick={kirimVerifikasi}
+                disabled={mengirimVerifikasi}
+                className="inline-flex h-11 items-center gap-2 rounded-full border border-border bg-card px-5 text-sm font-semibold transition-colors hover:border-primary/40 disabled:opacity-70"
+              >
+                {mengirimVerifikasi && <Loader2 className="size-4 animate-spin" aria-hidden="true" />}
+                {mengirimVerifikasi ? 'Mengirim...' : 'Kirim tautan verifikasi'}
+              </button>
+              <p className="text-xs leading-relaxed text-muted-foreground">
+                {pesanVerifikasi ??
+                  'Kami kirim tautan ke alamat email di atas untuk memastikan alamatnya benar.'}
+              </p>
+            </div>
+          )}
+        </div>
+      </Seksi>
+
+      <Seksi lebar="sempit">
+        <div className="rounded-2xl border border-border bg-card p-5">
+          <h2 className="text-base font-semibold tracking-tight">Ubah data</h2>
+          <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+            Perubahan nama dan nomor telepon langsung berlaku di seluruh platform.
+          </p>
+
+          <form onSubmit={kirim} className="mt-4 grid gap-4">
+            <label className="grid gap-1.5">
+              <span className="text-xs font-medium text-foreground">Nama lengkap</span>
+              <input
+                value={nama}
+                onChange={(event) => setNama(event.target.value)}
+                required
+                minLength={2}
+                className="h-11 rounded-xl border border-border bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              />
+            </label>
+
+            <label className="grid gap-1.5">
+              <span className="text-xs font-medium text-foreground">Nomor telepon</span>
+              <input
+                value={telepon}
+                onChange={(event) => setTelepon(event.target.value)}
+                inputMode="tel"
+                placeholder="08xxxxxxxxxx"
+                className="h-11 rounded-xl border border-border bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              />
+              <span className="text-[11px] text-muted-foreground">
+                Dipakai pemilik kos atau calon penghuni untuk menghubungi Anda.
+              </span>
+            </label>
+
+            {pesan && (
+              <p
+                role="status"
+                className={
+                  pesan.nada === 'sukses'
+                    ? 'rounded-xl bg-emerald-50 px-3 py-2.5 text-sm text-emerald-700 ring-1 ring-emerald-200'
+                    : 'rounded-xl bg-rose-50 px-3 py-2.5 text-sm text-rose-700 ring-1 ring-rose-200'
+                }
+              >
+                {pesan.teks}
+              </p>
+            )}
+
+            <div className="flex items-center gap-3">
+              <button
+                type="submit"
+                disabled={simpan}
+                className="inline-flex h-11 items-center gap-2 rounded-full bg-primary px-5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary-strong disabled:opacity-70"
+              >
+                {simpan && <Loader2 className="size-4 animate-spin" aria-hidden="true" />}
+                {simpan ? 'Menyimpan...' : 'Simpan perubahan'}
+              </button>
+            </div>
+          </form>
+        </div>
+      </Seksi>
+    </>
   )
 }
