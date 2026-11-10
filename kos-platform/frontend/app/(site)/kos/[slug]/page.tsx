@@ -6,8 +6,9 @@ import { AlertTriangle, CheckCircle2, MapPin, ShieldCheck, UserRound } from 'luc
 import { BookingPanel } from '@/components/kos/booking-panel'
 import { HubungiPemilik } from '@/components/kos/hubungi-pemilik'
 import { TombolBandingkan } from '@/components/kos/tombol-bandingkan'
+import { PropertyCard } from '@/components/property-card'
 import { Bintang } from '@/components/ulasan/bintang'
-import { fetchProperty } from '@/lib/api'
+import { fetchProperty, fetchSimilarProperties } from '@/lib/api'
 import { fetchUlasanProperti } from '@/lib/reviews'
 import {
   BATHROOM_LABEL,
@@ -37,6 +38,10 @@ const getProperty = cache(async (slug: string) => fetchProperty(slug))
 // kos yang belum punya ulasan, atau permintaan yang gagal, tetap harus bisa
 // dibaca. cache() juga membuat satu request hanya menembak API sekali.
 const getUlasan = cache(async (slug: string) => fetchUlasanProperti(slug))
+
+// Kos serupa juga diambil terpisah, dengan alasan yang sama: bagian rekomendasi
+// yang gagal dimuat tidak boleh membuat seluruh halaman kos ikut gagal dibuka.
+const getSerupa = cache(async (slug: string) => fetchSimilarProperties(slug))
 
 /**
  * notFound() dipanggil di sini juga, bukan hanya di komponen halaman.
@@ -74,6 +79,7 @@ export default async function PropertyDetailPage({
   const [primaryImage, ...restImages] = property.images
   const ulasan = await getUlasan(slug)
   const ringkasanUlasan = ulasan?.meta.ringkasan
+  const serupa = await getSerupa(slug)
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
@@ -472,6 +478,42 @@ export default async function PropertyDetailPage({
           </div>
         </aside>
       </div>
+
+      {/* Kos serupa diletakkan setelah seluruh isi properti, bukan di kolom
+          kanan: pembacanya baru bisa membandingkan setelah selesai menimbang
+          kos ini. Daftarnya kosong bila server tidak mengirim apa pun, dan
+          bagiannya hilang sepenuhnya, bukan menampilkan kotak kosong. */}
+      {serupa !== null && serupa.length > 0 && (
+        <section className="mt-12 border-t border-border pt-10">
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div className="min-w-0 max-w-2xl">
+              <h2 className="text-lg font-semibold tracking-tight sm:text-xl">
+                Kos lain yang mirip
+              </h2>
+              <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+                Dipilih dari kecamatan, kota, atau provinsi yang sama, lalu diurutkan menurut jenis
+                kos, penghuni yang diterima, dan harga yang tidak jauh berbeda. Alasan tiap kos
+                ditulis di kartunya.
+              </p>
+            </div>
+
+            <Link
+              href={`/kos?q=${encodeURIComponent(property.city)}`}
+              className="shrink-0 text-sm font-semibold text-primary hover:underline"
+            >
+              Lihat semua di {property.city}
+            </Link>
+          </div>
+
+          <ul className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {serupa.map((item) => (
+              <li key={item.id} className="min-w-0">
+                <PropertyCard property={item} alasan={item.alasan} />
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
     </div>
   )
 }
