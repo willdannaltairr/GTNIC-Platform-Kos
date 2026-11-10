@@ -21,7 +21,6 @@ export interface RingkasanTenant {
   tagihanBelumDibayar: number
   totalTagihanBelumDibayar: number
   perbaikanTerbuka: number
-  favorit: number
   kunjunganTerjadwal: number
 }
 

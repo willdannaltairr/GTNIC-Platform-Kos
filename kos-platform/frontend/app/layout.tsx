@@ -4,8 +4,8 @@ import './globals.css'
 
 export const metadata: Metadata = {
   title: {
-    default: 'KosPlatform, Cari & Sewa Kos dengan Biaya Transparan',
-    template: '%s · KosPlatform',
+    default: 'HuniKos, Cari & Sewa Kos dengan Biaya Transparan',
+    template: '%s · HuniKos',
   },
   description:
     'Platform pencarian dan pengelolaan kos yang berfokus pada transparansi biaya, kecocokan kebutuhan, dan kepercayaan antara calon penghuni dengan pemilik kos.',

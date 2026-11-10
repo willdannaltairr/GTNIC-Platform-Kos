@@ -203,10 +203,17 @@ export default async function PropertyDetailPage({
                   {property.rooms.map((room) => (
                     <tr key={room.id} className="bg-card">
                       <td className="px-4 py-3">
-                        <span className="font-semibold text-foreground">{room.roomNumber}</span>
-                        <span className="mt-0.5 block text-xs capitalize text-muted-foreground">
-                          {room.roomName ?? room.roomType}
-                        </span>
+                        <Link
+                          href={`/kos/${property.slug}/rooms/${room.id}`}
+                          className="font-semibold text-foreground hover:underline"
+                        >
+                          {room.roomNumber}
+                        </Link>
+                        {room.roomName && (
+                          <span className="mt-0.5 block text-xs text-muted-foreground">
+                            {room.roomName}
+                          </span>
+                        )}
                       </td>
                       <td className="px-4 py-3 font-semibold">{formatRupiah(room.monthlyPrice)}</td>
                       <td className="hidden px-4 py-3 text-muted-foreground sm:table-cell">
@@ -260,7 +267,7 @@ export default async function PropertyDetailPage({
           )}
 
           {/* Ulasan penghuni */}
-          <section>
+          <section id="ulasan" className="scroll-mt-24">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <h2 className="text-lg font-bold tracking-tight">
                 Ulasan penghuni

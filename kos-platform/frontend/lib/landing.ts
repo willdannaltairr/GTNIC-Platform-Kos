@@ -121,6 +121,80 @@ export const AREA_LINKS: AreaLink[] = [
   { name: 'Depok', href: '/masuk', icon: MapPin },
 ]
 
+interface LocationDetail {
+  description: string
+  image: string
+  imageAlt: string
+  color: string
+}
+
+/**
+ * Warna latar kartu hanya memakai hijau dan putih, dari hijau pinus sampai
+ * hijau daun, berselang-seling dengan kartu putih. Tidak ada permukaan hitam;
+ * teks pada kartu hijau memakai putih, sedangkan kartu putih memakai hijau
+ * tua agar kontrasnya tetap aman.
+ */
+const LOCATION_DETAILS: Record<string, LocationDetail> = {
+  'Jakarta Selatan': {
+    description:
+      'Kos di sekitar Kebayoran Baru, dekat perkantoran dan akses MRT untuk mobilitas harian yang lebih singkat.',
+    image: '/images/kos-4.jpg',
+    imageAlt: 'Kamar kos modern dengan tempat tidur besar dan lemari kayu di Jakarta Selatan',
+    color: '#0f5132',
+  },
+  Bandung: {
+    description:
+      'Kawasan Coblong yang dekat kampus, dengan udara sejuk dan banyak tempat makan serta ruang kreatif di sekitarnya.',
+    image: '/images/kos-3.jpg',
+    imageAlt: 'Kamar kos bernuansa biru dengan meja belajar di Bandung',
+    color: '#ffffff',
+  },
+  Yogyakarta: {
+    description:
+      'Sepanjang Sleman dan Kaliurang, dekat kampus, warung mahasiswa, dan akses menuju pusat kota.',
+    image: '/images/kos-6.jpg',
+    imageAlt: 'Kamar kos dengan lampu hangat dan jendela kayu di Yogyakarta',
+    color: '#176c2d',
+  },
+  Surabaya: {
+    description:
+      'Sekitar Gubeng dan stasiun, praktis untuk perjalanan kerja maupun pulang kampung tanpa macet berlarut.',
+    image: '/images/kos-1.jpg',
+    imageAlt: 'Kamar kos bergaya loft dengan pencahayaan hangat di Surabaya',
+    color: '#ffffff',
+  },
+  Malang: {
+    description:
+      'Lowokwaru yang teduh, dekat kampus dan kafe, cocok untuk mahasiswa yang ingin tinggal dekat kegiatan harian.',
+    image: '/images/kos-2.jpg',
+    imageAlt: 'Kamar kos dengan lampu tidur dan selimut tebal di Malang',
+    color: '#0f5132',
+  },
+  Depok: {
+    description:
+      'Beji yang dekat UI dan akses KRL, dengan kebutuhan harian yang bisa dijangkau tanpa perjalanan jauh.',
+    image: '/images/kos-5.jpg',
+    imageAlt: 'Kamar kos dengan lemari kayu dan tempat tidur putih di Depok',
+    color: '#ffffff',
+  },
+}
+
+export type LocationShowcase = (typeof LOCATIONS)[number] &
+  LocationDetail & { wide: boolean; tone: 'green' | 'white' }
+
+/**
+ * Kartu lokasi memakai pola 7/5/5/7/7/5 kolom di layar lebar. Dua baris
+ * pertama berselang-seling lebar-sempit, lalu baris terakhir dibuka lagi
+ * dengan kartu lebar supaya ritmenya tidak monoton dan setiap baris tetap
+ * terisi penuh. Warna kartu bergantian hijau dan putih.
+ */
+export const LOCATION_SHOWCASE: LocationShowcase[] = LOCATIONS.map((location, index) => ({
+  ...location,
+  ...LOCATION_DETAILS[location.city],
+  wide: index === 0 || index === 3 || index === 4,
+  tone: index % 2 === 0 ? 'green' : 'white',
+}))
+
 /** Kalimat manifesto yang menyala mengikuti scroll. `accent` menandai bagian penekanan. */
 export interface ManifestoToken {
   word: string
@@ -232,6 +306,8 @@ export const ROUTE_DEMO: RouteStop[] = [
   { label: 'Minimarket 24 jam', distance: '250 m', time: '4 menit' },
 ]
 
+export type SolutionTheme = 'forest' | 'green' | 'moss'
+
 export interface SolutionStage {
   index: string
   id: string
@@ -239,7 +315,7 @@ export interface SolutionStage {
   title: string
   text: string
   bullets: string[]
-  tone: 'dark' | 'light'
+  theme: SolutionTheme
 }
 
 export const SOLUTION_STAGES: SolutionStage[] = [
@@ -250,7 +326,7 @@ export const SOLUTION_STAGES: SolutionStage[] = [
     title: 'Rekomendasi yang alasannya bisa Anda periksa.',
     text: 'Masukkan anggaran, lokasi tujuan, dan fasilitas yang dibutuhkan. Setiap skor dipecah menjadi empat faktor berbobot, tidak ada angka misterius di baliknya.',
     bullets: FEATURES[0].bullets,
-    tone: 'dark',
+    theme: 'forest',
   },
   {
     index: '02',
@@ -259,7 +335,7 @@ export const SOLUTION_STAGES: SolutionStage[] = [
     title: 'Total biaya, bukan hanya harga sewa.',
     text: 'Deposit, listrik, air, internet, dan biaya lain dihitung sejak awal, lalu dipisahkan mana yang sudah dikonfirmasi dan mana yang masih perkiraan.',
     bullets: FEATURES[1].bullets,
-    tone: 'light',
+    theme: 'green',
   },
   {
     index: '03',
@@ -268,7 +344,7 @@ export const SOLUTION_STAGES: SolutionStage[] = [
     title: 'Tahu jaraknya sebelum berangkat survei.',
     text: 'Jarak dan estimasi waktu tempuh ke kampus, kantor, stasiun, atau terminal, plus tempat penting di sekitar kos yang membuat hidup sehari-hari lebih mudah.',
     bullets: FEATURES[2].bullets,
-    tone: 'light',
+    theme: 'moss',
   },
 ]
 

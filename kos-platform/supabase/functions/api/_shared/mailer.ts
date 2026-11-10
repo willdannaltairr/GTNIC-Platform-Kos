@@ -20,7 +20,7 @@ const RESEND_ENDPOINT = 'https://api.resend.com/emails'
  * alamat, kegagalannya terlihat jelas di log alih-alih diam-diam terkirim dari
  * domain orang lain.
  */
-const FROM_ADDRESS = 'KosPlatform <noreply@kosplatform.test>'
+const FROM_ADDRESS = 'HuniKos <noreply@HuniKos.test>'
 
 /** Alamat halaman depan, untuk menyusun tautan yang dibuka pengunjung. */
 const alamatDepan = (): string =>
@@ -75,7 +75,7 @@ const kirimEmail = async (input: {
 
 const resetEmailHtml = (fullName: string, resetUrl: string): string => `
   <div style="font-family:system-ui,-apple-system,'Segoe UI',sans-serif;line-height:1.6;color:#1e293b">
-    <h1 style="font-size:20px;margin:0 0 12px">Atur ulang sandi KosPlatform</h1>
+    <h1 style="font-size:20px;margin:0 0 12px">Atur ulang sandi HuniKos</h1>
     <p>Halo ${fullName},</p>
     <p>
       Kami menerima permintaan atur ulang sandi untuk akun ini. Klik tautan di bawah
@@ -95,7 +95,7 @@ const resetEmailHtml = (fullName: string, resetUrl: string): string => `
 
 const verifyEmailHtml = (fullName: string, verifyUrl: string): string => `
   <div style="font-family:system-ui,-apple-system,'Segoe UI',sans-serif;line-height:1.6;color:#1e293b">
-    <h1 style="font-size:20px;margin:0 0 12px">Verifikasi email KosPlatform</h1>
+    <h1 style="font-size:20px;margin:0 0 12px">Verifikasi email HuniKos</h1>
     <p>Halo ${fullName},</p>
     <p>
       Kami menerima satu alamat email ini saat mendaftar. Klik tautan di bawah
@@ -108,7 +108,7 @@ const verifyEmailHtml = (fullName: string, verifyUrl: string): string => `
       </a>
     </p>
     <p style="color:#64748b;font-size:14px">
-      Kalau Anda tidak merasa mendaftar di KosPlatform, abaikan saja emailnya.
+      Kalau Anda tidak merasa mendaftar di HuniKos, abaikan saja emailnya.
       Akunnya tetap bisa dipakai, hanya emailnya belum terverifikasi.
     </p>
   </div>
@@ -122,7 +122,7 @@ export const sendPasswordResetEmail = async (input: {
 }): Promise<void> => {
   await kirimEmail({
     to: input.to,
-    subject: 'Atur ulang sandi KosPlatform',
+    subject: 'Atur ulang sandi HuniKos',
     html: resetEmailHtml(input.fullName, input.resetUrl),
     label: 'tautan atur ulang sandi',
     tautan: input.resetUrl,
@@ -137,7 +137,7 @@ export const sendEmailVerificationEmail = async (input: {
 }): Promise<void> => {
   await kirimEmail({
     to: input.to,
-    subject: 'Verifikasi email KosPlatform',
+    subject: 'Verifikasi email HuniKos',
     html: verifyEmailHtml(input.fullName, input.verifyUrl),
     label: 'tautan verifikasi email',
     tautan: input.verifyUrl,

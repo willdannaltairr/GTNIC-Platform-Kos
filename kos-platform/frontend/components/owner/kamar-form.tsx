@@ -52,7 +52,7 @@ export function KamarForm({ propertyId, awal, labelKirim, onKirim }: KamarFormPr
   const [roomNumber, setRoomNumber] = useState(awal?.roomNumber ?? '')
   const [roomName, setRoomName] = useState(awal?.roomName ?? '')
   const [description, setDescription] = useState(awal?.description ?? '')
-  const [roomType, setRoomType] = useState(awal?.roomType ?? 'reguler')
+  const [roomType] = useState(awal?.roomType ?? 'reguler')
   const [monthlyPrice, setMonthlyPrice] = useState(awal?.monthlyPrice?.toString() ?? '')
   const [maximumOccupants, setMaximumOccupants] = useState(String(awal?.maximumOccupants ?? 1))
   const [bathroomType, setBathroomType] = useState(awal?.bathroomType ?? 'shared')
@@ -107,7 +107,7 @@ export function KamarForm({ propertyId, awal, labelKirim, onKirim }: KamarFormPr
         roomNumber: roomNumber.trim(),
         roomName: roomName.trim() || undefined,
         description: description.trim() || undefined,
-        roomType: roomType.trim() || 'reguler',
+        roomType,
         monthlyPrice: harga,
         maximumOccupants: Number(maximumOccupants) || 1,
         bathroomType: bathroomType as 'private' | 'shared',
@@ -214,16 +214,7 @@ export function KamarForm({ propertyId, awal, labelKirim, onKirim }: KamarFormPr
         </Isian>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Isian label="Jenis kamar" keterangan="Mis. reguler, premium, ekonomi">
-          <input
-            value={roomType}
-            onChange={(event) => setRoomType(event.target.value)}
-            maxLength={50}
-            className={ISIAN}
-          />
-        </Isian>
-
+      <div className="grid gap-4">
         <Isian label="Status ketersediaan" wajib>
           <select
             value={availabilityStatus}

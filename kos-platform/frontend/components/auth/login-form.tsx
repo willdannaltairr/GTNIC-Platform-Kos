@@ -17,6 +17,27 @@ const DEMO_ACCOUNTS = [
 const DEMO_PASSWORD = 'KosDemo123!'
 
 /**
+ * Halaman yang ingin dibuka pengunjung sebelum gerbang memantulkannya.
+ *
+ * Gerbang halaman mengirim tamunya ke `/masuk?lanjut=<halaman asal>`, dan
+ * jawabannya dipakai di sini supaya ia kembali ke halaman itu sesudah masuk.
+ * Hanya jalur di dalam situs ini yang diterima: nilai yang datang dari alamat
+ * bisa ditulis siapa saja, dan menerima alamat luar berarti halaman masuk ini
+ * bisa dipakai mengarahkan orang ke situs lain sesudah mereka mengetikkan
+ * sandinya. `//` di awal ditolak karena peramban membacanya sebagai alamat
+ * absolut, bukan sebagai jalur.
+ */
+const halamanDituju = (): string | null => {
+  if (typeof window === 'undefined') return null
+
+  const nilai = new URLSearchParams(window.location.search).get('lanjut')
+
+  if (!nilai || !nilai.startsWith('/') || nilai.startsWith('//')) return null
+
+  return nilai
+}
+
+/**
  * Formulir masuk.
  *
  * Dipisahkan dari page.tsx supaya halamannya tetap server component dan bisa
@@ -55,6 +76,16 @@ export function LoginForm() {
 
       setDone(true)
 
+      // Pengunjung yang dipantul gerbang halaman kembali ke halaman yang tadi
+      // ingin ia buka, misalnya tautan kos yang dibagikan orang lain.
+      const dituju = halamanDituju()
+
+      if (dituju) {
+        router.push(dituju)
+        router.refresh()
+        return
+      }
+
       // Pemilik kos diarahkan ke panelnya, bukan ke beranda pencari kos.
       // Halaman pertama yang ia butuhkan adalah kamar, tagihan, dan laporan
       // penyewanya; beranda berisi rekomendasi kos untuk dicari tidak menjawab
@@ -78,7 +109,8 @@ export function LoginForm() {
           <div className="flex flex-col gap-1.5">
             <h1 className="font-heading text-3xl font-bold tracking-tight">Masuk ke akun Anda</h1>
             <p className="text-sm text-balance text-muted-foreground">
-              Masuk untuk membuka daftar kos terverifikasi, menyimpan favorit, dan mengajukan sewa.
+              Masuk untuk membuka daftar kos terverifikasi, menyimpan kos yang ingin
+              Anda sewa, dan mengajukan sewa.
             </p>
           </div>
         </div>

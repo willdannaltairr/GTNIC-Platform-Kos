@@ -40,7 +40,6 @@ export interface RingkasanTenant {
   tagihanBelumDibayar: number
   totalTagihanBelumDibayar: number
   perbaikanTerbuka: number
-  favorit: number
   kunjunganTerjadwal: number
 }
 
@@ -95,7 +94,6 @@ export const dashboardService = {
            WHERE tenant_id = $1 AND invoice_status IN ${TAGIHAN_BELUM_LUNAS}) AS total_tagihan,
          (SELECT count(*) FROM maintenance_requests
            WHERE tenant_id = $1 AND status NOT IN ${PERBAIKAN_SELESAI}) AS perbaikan_terbuka,
-         (SELECT count(*) FROM favorites WHERE user_id = $1) AS favorit,
          (SELECT count(*) FROM visits
            WHERE tenant_id = $1 AND visit_status = 'SCHEDULED') AS kunjungan`,
       [userId],
@@ -163,7 +161,6 @@ export const dashboardService = {
         tagihanBelumDibayar: angka(r.tagihan_belum_dibayar),
         totalTagihanBelumDibayar: angka(r.total_tagihan),
         perbaikanTerbuka: angka(r.perbaikan_terbuka),
-        favorit: angka(r.favorit),
         kunjunganTerjadwal: angka(r.kunjungan),
       } satisfies RingkasanTenant,
       sewa: sewa.map((row) => ({

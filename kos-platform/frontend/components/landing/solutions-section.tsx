@@ -22,12 +22,107 @@ import {
   SOLUTION_STAGES,
   SOLUTION_UNDERNEATH,
   type SolutionStage,
+  type SolutionTheme,
 } from '@/lib/landing'
 import { formatRupiah } from '@/lib/format'
 
 const stageIcons = [BadgeCheck, Calculator, MapPinned]
 const stageNotes = ['Menyaring pilihan', 'Menghitung biaya', 'Mengukur jarak']
 const stageAlign = ['items-start text-left', 'items-center text-center', 'items-end text-right']
+
+interface StageThemeStyle {
+  card: string
+  title: string
+  text: string
+  chip: string
+  chipIcon: string
+  step: string
+  bullet: string
+  footerPill: string
+  footerText: string
+  footerStrong: string
+  glow: string
+  pattern: string
+  photo?: string
+  overlay?: string
+}
+
+/**
+ * Tiga permukaan hijau dengan kedalaman berbeda: hijau pinus, hijau daun, dan
+ * hijau lumut. Tidak ada kartu hitam; putih hanya muncul pada teks dan panel
+ * visual di dalamnya.
+ */
+const stageThemes: Record<SolutionTheme, StageThemeStyle> = {
+  forest: {
+    card: 'bg-[#0f5132] text-white',
+    title: 'text-white',
+    text: 'text-forest-foreground/75',
+    chip: 'bg-white/10 text-white ring-1 ring-white/15',
+    chipIcon: 'bg-leaf text-forest',
+    step: 'text-white/50',
+    bullet: 'text-leaf',
+    footerPill: 'bg-white/10 text-leaf ring-1 ring-white/15',
+    footerText: 'text-forest-foreground/70',
+    footerStrong: 'text-white',
+    glow: 'bg-leaf/20',
+    pattern: '',
+    photo: '/images/kos-1.jpg',
+    overlay:
+      'bg-gradient-to-b from-[#0f5132] via-[#0f5132]/75 to-[#0f5132]/20 lg:bg-gradient-to-r lg:from-[#0f5132] lg:via-[#0f5132]/80 lg:to-[#0f5132]/10',
+  },
+  green: {
+    card: 'bg-[#176c2d] text-white',
+    title: 'text-white',
+    text: 'text-[#d7eeda]/90',
+    chip: 'bg-white/10 text-white ring-1 ring-white/20',
+    chipIcon: 'bg-[#c9f0cf] text-[#0b3d24]',
+    step: 'text-white/50',
+    bullet: 'text-[#b7edc1]',
+    footerPill: 'bg-white/10 text-[#b7edc1] ring-1 ring-white/15',
+    footerText: 'text-[#d7eeda]/85',
+    footerStrong: 'text-white',
+    glow: 'bg-[#7bdc8d]/25',
+    pattern:
+      '[background-image:radial-gradient(rgba(255,255,255,0.16)_1px,transparent_1px)] [background-size:20px_20px] opacity-40',
+  },
+  moss: {
+    card: 'bg-[#2f6247] text-white',
+    title: 'text-white',
+    text: 'text-[#dcefe2]/85',
+    chip: 'bg-white/10 text-white ring-1 ring-white/15',
+    chipIcon: 'bg-[#c9f0cf] text-[#0f5132]',
+    step: 'text-white/45',
+    bullet: 'text-[#b7edc1]',
+    footerPill: 'bg-white/10 text-[#b7edc1] ring-1 ring-white/15',
+    footerText: 'text-[#dcefe2]/80',
+    footerStrong: 'text-white',
+    glow: 'bg-[#57c76a]/20',
+    pattern:
+      '[background-image:linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] [background-size:32px_32px]',
+  },
+}
+
+/** Tiga kartu penutup: hijau muda, putih, lalu hijau sedang. */
+const underneathThemes = [
+  {
+    card: 'bg-[#e7f4e3] ring-primary/10',
+    icon: 'bg-primary text-primary-foreground',
+    title: 'text-forest',
+    text: 'text-forest/70',
+  },
+  {
+    card: 'bg-white ring-black/5',
+    icon: 'bg-forest text-white',
+    title: 'text-forest',
+    text: 'text-forest/70',
+  },
+  {
+    card: 'bg-[#176c2d] ring-white/10',
+    icon: 'bg-[#c9f0cf] text-[#0f5132]',
+    title: 'text-white',
+    text: 'text-white/75',
+  },
+]
 
 const monthlyTotal = COST_DEMO.rows.reduce((sum, row) => sum + row.amount, 0)
 const upfrontTotal = monthlyTotal + COST_DEMO.deposit
@@ -185,14 +280,16 @@ const StageCard: FC<StageCardProps> = ({
   pipeline,
   metrics,
 }): ReactNode => {
-  // Urutan ini mengikuti source section solution Modulify: metrik dibaca lebih
-  // dulu. Saat jarak track masih nol, fungsi berhenti sebelum progres dibaca,
-  // jadi nilai fokus terkunci pada posisi awal selama bagian tersemat.
+  // Progres dibaca lebih dulu supaya useTransform ikut berlangganan perubahan
+  // guliran sejak render pertama. Bila pembacaan ini diletakkan setelah
+  // pemeriksaan jarak, nilai fokus tidak pernah diperbarui dan kartu kedua
+  // serta ketiga akan tertahan redup selama bagian tersemat.
   const offset = useTransform(() => {
+    const progress = pipeline.get()
     const { distance, centers } = metrics.get()
     const center = centers[index]
 
-    return distance <= 0 || center === undefined ? 0 : pipeline.get() - center
+    return distance <= 0 || center === undefined ? 0 : progress - center
   })
 
   const focus = useTransform(offset, (value) => 1 - Math.min(Math.abs(value) / 0.45, 1))
@@ -201,7 +298,7 @@ const StageCard: FC<StageCardProps> = ({
   const visualY = useTransform(focus, [0, 1], [56, 0])
   const backgroundX = useTransform(offset, [-1, 1], [-140, 140])
 
-  const dark = stage.tone === 'dark'
+  const theme = stageThemes[stage.theme]
 
   return (
     <motion.article
@@ -211,26 +308,34 @@ const StageCard: FC<StageCardProps> = ({
       style={pinned ? { scale, opacity } : undefined}
       className={cn(
         'relative isolate overflow-hidden rounded-[2rem] scroll-mt-24',
-        dark ? 'bg-forest text-white' : 'bg-white text-foreground ring-1 ring-inset ring-black/5',
+        theme.card,
         pinned && 'lg:h-full lg:w-[min(72vw,56rem)] lg:shrink-0',
       )}
     >
-      {dark && (
-        <>
-          <motion.div
-            aria-hidden="true"
-            className="absolute inset-y-0 -left-[12%] -right-[12%] -z-20"
-            style={pinned ? { x: backgroundX } : undefined}
-          >
-            <div className="absolute inset-0 bg-[url('/images/kos-1.jpg')] bg-cover bg-[position:50%_75%]" />
-          </motion.div>
-
+      {theme.photo && (
+        <motion.div
+          aria-hidden="true"
+          className="absolute inset-y-0 -left-[12%] -right-[12%] -z-20"
+          style={pinned ? { x: backgroundX } : undefined}
+        >
           <div
-            aria-hidden="true"
-            className="absolute inset-0 -z-10 bg-gradient-to-b from-forest via-forest/75 to-forest/20 lg:bg-gradient-to-r lg:from-forest lg:via-forest/80 lg:to-forest/10"
+            className="absolute inset-0 bg-cover bg-[position:50%_75%]"
+            style={{ backgroundImage: `url('${theme.photo}')` }}
           />
-        </>
+        </motion.div>
       )}
+
+      {theme.overlay && <div aria-hidden="true" className={cn('absolute inset-0 -z-10', theme.overlay)} />}
+
+      <div
+        aria-hidden="true"
+        className={cn(
+          'pointer-events-none absolute -right-24 -top-24 -z-10 size-72 rounded-full blur-3xl',
+          theme.glow,
+        )}
+      />
+
+      {theme.pattern && <div aria-hidden="true" className={cn('pointer-events-none absolute inset-0 -z-10', theme.pattern)} />}
 
       <div
         className={cn(
@@ -245,42 +350,30 @@ const StageCard: FC<StageCardProps> = ({
             <span
               className={cn(
                 'inline-flex items-center gap-2 rounded-full py-1 pl-1 pr-3 text-xs font-medium',
-                dark
-                  ? 'bg-white/10 text-white ring-1 ring-white/15'
-                  : 'bg-background text-foreground ring-1 ring-black/5',
+                theme.chip,
               )}
             >
               <span
-                className={cn(
-                  'flex size-6 items-center justify-center rounded-full',
-                  dark ? 'bg-leaf text-forest' : 'bg-primary text-white',
-                )}
+                className={cn('flex size-6 items-center justify-center rounded-full', theme.chipIcon)}
               >
                 <Icon className="size-3.5" aria-hidden="true" />
               </span>
               {stage.label}
             </span>
 
-            <span className={cn('font-mono text-xs', dark ? 'text-white/50' : 'text-muted-foreground')}>
-              {stage.index} / 03
-            </span>
+            <span className={cn('font-mono text-xs', theme.step)}>{stage.index} / 03</span>
           </div>
 
           <h3
             className={cn(
               'mt-6 max-w-md font-heading text-3xl font-light leading-tight tracking-[-0.03em] sm:text-4xl lg:text-3xl xl:text-4xl',
-              dark ? 'text-white' : 'text-foreground',
+              theme.title,
             )}
           >
             {stage.title}
           </h3>
 
-          <p
-            className={cn(
-              'mt-4 max-w-md text-[15px] leading-relaxed',
-              dark ? 'text-forest-foreground/75' : 'text-muted-foreground',
-            )}
-          >
+          <p className={cn('mt-4 max-w-md text-[15px] leading-relaxed', theme.text)}>
             {stage.text}
           </p>
 
@@ -288,13 +381,10 @@ const StageCard: FC<StageCardProps> = ({
             {stage.bullets.map((bullet) => (
               <li
                 key={bullet}
-                className={cn(
-                  'flex items-start gap-2.5 text-[13px] leading-[1.55]',
-                  dark ? 'text-forest-foreground/70' : 'text-muted-foreground',
-                )}
+                className={cn('flex items-start gap-2.5 text-[13px] leading-[1.55]', theme.text)}
               >
                 <ArrowRight
-                  className={cn('mt-1 size-3.5 shrink-0', dark ? 'text-leaf' : 'text-primary')}
+                  className={cn('mt-1 size-3.5 shrink-0', theme.bullet)}
                   aria-hidden="true"
                 />
                 {bullet}
@@ -305,23 +395,21 @@ const StageCard: FC<StageCardProps> = ({
           <p
             className={cn(
               'mt-auto flex items-center gap-3 pt-6 text-sm leading-snug',
-              dark ? 'text-forest-foreground/70' : 'text-muted-foreground',
+              theme.footerText,
               compact && 'pt-4',
             )}
           >
             <span
               className={cn(
-                'flex size-9 shrink-0 items-center justify-center rounded-full ring-1',
-                dark
-                  ? 'bg-white/10 text-leaf ring-white/15'
-                  : 'bg-accent text-accent-foreground ring-black/5',
+                'flex size-9 shrink-0 items-center justify-center rounded-full',
+                theme.footerPill,
               )}
             >
               <ArrowRight className="size-4" aria-hidden="true" />
             </span>
 
             <span>
-              <span className={cn('font-medium', dark ? 'text-white' : 'text-foreground')}>
+              <span className={cn('font-medium', theme.footerStrong)}>
                 {index === 0
                   ? 'Lalu Simulasi Biaya.'
                   : index === 1
@@ -596,7 +684,7 @@ const SolutionsSection: FC = (): ReactNode => {
                   compact && 'lg:text-base',
                 )}
               >
-                KosPlatform menggantikan tumpukan tangkapan layar, pesan WhatsApp yang tercecer, dan angka
+                HuniKos menggantikan tumpukan tangkapan layar, pesan WhatsApp yang tercecer, dan angka
                 yang dihitung ulang di catatan pribadi. Setiap alat menjawab satu pertanyaan, lalu
                 menyerahkan jawabannya ke alat berikutnya.
               </p>
@@ -652,30 +740,38 @@ const SolutionsSection: FC = (): ReactNode => {
                   compact && 'lg:gap-2',
                 )}
               >
-                {SOLUTION_UNDERNEATH.map((item) => {
+                {SOLUTION_UNDERNEATH.map((item, index) => {
                   const Icon = item.icon
+                  const theme = underneathThemes[index % underneathThemes.length]
 
                   return (
                     <SpotlightCard
                       key={item.title}
                       as="li"
                       className={cn(
-                        'rounded-[1.5rem] bg-white p-6 ring-1 ring-black/5',
+                        'rounded-[1.5rem] p-6 ring-1 ring-inset',
+                        theme.card,
                         pinned && 'lg:flex-1 lg:p-5',
                         compact && 'lg:p-4',
                       )}
                     >
                       <div className="flex items-center gap-3">
-                        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-accent text-accent-foreground">
+                        <span
+                          className={cn(
+                            'flex size-10 shrink-0 items-center justify-center rounded-xl',
+                            theme.icon,
+                          )}
+                        >
                           <Icon className="size-5" aria-hidden="true" />
                         </span>
 
-                        <h3 className="text-base font-medium text-foreground">{item.title}</h3>
+                        <h3 className={cn('text-base font-medium', theme.title)}>{item.title}</h3>
                       </div>
 
                       <p
                         className={cn(
-                          'mt-3 text-sm leading-relaxed text-muted-foreground',
+                          'mt-3 text-sm leading-relaxed',
+                          theme.text,
                           compact && 'mt-2 text-[13px]',
                         )}
                       >

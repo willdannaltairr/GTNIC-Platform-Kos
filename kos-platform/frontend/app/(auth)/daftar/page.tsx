@@ -7,7 +7,7 @@ import { RegisterForm } from '@/components/auth/register-form'
 export const metadata: Metadata = {
   title: 'Daftar',
   description:
-    'Buat akun KosPlatform untuk mencari kos dengan biaya yang transparan, atau untuk mengelola properti Anda.',
+    'Buat akun HuniKos untuk mencari kos dengan biaya yang transparan, atau untuk mengelola properti Anda.',
 }
 
 /**

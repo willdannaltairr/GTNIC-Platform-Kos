@@ -36,7 +36,10 @@ export function PopularAreasSection({ regions }: { regions: RegionPlace[] }) {
         description="Daerah dengan kos terverifikasi terbanyak di platform ini."
       />
 
-      <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      {/* Dua kolom di layar lebar, bukan tiga: kartu daerah adalah pintu masuk
+          ke pencarian, jadi ukurannya dibuat seperti pilihan utama, bukan
+          daftar kecil di pinggir halaman. */}
+      <div className="mt-8 grid gap-4 sm:grid-cols-2">
         {regions.map((region) => {
           // Kotak kota dan kecamatan disaring lewat parameter yang berbeda.
           const href =
@@ -48,26 +51,26 @@ export function PopularAreasSection({ regions }: { regions: RegionPlace[] }) {
             <Link
               key={region.id}
               href={href}
-              className="group flex items-center justify-between gap-3 rounded-xl border border-border bg-card px-4 py-3.5 transition-colors hover:border-primary/40 hover:bg-accent/40"
+              className="group flex items-center justify-between gap-4 rounded-2xl border border-border bg-card px-5 py-5 transition-colors hover:border-primary/40 hover:bg-accent/40"
             >
-              <span className="flex min-w-0 items-center gap-3">
-                <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-accent text-accent-foreground">
-                  <MapPin className="size-4" aria-hidden="true" />
+              <span className="flex min-w-0 items-center gap-4">
+                <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-accent text-accent-foreground">
+                  <MapPin className="size-5" aria-hidden="true" />
                 </span>
 
                 <span className="min-w-0">
-                  <span className="block truncate text-sm font-semibold text-foreground">
+                  <span className="block truncate text-base font-semibold text-foreground">
                     {region.name}
                   </span>
-                  <span className="block truncate text-[11px] text-muted-foreground">
+                  <span className="block truncate text-xs text-muted-foreground">
                     {region.type === 'CITY' ? 'Kota' : 'Kecamatan'}
                     {region.city && region.city !== region.name ? ` · ${region.city}` : ''}
                   </span>
                 </span>
               </span>
 
-              <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-muted px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
-                <Building2 className="size-3" aria-hidden="true" />
+              <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-muted px-3 py-1.5 text-xs font-medium text-muted-foreground">
+                <Building2 className="size-3.5" aria-hidden="true" />
                 {formatNumber(region.propertyCount)}
               </span>
             </Link>

@@ -1,7 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { BedDouble, MapPin, Navigation, Users } from 'lucide-react'
-import { FavoriteButton } from '@/components/favorites/favorite-button'
 import { TombolBandingkan } from '@/components/kos/tombol-bandingkan'
 import { cn } from '@/lib/utils'
 import type { PropertyListItem } from '@/lib/api'
@@ -99,7 +98,6 @@ export function PropertyCard({
             property.distanceKm !== null ? 'top-12' : 'top-3',
           )}
         >
-          <FavoriteButton propertyId={property.id} />
           <TombolBandingkan slug={property.slug} />
         </div>
       )}

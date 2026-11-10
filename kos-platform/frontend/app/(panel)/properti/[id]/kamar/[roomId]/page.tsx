@@ -18,7 +18,7 @@ import {
   type KamarDetail,
   type KamarUbahInput,
 } from '@/lib/rooms'
-import { BATHROOM_LABEL, ROOM_STATUS_LABEL, formatRupiah } from '@/lib/format'
+import { BATHROOM_LABEL, ROOM_STATUS_LABEL } from '@/lib/format'
 import { cn } from '@/lib/utils'
 
 /**
@@ -157,8 +157,11 @@ export default function KamarDetailPage() {
           Kamar {kamar.roomNumber}
           {kamar.roomName ? ` · ${kamar.roomName}` : ''}
         </h1>
+        {/* Harga sengaja tidak diulang di sini: nomor kamar adalah identitas
+            barisnya, dan harganya sudah punya tempat sendiri di formulir
+            penyuntingan di bawah. Dua angka rupiah di satu layar membuat
+            yang mana bisa diubah jadi tidak jelas. */}
         <p className="mt-2 text-sm text-muted-foreground">
-          {formatRupiah(kamar.monthlyPrice)} per bulan ·{' '}
           {BATHROOM_LABEL[kamar.bathroomType] ?? kamar.bathroomType} ·{' '}
           {ROOM_STATUS_LABEL[kamar.availabilityStatus] ?? kamar.availabilityStatus}
         </p>

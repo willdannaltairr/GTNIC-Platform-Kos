@@ -9,7 +9,6 @@ import {
   ClipboardCheck,
   CreditCard,
   FileText,
-  Heart,
   Home,
   LayoutDashboard,
   MessageSquare,
@@ -65,7 +64,6 @@ const KELOMPOK: Kelompok[] = [
     judul: 'Pilihan dan rencana',
     ringkas: 'Kos yang Anda simpan, bandingkan, atau rencanakan untuk disurvei.',
     tautan: [
-      { href: '/favorit', label: 'Kos favorit', keterangan: 'Yang Anda simpan', icon: Heart },
       { href: '/pencarian-tersimpan', label: 'Pencarian tersimpan', keterangan: 'Diberi tahu saat ada kos baru cocok', icon: Bookmark },
       { href: '/bandingkan', label: 'Bandingkan kos', keterangan: 'Dua sampai empat kos berdampingan', icon: Scale },
       { href: '/booking', label: 'Booking', keterangan: 'Pengajuan sewa dan statusnya', icon: CalendarCheck },
