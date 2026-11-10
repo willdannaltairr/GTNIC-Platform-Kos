@@ -115,7 +115,7 @@ export default function UlasanUbahPage() {
 
   if (status === 'memuat' || !siap) {
     return (
-      <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6">
+      <div className="mx-auto w-full max-w-2xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
         <div className="h-8 w-56 animate-pulse rounded bg-muted" />
         <div className="mt-6 h-96 animate-pulse rounded-2xl bg-muted" />
       </div>
@@ -124,8 +124,8 @@ export default function UlasanUbahPage() {
 
   if (!user) {
     return (
-      <div className="mx-auto max-w-md px-4 py-20 text-center sm:px-6">
-        <h1 className="text-xl font-bold tracking-tight">Masuk untuk mengubah ulasan</h1>
+      <div className="mx-auto w-full max-w-md px-4 py-20 text-center sm:px-6 lg:px-8">
+        <h1 className="text-balance font-heading text-2xl font-semibold tracking-[-0.03em]">Masuk untuk mengubah ulasan</h1>
         <Link
           href="/masuk"
           className="mt-6 inline-flex h-11 items-center rounded-xl bg-primary px-6 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary-strong"
@@ -138,7 +138,7 @@ export default function UlasanUbahPage() {
 
   if (!data) {
     return (
-      <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6 sm:py-10">
+      <div className="mx-auto w-full max-w-2xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
         <Link
           href="/ulasan"
           className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
@@ -159,7 +159,7 @@ export default function UlasanUbahPage() {
   const terkunci = data.status === 'HIDDEN'
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6 sm:py-10">
+    <div className="mx-auto w-full max-w-2xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
       <Link
         href="/ulasan"
         className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
@@ -170,7 +170,7 @@ export default function UlasanUbahPage() {
 
       <header className="mt-4 flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
+          <h1 className="text-balance font-heading font-semibold leading-[1.08] tracking-[-0.035em] text-[clamp(1.75rem,3.6vw,2.6rem)]">
             {data.propertyName ?? 'Ulasan'}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">

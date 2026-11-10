@@ -106,7 +106,7 @@ export default function PerbaikanBaruPage() {
 
   if (status === 'memuat' || !siap) {
     return (
-      <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6">
+      <div className="mx-auto w-full max-w-2xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
         <div className="h-8 w-56 animate-pulse rounded bg-muted" />
         <div className="mt-6 h-96 animate-pulse rounded-2xl bg-muted" />
       </div>
@@ -115,8 +115,8 @@ export default function PerbaikanBaruPage() {
 
   if (!user) {
     return (
-      <div className="mx-auto max-w-md px-4 py-20 text-center sm:px-6">
-        <h1 className="text-xl font-bold tracking-tight">Masuk untuk melaporkan kerusakan</h1>
+      <div className="mx-auto w-full max-w-md px-4 py-20 text-center sm:px-6 lg:px-8">
+        <h1 className="text-balance font-heading text-2xl font-semibold tracking-[-0.03em]">Masuk untuk melaporkan kerusakan</h1>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
           Laporan perbaikan hanya bisa dibuat penghuni yang sedang menempati kamarnya.
         </p>
@@ -132,8 +132,8 @@ export default function PerbaikanBaruPage() {
 
   if (user.role !== 'TENANT') {
     return (
-      <div className="mx-auto max-w-md px-4 py-20 text-center sm:px-6">
-        <h1 className="text-xl font-bold tracking-tight">Laporan dibuat penghuni</h1>
+      <div className="mx-auto w-full max-w-md px-4 py-20 text-center sm:px-6 lg:px-8">
+        <h1 className="text-balance font-heading text-2xl font-semibold tracking-[-0.03em]">Laporan dibuat penghuni</h1>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
           Yang melaporkan kerusakan adalah penghuni yang menempati kamarnya. Pemilik properti
           memindahkan status laporan, bukan membuatnya.
@@ -150,8 +150,8 @@ export default function PerbaikanBaruPage() {
 
   if (sewa.length === 0) {
     return (
-      <div className="mx-auto max-w-md px-4 py-20 text-center sm:px-6">
-        <h1 className="text-xl font-bold tracking-tight">Belum ada sewa yang berjalan</h1>
+      <div className="mx-auto w-full max-w-md px-4 py-20 text-center sm:px-6 lg:px-8">
+        <h1 className="text-balance font-heading text-2xl font-semibold tracking-[-0.03em]">Belum ada sewa yang berjalan</h1>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
           Laporan perbaikan hanya bisa dibuat untuk kamar yang sedang Anda sewa. Belum ada kontrak
           aktif di akun ini.
@@ -167,7 +167,7 @@ export default function PerbaikanBaruPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6 sm:py-10">
+    <div className="mx-auto w-full max-w-2xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
       <Link
         href="/perbaikan"
         className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
@@ -177,7 +177,7 @@ export default function PerbaikanBaruPage() {
       </Link>
 
       <header className="mt-4">
-        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Lapor kerusakan</h1>
+        <h1 className="text-balance font-heading font-semibold leading-[1.08] tracking-[-0.035em] text-[clamp(1.75rem,3.6vw,2.6rem)]">Lapor kerusakan</h1>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
           Tulis apa yang rusak sedetail mungkin. Setelah tersimpan, fotonya bisa ditambahkan dari
           halaman laporan, dan pemilik properti menerima pemberitahuannya.

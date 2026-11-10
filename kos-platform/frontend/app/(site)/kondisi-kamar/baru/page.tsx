@@ -118,7 +118,7 @@ export default function KondisiKamarBaruPage() {
 
   if (status === 'memuat' || !siap) {
     return (
-      <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6">
+      <div className="mx-auto w-full max-w-2xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
         <div className="h-8 w-56 animate-pulse rounded bg-muted" />
         <div className="mt-6 h-72 animate-pulse rounded-2xl bg-muted" />
       </div>
@@ -127,8 +127,8 @@ export default function KondisiKamarBaruPage() {
 
   if (!user) {
     return (
-      <div className="mx-auto max-w-md px-4 py-20 text-center sm:px-6">
-        <h1 className="text-xl font-bold tracking-tight">Masuk untuk mencatat kondisi kamar</h1>
+      <div className="mx-auto w-full max-w-md px-4 py-20 text-center sm:px-6 lg:px-8">
+        <h1 className="text-balance font-heading text-2xl font-semibold tracking-[-0.03em]">Masuk untuk mencatat kondisi kamar</h1>
         <Link
           href="/masuk"
           className="mt-6 inline-flex h-11 items-center rounded-xl bg-primary px-6 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary-strong"
@@ -141,8 +141,8 @@ export default function KondisiKamarBaruPage() {
 
   if (user.role !== 'TENANT') {
     return (
-      <div className="mx-auto max-w-md px-4 py-20 text-center sm:px-6">
-        <h1 className="text-xl font-bold tracking-tight">Pemeriksaan dibuat penghuni</h1>
+      <div className="mx-auto w-full max-w-md px-4 py-20 text-center sm:px-6 lg:px-8">
+        <h1 className="text-balance font-heading text-2xl font-semibold tracking-[-0.03em]">Pemeriksaan dibuat penghuni</h1>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
           Yang mencatat keadaan kamar adalah orang yang menempatinya. Pemilik menyetujui atau
           mengajukan keberatan atas catatan itu.
@@ -159,8 +159,8 @@ export default function KondisiKamarBaruPage() {
 
   if (sewa.length === 0) {
     return (
-      <div className="mx-auto max-w-md px-4 py-20 text-center sm:px-6">
-        <h1 className="text-xl font-bold tracking-tight">Belum ada sewa yang bisa diperiksa</h1>
+      <div className="mx-auto w-full max-w-md px-4 py-20 text-center sm:px-6 lg:px-8">
+        <h1 className="text-balance font-heading text-2xl font-semibold tracking-[-0.03em]">Belum ada sewa yang bisa diperiksa</h1>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
           Pemeriksaan kondisi dibuat untuk kamar yang sedang atau pernah Anda sewa. Belum ada
           kontrak seperti itu di akun ini.
@@ -176,7 +176,7 @@ export default function KondisiKamarBaruPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6 sm:py-10">
+    <div className="mx-auto w-full max-w-2xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
       <Link
         href="/kondisi-kamar"
         className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
@@ -186,7 +186,7 @@ export default function KondisiKamarBaruPage() {
       </Link>
 
       <header className="mt-4">
-        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Pemeriksaan baru</h1>
+        <h1 className="text-balance font-heading font-semibold leading-[1.08] tracking-[-0.035em] text-[clamp(1.75rem,3.6vw,2.6rem)]">Pemeriksaan baru</h1>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
           Setelah dibuat, Anda mengisi keadaan tiap bagian kamar beserta fotonya, lalu mengirimnya
           ke pemilik untuk disetujui. Catatan yang sudah disetujui tidak bisa diubah lagi.

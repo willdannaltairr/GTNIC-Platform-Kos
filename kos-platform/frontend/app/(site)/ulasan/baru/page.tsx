@@ -109,7 +109,7 @@ export default function UlasanBaruPage() {
 
   if (status === 'memuat' || !siap) {
     return (
-      <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6">
+      <div className="mx-auto w-full max-w-2xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
         <div className="h-8 w-56 animate-pulse rounded bg-muted" />
         <div className="mt-6 h-96 animate-pulse rounded-2xl bg-muted" />
       </div>
@@ -118,8 +118,8 @@ export default function UlasanBaruPage() {
 
   if (!user) {
     return (
-      <div className="mx-auto max-w-md px-4 py-20 text-center sm:px-6">
-        <h1 className="text-xl font-bold tracking-tight">Masuk untuk menulis ulasan</h1>
+      <div className="mx-auto w-full max-w-md px-4 py-20 text-center sm:px-6 lg:px-8">
+        <h1 className="text-balance font-heading text-2xl font-semibold tracking-[-0.03em]">Masuk untuk menulis ulasan</h1>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
           Ulasan hanya bisa ditulis penghuni yang pernah atau sedang menempati kamarnya.
         </p>
@@ -135,8 +135,8 @@ export default function UlasanBaruPage() {
 
   if (user.role !== 'TENANT') {
     return (
-      <div className="mx-auto max-w-md px-4 py-20 text-center sm:px-6">
-        <h1 className="text-xl font-bold tracking-tight">Ulasan ditulis penghuni</h1>
+      <div className="mx-auto w-full max-w-md px-4 py-20 text-center sm:px-6 lg:px-8">
+        <h1 className="text-balance font-heading text-2xl font-semibold tracking-[-0.03em]">Ulasan ditulis penghuni</h1>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
           Yang menilai kos adalah orang yang pernah tinggal di dalamnya. Pemilik properti membacanya
           di halaman kosnya.
@@ -153,8 +153,8 @@ export default function UlasanBaruPage() {
 
   if (sewa.length === 0) {
     return (
-      <div className="mx-auto max-w-md px-4 py-20 text-center sm:px-6">
-        <h1 className="text-xl font-bold tracking-tight">Belum ada sewa yang bisa dinilai</h1>
+      <div className="mx-auto w-full max-w-md px-4 py-20 text-center sm:px-6 lg:px-8">
+        <h1 className="text-balance font-heading text-2xl font-semibold tracking-[-0.03em]">Belum ada sewa yang bisa dinilai</h1>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
           Ulasan bisa ditulis untuk sewa yang sedang berjalan atau yang sudah selesai, dan setiap
           sewa hanya mekar sekali. Kalau Anda sudah menilai semuanya, ulasannya ada di halaman
@@ -171,7 +171,7 @@ export default function UlasanBaruPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6 sm:py-10">
+    <div className="mx-auto w-full max-w-2xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
       <Link
         href="/ulasan"
         className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
@@ -181,7 +181,7 @@ export default function UlasanBaruPage() {
       </Link>
 
       <header className="mt-4">
-        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Tulis ulasan</h1>
+        <h1 className="text-balance font-heading font-semibold leading-[1.08] tracking-[-0.035em] text-[clamp(1.75rem,3.6vw,2.6rem)]">Tulis ulasan</h1>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
           Ceritakan pengalaman Anda selama menempati kosnya. Ulasan ditayangkan di halaman kos
           setelah ditinjau admin, dan setelah itu masih bisa Anda ubah.
