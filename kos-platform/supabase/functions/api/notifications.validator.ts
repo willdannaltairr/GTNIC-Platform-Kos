@@ -28,6 +28,8 @@ export const NOTIFICATION_KINDS = [
   'ROOM_CONDITION_SUBMITTED',
   'ROOM_CONDITION_ACKNOWLEDGED',
   'ROOM_CONDITION_DISPUTED',
+  /** Kos baru yang cocok dengan pencarian tersimpan pengguna. */
+  'SAVED_SEARCH_MATCH',
 ] as const
 
 export type NotificationKind = (typeof NOTIFICATION_KINDS)[number]
