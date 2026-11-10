@@ -10,7 +10,12 @@ import {
 } from './_shared/mailer.ts'
 import { authFetch, authJson, type SesiSupabase } from './_shared/supabase.ts'
 import { usersService } from './users.service.ts'
-import type { ForgotPasswordInput, LoginInput, RegisterInput } from './auth.validator.ts'
+import type {
+  ForgotPasswordInput,
+  LoginInput,
+  PropertyPendaftaranInput,
+  RegisterInput,
+} from './auth.validator.ts'
 
 /**
  * Autentikasi.
@@ -129,32 +134,111 @@ export const authService = {
     })
 
     try {
-      const rows = await query<{
-        id: string
-        full_name: string
-        email: string
-        role: string
-        account_status: string
-        created_at: Date
-      }>(
-        `INSERT INTO users (id, full_name, email, role, account_status)
-         VALUES ($1, $2, $3, $4, 'ACTIVE')
-         RETURNING id, full_name, email, role, account_status, created_at`,
-        [akun.id, input.fullName, input.email, input.role],
-      )
+      /**
+       * Profil, kos pertama, dan fasilitasnya ditulis dalam SATU transaksi.
+       *
+       * Ketiganya saling bergantung: pemilik yang mendaftar sambil mengisi
+       * kosnya harus mendapat ketiganya sekaligus. Kalau kosnya gagal
+       * tersimpan sementara profilnya sudah ada, pendaftarannya tampak berhasil
+       * padahal kos yang ia isikan hilang tanpa jejak. Transaksi ini yang
+       * membuat keadaan seperti itu mustahil terjadi.
+       */
+      const { profil, kos } = await withTransaction(async (client) => {
+        const barisProfil = await client.query<{
+          id: string
+          full_name: string
+          email: string
+          role: string
+          account_status: string
+          created_at: Date
+        }>(
+          `INSERT INTO users (id, full_name, email, role, account_status)
+           VALUES ($1, $2, $3, $4, 'ACTIVE')
+           RETURNING id, full_name, email, role, account_status, created_at`,
+          [akun.id, input.fullName, input.email, input.role],
+        )
+
+        // Peran TENANT yang mengirim data kos tidak membuat kos apa pun: field
+        // itu hanya bermakna bagi pemilik, dan menghormatinya untuk peran lain
+        // berarti siapa pun bisa membuat properti tanpa pernah mendaftar
+        // sebagai pemilik.
+        if (input.role !== 'OWNER' || !input.property) {
+          return { profil: barisProfil, kos: null }
+        }
+
+        const properti = input.property
+        const id = crypto.randomUUID()
+
+        // Slug disusun di sini, bukan lewat `slugUnik` milik modul properti:
+        // fungsi itu tidak diekspor, dan mengekspornya berarti menambah
+        // ketergantungan antar modul hanya untuk beberapa baris. Aturannya
+        // sengaja sama; kalau berubah, kedua tempat perlu diubah bersama.
+        const dasar =
+          properti.name
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/^-+|-+$/g, '')
+            .slice(0, 60) || 'kos'
+
+        const [terpakai] = await client.query<{ ada: boolean }>(
+          `SELECT true AS ada FROM properties WHERE slug = $1 LIMIT 1`,
+          [dasar],
+        )
+        const slug = terpakai ? `${dasar}-${id.slice(0, 8)}` : dasar
+
+        await client.query(
+          `INSERT INTO properties (
+             id, owner_id, name, slug, description, address, province, city, district,
+             subdistrict, postal_code, property_type, gender_policy,
+             verification_status, publication_status
+           )
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, 'PENDING', 'DRAFT')`,
+          [
+            id,
+            akun.id,
+            properti.name,
+            slug,
+            properti.description ?? null,
+            properti.address,
+            properti.province,
+            properti.city,
+            properti.district,
+            properti.subdistrict ?? null,
+            properti.postalCode ?? null,
+            properti.propertyType,
+            properti.genderPolicy,
+          ],
+        )
+
+        // Fasilitas dicocokkan lewat slug ke tabel master, dan slug yang tidak
+        // ada terlewat dengan sendirinya. Menolak seluruh pendaftaran hanya
+        // karena satu centang yang sudah tidak berlaku akan menghukum pendaftar
+        // atas hal yang bukan salahnya.
+        if (properti.facilitySlugs && properti.facilitySlugs.length > 0) {
+          await client.query(
+            `INSERT INTO property_facilities (property_id, facility_id)
+             SELECT $1, f.id FROM facilities f WHERE f.slug = ANY($2::text[])`,
+            [id, properti.facilitySlugs],
+          )
+        }
+
+        return { profil: barisProfil, kos: { id, name: properti.name, slug } }
+      })
 
       // Tautan verifikasi dikirim saat mendaftar, bukan menunggu pengunjung
       // mencarinya sendiri: alamat email hanya bisa dipastikan benar saat
       // pendaftarannya masih segar di ingatannya.
-      const token = await this.createEmailVerificationToken(rows[0].id)
+      const token = await this.createEmailVerificationToken(profil[0].id)
 
       await sendEmailVerificationEmail({
-        to: rows[0].email,
-        fullName: rows[0].full_name,
+        to: profil[0].email,
+        fullName: profil[0].full_name,
         verifyUrl: buildVerifyUrl(token),
       })
 
-      return { user: rows[0], verifyToken: token }
+      return { user: profil[0], property: kos, verifyToken: token }
     } catch (error) {
       await hapusAkunAuth(akun.id)
 

@@ -14,6 +14,7 @@ import {
   LABEL_STATUS_PERBAIKAN,
   PERPINDAHAN_PERBAIKAN,
   type CreateMaintenanceInput,
+  type CreateCommentInput,
   type ListMaintenanceQuery,
   type UpdateMaintenanceStatusInput,
 } from './maintenance.validator.ts'
@@ -318,7 +319,7 @@ export const maintenanceService = {
   async detail(user: AuthUser, id: string) {
     const perbaikan = await ambil(user, id)
 
-    const [foto, riwayat] = await Promise.all([
+    const [foto, riwayat, komentar] = await Promise.all([
       query<FotoRow>(
         `SELECT mi.id, mi.storage_path, mi.uploaded_by, u.full_name AS uploader_name, mi.created_at
          FROM maintenance_images mi
@@ -343,6 +344,25 @@ export const maintenanceService = {
          ORDER BY h.created_at`,
         [id],
       ),
+      // Komentar diurut dari yang paling lama: satu laporan dibaca sebagai satu
+      // percakapan, dan percakapan yang dimulai dari pesan terbaru memaksa
+      // pembacanya menyusun urutan sendiri di kepalanya.
+      query<{
+        id: string
+        author_id: string
+        author_name: string
+        author_role: string
+        body: string
+        created_at: Date
+      }>(
+        `SELECT mc.id, mc.author_id, u.full_name AS author_name, u.role AS author_role,
+                mc.body, mc.created_at
+         FROM maintenance_comments mc
+         JOIN users u ON u.id = mc.author_id
+         WHERE mc.request_id = $1
+         ORDER BY mc.created_at ASC`,
+        [id],
+      ),
     ])
 
     return {
@@ -364,6 +384,62 @@ export const maintenanceService = {
         changedByName: baris.changed_by_name,
         createdAt: tanggal(baris.created_at),
       })),
+      komentar: komentar.map((baris) => ({
+        id: baris.id,
+        authorId: baris.author_id,
+        authorName: baris.author_name,
+        authorRole: baris.author_role,
+        body: baris.body,
+        createdAt: tanggal(baris.created_at),
+      })),
+    }
+  },
+
+  /**
+   * Tulis satu komentar pada laporan.
+   *
+   * Pihak yang boleh menulis sama dengan yang boleh membaca laporan ini:
+   * penghuni pelapornya, pemilik propertinya, dan admin. Selain itu dijawab 404
+   * dengan alasan yang sama seperti `ambil`: membedakan 403 dari 404 akan
+   * memberi tahu penebak bahwa laporan dengan id itu memang ada.
+   *
+   * Penghuni pelapor tidak dibatasi hanya saat laporan masih terbuka. Kerusakan
+   * yang sama sering muncul kembali setelah dinyatakan selesai, dan menutup
+   * percakapan pada laporan yang sudah ditutup hanya memindahkan keluhannya ke
+   * tempat yang tidak tercatat.
+   */
+  async komentar(user: AuthUser, id: string, input: CreateCommentInput) {
+    const perbaikan = await ambil(user, id)
+
+    const row = await queryOne<{
+      id: string
+      author_id: string
+      author_name: string
+      author_role: string
+      body: string
+      created_at: Date
+    }>(
+      `WITH baru AS (
+         INSERT INTO maintenance_comments (request_id, author_id, body)
+         VALUES ($1, $2, $3)
+         RETURNING id, author_id, body, created_at
+       )
+       SELECT b.id, b.author_id, u.full_name AS author_name, u.role AS author_role,
+              b.body, b.created_at
+       FROM baru b
+       JOIN users u ON u.id = b.author_id`,
+      [perbaikan.id, user.userId, input.body],
+    )
+
+    if (!row) throw new HttpError(500, 'Komentar gagal disimpan')
+
+    return {
+      id: row.id,
+      authorId: row.author_id,
+      authorName: row.author_name,
+      authorRole: row.author_role,
+      body: row.body,
+      createdAt: tanggal(row.created_at),
     }
   },
 

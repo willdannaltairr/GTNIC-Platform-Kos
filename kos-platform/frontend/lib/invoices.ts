@@ -175,3 +175,21 @@ export async function batalkanTagihan(id: string, alasan: string): Promise<Tagih
     body: JSON.stringify({ alasan }),
   })
 }
+
+/**
+ * Kirim pengingat pembayaran ke penghuni.
+ *
+ * Pengingat dikirim atas permintaan pemilik, bukan otomatis: belum ada
+ * penjadwal di platform ini, dan pengingat yang asalnya jelas lebih mudah
+ * dipertanggungjawabkan saat penghuni bertanya. Server menolak tagihan yang
+ * masih draf, sudah batal, atau sudah lunas, dan pesannya ditampilkan apa
+ * adanya.
+ */
+export async function ingatkanTagihan(
+  id: string,
+): Promise<{ terkirim: boolean; ke: string; jenis: string }> {
+  return kirim<{ terkirim: boolean; ke: string; jenis: string }>(
+    `/invoices/${encodeURIComponent(id)}/ingatkan`,
+    { method: 'POST' },
+  )
+}

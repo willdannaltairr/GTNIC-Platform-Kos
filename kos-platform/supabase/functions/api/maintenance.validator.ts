@@ -143,6 +143,22 @@ export const listMaintenanceQuerySchema = z.object({
   limit: z.coerce.number().int().min(1).max(50).default(20),
 })
 
+/**
+ * Isi satu komentar pada laporan.
+ *
+ * Batas bawahnya tiga karakter supaya "ok" atau titik tidak memenuhi
+ * percakapan, dan batas atasnya sama dengan deskripsi laporan. Isinya teks
+ * biasa, bukan markdown: komentar yang dirender sebagai penanda dapat berisi
+ * tautan ke mana saja, dan itu tidak perlu di dalam percakapan tentang kamar.
+ */
+export const createCommentSchema = z.object({
+  body: z
+    .string()
+    .trim()
+    .min(3, 'Komentar minimal 3 karakter')
+    .max(2000, 'Komentar maksimal 2000 karakter'),
+})
+
 export const maintenanceIdParam = (nilai: string): string =>
   z.string().uuid('ID laporan tidak valid').parse(nilai)
 
@@ -152,3 +168,4 @@ export const maintenancePhotoIdParam = (nilai: string): string =>
 export type CreateMaintenanceInput = z.infer<typeof createMaintenanceSchema>
 export type UpdateMaintenanceStatusInput = z.infer<typeof updateMaintenanceStatusSchema>
 export type ListMaintenanceQuery = z.infer<typeof listMaintenanceQuerySchema>
+export type CreateCommentInput = z.infer<typeof createCommentSchema>
