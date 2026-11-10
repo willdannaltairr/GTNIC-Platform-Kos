@@ -2,11 +2,13 @@ import type { Metadata } from 'next'
 
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { ArrowLeft, Bath, Maximize, Ruler, Users } from 'lucide-react'
+import { ArrowLeft, Bath, Home, Maximize, Ruler, Users } from 'lucide-react'
 import { RoomGallery } from '@/components/kos/room-gallery'
 import { RoomBookingActions } from '@/components/kos/room-booking-actions'
-import { fetchRoom, fetchRoomsBySlug, type KamarDetail } from '@/lib/rooms'
+import { UlasanKamar } from '@/components/kos/ulasan-kamar'
+import { fetchRoom, fetchRoomsBySlug } from '@/lib/rooms'
 import { fetchProperty } from '@/lib/api'
+import { fetchUlasanProperti } from '@/lib/reviews'
 import {
   BATHROOM_LABEL,
   ROOM_STATUS_LABEL,
@@ -79,6 +81,10 @@ export default async function KamarPublikPage({
     (item) => item.id !== kamar.id && item.availabilityStatus === 'AVAILABLE',
   )
 
+  // Ulasan diambil terpisah dari detail kamar: kegagalannya tidak boleh
+  // menjatuhkan halaman, dan ulasan yang tersedia memang milik kos ini.
+  const ulasanProperti = await fetchUlasanProperti(slug)
+
   const luas =
     kamar.areaWidth !== null && kamar.areaLength !== null
       ? `${formatNumber(kamar.areaWidth)} x ${formatNumber(kamar.areaLength)} m`
@@ -86,13 +92,27 @@ export default async function KamarPublikPage({
 
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
-      <Link
-        href={`/kos/${slug}`}
-        className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
-      >
-        <ArrowLeft className="size-4" aria-hidden="true" />
-        {kamar.propertyName}
-      </Link>
+      <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+        <Link
+          href={`/kos/${slug}`}
+          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+        >
+          <ArrowLeft className="size-4" aria-hidden="true" />
+          {kamar.propertyName}
+        </Link>
+
+        {/* Jalan pulang ke beranda, bukan hanya kembali satu langkah ke halaman
+            kosnya. Pengunjung yang tiba di sini dari tautan yang dibagikan
+            tidak punya riwayat sebelumnya, jadi "kembali" saja tidak
+            mengembalikannya ke tempat ia bisa mencari kos lain. */}
+        <Link
+          href="/beranda"
+          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+        >
+          <Home className="size-4" aria-hidden="true" />
+          Kembali ke beranda
+        </Link>
+      </div>
 
       <header className="mt-4 flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
@@ -114,17 +134,21 @@ export default async function KamarPublikPage({
         </span>
       </header>
 
+      <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)] lg:items-start">
+        <RoomGallery
+          photos={kamar.photos.map((foto) => ({
+            id: foto.id,
+            url: foto.url,
+            alt: foto.alt ?? `Kamar ${kamar.roomNumber}`,
+          }))}
+          judul={`Kamar ${kamar.roomNumber}`}
+        />
+
+        <UlasanKamar slug={slug} propertyName={properti.name} ulasan={ulasanProperti} />
+      </div>
+
       <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_20rem]">
         <div className="space-y-6">
-          <RoomGallery
-            photos={kamar.photos.map((foto) => ({
-              id: foto.id,
-              url: foto.url,
-              alt: foto.alt ?? `Kamar ${kamar.roomNumber}`,
-            }))}
-            judul={`Kamar ${kamar.roomNumber}`}
-          />
-
           <section className="rounded-2xl border border-border bg-card p-5">
             <h2 className="text-sm font-semibold tracking-tight">Tentang kamar ini</h2>
 
