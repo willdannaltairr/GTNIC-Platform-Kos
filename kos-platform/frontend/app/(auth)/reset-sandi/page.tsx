@@ -5,7 +5,7 @@ import { ResetPasswordForm } from '@/components/auth/reset-password-form'
 
 export const metadata: Metadata = {
   title: 'Buat sandi baru',
-  description: 'Buat sandi baru untuk akun KosPlatform Anda memakai tautan yang dikirim lewat email.',
+  description: 'Buat sandi baru untuk akun HuniKos Anda memakai tautan yang dikirim lewat email.',
 }
 
 /**

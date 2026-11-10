@@ -5,7 +5,6 @@ import {
   ClipboardCheck,
   Navigation,
   Scale,
-  Sparkles,
   type LucideIcon,
 } from 'lucide-react'
 import { JudulHalaman, MataSeksi, Seksi } from '@/components/site/kerangka'
@@ -13,7 +12,7 @@ import { JudulHalaman, MataSeksi, Seksi } from '@/components/site/kerangka'
 export const metadata: Metadata = {
   title: 'Alat',
   description:
-    'Alat bantu memilih kos: skor kecocokan KosMatch, simulasi biaya total, perbandingan kos, rute dan sekitar, serta catatan kondisi kamar.',
+    'Alat bantu memilih kos: simulasi biaya total, perbandingan kos, rute dan sekitar, serta catatan kondisi kamar.',
 }
 
 interface Alat {
@@ -33,14 +32,6 @@ interface Alat {
  * sering ia tebak salah adalah yang paling menggoda.
  */
 const ALAT: Alat[] = [
-  {
-    href: '/kosmatch',
-    label: 'KosMatch',
-    ringkas: 'Skor kecocokan yang bisa Anda periksa',
-    keterangan:
-      'Isi anggaran, lokasi tujuan, dan fasilitas yang Anda butuhkan. Setiap hasil membawa rincian per faktor beserta bobotnya, dan faktor yang Anda kosongkan tidak dihitung sebagai nol.',
-    icon: Sparkles,
-  },
   {
     href: '/simulasi-biaya',
     label: 'Simulasi biaya total',
@@ -78,10 +69,10 @@ const ALAT: Alat[] = [
 /**
  * Halaman alat.
  *
- * Mengumpulkan alat bantu yang sebelumnya tersebar: KosMatch dan Bandingkan
- * sudah punya halamannya sendiri, sedangkan simulasi biaya dan rute hanya hidup
- * di dalam halaman lain dan tidak pernah dijelaskan di satu tempat. Di sini
- * kelimanya dijelaskan apa adanya, termasuk di mana harus membukanya.
+ * Mengumpulkan alat bantu yang sebelumnya tersebar: perbandingan kos sudah
+ * punya halamannya sendiri, sedangkan simulasi biaya dan rute hanya hidup di
+ * dalam halaman lain dan tidak pernah dijelaskan di satu tempat. Di sini
+ * keempatnya dijelaskan apa adanya, termasuk di mana harus membukanya.
  */
 export default function AlatPage() {
   return (
@@ -90,7 +81,7 @@ export default function AlatPage() {
         <JudulHalaman
           eyebrow="Alat"
           title="Alat untuk memilih dengan angka, bukan firasat"
-          description="Kelima alat ini sudah bisa dipakai sekarang. Tidak ada yang masih berupa janji di daftar ini, dan tiap alat menyebut apa yang benar-benar dihitungnya."
+          description="Keempat alat ini sudah bisa dipakai sekarang. Tidak ada yang masih berupa janji di daftar ini, dan tiap alat menyebut apa yang benar-benar dihitungnya."
         />
       </Seksi>
 

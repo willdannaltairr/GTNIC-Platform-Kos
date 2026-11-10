@@ -46,7 +46,7 @@ const CostVisual: FC<CostVisualProps> = ({
                 {row.confirmed ? (
                   <CircleCheck className="size-3.5 shrink-0 text-primary" aria-hidden="true" />
                 ) : (
-                  <CircleAlert className="size-3.5 shrink-0 text-sun" aria-hidden="true" />
+                  <CircleAlert className="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
                 )}
                 {row.label}
               </span>

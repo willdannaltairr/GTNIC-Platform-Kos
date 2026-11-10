@@ -52,7 +52,7 @@ export function LandingHeader() {
         >
           <Link
             href="/"
-            aria-label="KosPlatform, beranda"
+            aria-label="HuniKos, beranda"
             className="rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <Logo />

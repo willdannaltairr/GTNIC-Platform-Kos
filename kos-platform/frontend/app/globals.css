@@ -110,6 +110,16 @@
     color: var(--foreground);
   }
 
+  /* Edge dan IE menyisipkan tombol "lihat sandi" sendiri di dalam input
+     password. Di halaman masuk dan daftar, tombol itu tampil berdampingan
+     dengan tombol milik AuthField, jadi pengunjung melihat dua ikon mata dan
+     menekan yang bukan milik aplikasi ini. Milik peramban disembunyikan;
+     satu tombol, satu perilaku. */
+  input[type='password']::-ms-reveal,
+  input[type='password']::-ms-clear {
+    display: none;
+  }
+
   @media (prefers-reduced-motion: no-preference) {
     html {
       scroll-behavior: smooth;

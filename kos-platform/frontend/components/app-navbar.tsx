@@ -4,7 +4,6 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import {
-  Heart,
   Home,
   LayoutDashboard,
   MapPin,
@@ -42,7 +41,6 @@ const LINKS: NavLink[] = [
   { label: 'Kawasan', href: '/kawasan', icon: MapPin },
   { label: 'Alat', href: '/alat', icon: Sparkles },
   { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { label: 'Saya', href: '/saya', icon: Heart },
 ]
 
 /**
@@ -96,7 +94,7 @@ export function AppNavbar() {
       <div className="mx-auto flex h-16 w-full max-w-7xl items-center gap-3 px-4 sm:h-[72px] sm:px-6 lg:px-8">
         <Link
           href="/beranda"
-          aria-label="KosPlatform, beranda"
+          aria-label="HuniKos, beranda"
           className="flex shrink-0 items-center gap-2.5 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           <Logo />

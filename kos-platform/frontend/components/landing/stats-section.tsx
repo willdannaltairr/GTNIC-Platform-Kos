@@ -64,7 +64,7 @@ const StatsSection: FC = (): ReactNode => {
               </span>
 
               <span>
-                <span className="block text-sm font-medium text-white">Prinsip KosPlatform</span>
+                <span className="block text-sm font-medium text-white">Prinsip HuniKos</span>
 
                 <span className="block text-sm text-forest-foreground/65">Transparansi sebelum persuasi</span>
               </span>
