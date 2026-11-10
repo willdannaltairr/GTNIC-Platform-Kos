@@ -106,6 +106,8 @@ import {
 } from './payments.validator.ts'
 import { placesService } from './places.service.ts'
 import { listCampusesQuerySchema, listRegionsQuerySchema } from './places.validator.ts'
+import { matchService } from './match.service.ts'
+import { matchQuerySchema } from './match.validator.ts'
 import { propertiesService } from './properties.service.ts'
 import {
   createPropertySchema,
@@ -477,6 +479,22 @@ router.get('/properties/:slug', async (ctx: Ctx) => {
   const properti = await propertiesService.detailPublic(ctx.params.slug)
 
   return jsonOk(ctx.req, { message: 'Detail properti', data: properti })
+})
+
+// ─── KosMatch ───────────────────────────────────────────────────────────────
+
+/**
+ * Peringkat kos menurut preferensi penggunanya.
+ *
+ * Terbuka tanpa login: yang dikirim hanyalah preferensi pencarian, tidak ada
+ * data pribadi yang dibaca maupun disimpan. Rumus dan bobotnya ikut pada
+ * `meta`, sehingga halaman hasil bisa menampilkan dari mana angkanya datang.
+ */
+router.get('/match', async (ctx: Ctx) => {
+  const query = matchQuerySchema.parse(kueriObjek(ctx.url))
+  const hasil = await matchService.cari(query)
+
+  return jsonOk(ctx.req, { message: 'Hasil KosMatch', data: hasil.items, meta: hasil.meta })
 })
 
 // ─── Kamar ──────────────────────────────────────────────────────────────────
