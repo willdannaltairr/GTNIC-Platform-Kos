@@ -5,14 +5,6 @@
  * menyentuh layout.
  */
 
-export const NAV_LINKS = [
-  { href: '/kos', label: 'Cari Kos' },
-  { href: '/#kosmatch', label: 'KosMatch' },
-  { href: '/#truecost', label: 'Simulasi Biaya' },
-  { href: '/#cara-kerja', label: 'Cara Kerja' },
-  { href: '/#tanya-jawab', label: 'Tanya Jawab' },
-]
-
 export const HERO = {
   badge: 'Transparansi biaya, kecocokan kebutuhan',
   title: 'Temukan Kos yang Benar-Benar Cocok, Bukan Sekadar Murah',
@@ -176,30 +168,41 @@ export const FAQS = [
   },
 ]
 
+/**
+ * Tautan kaki halaman aplikasi.
+ *
+ * Semua tujuannya adalah halaman di dalam aplikasi, bukan jangkar di landing
+ * page. Sebelumnya separuh tautan di sini menunjuk ke bagian landing
+ * (`/#kosmatch`, `/#truecost`), sehingga pengunjung yang sedang berada di dalam
+ * platform terlempar keluar setiap kali menekan tautan kaki halaman. Landing
+ * page punya kaki halamannya sendiri, jadi berkas ini tidak perlu melayaninya.
+ */
 export const FOOTER_LINKS = [
   {
-    title: 'Pencari Kos',
+    title: 'Jelajahi',
     links: [
+      { href: '/beranda', label: 'Beranda' },
       { href: '/kos', label: 'Cari Kos' },
-      { href: '/#kosmatch', label: 'KosMatch' },
-      { href: '/#truecost', label: 'Simulasi Biaya' },
-      { href: '/#cara-kerja', label: 'Cara Kerja' },
+      { href: '/kawasan', label: 'Kawasan' },
+      { href: '/alat', label: 'Alat' },
     ],
   },
   {
-    title: 'Pemilik Kos',
+    title: 'Alat',
     links: [
-      { href: '/daftar', label: 'Daftar Sebagai Pemilik' },
-      { href: '/#manfaat', label: 'Manfaat' },
-      { href: '/masuk', label: 'Masuk Dashboard' },
+      { href: '/kosmatch', label: 'KosMatch' },
+      { href: '/bandingkan', label: 'Bandingkan kos' },
+      { href: '/beranda#rute', label: 'Rute dan sekitar' },
+      { href: '/kondisi-kamar', label: 'Kondisi kamar' },
     ],
   },
   {
     title: 'Akun',
     links: [
-      { href: '/masuk', label: 'Masuk' },
-      { href: '/daftar', label: 'Buat Akun' },
-      { href: '/#tanya-jawab', label: 'Tanya Jawab' },
+      { href: '/saya', label: 'Semua milik saya' },
+      { href: '/dashboard', label: 'Dashboard' },
+      { href: '/profil', label: 'Profil' },
+      { href: '/daftar', label: 'Buat akun' },
     ],
   },
 ]
