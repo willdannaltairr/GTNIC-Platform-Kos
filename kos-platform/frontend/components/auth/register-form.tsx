@@ -202,14 +202,14 @@ export function RegisterForm() {
   }
 
   return (
-    <form onSubmit={submit} className="flex flex-col gap-5">
-      <div className="flex flex-col items-center gap-4 text-center">
+    <form onSubmit={submit} className="flex flex-col gap-4">
+      <div className="flex flex-col items-center gap-3 text-center">
         <AuthMark icon={UserPlus} />
 
-        <div className="flex flex-col gap-1.5">
-          <h1 className="font-heading text-3xl font-bold tracking-tight">Buat akun baru</h1>
+        <div className="flex flex-col gap-1">
+          <h1 className="font-heading text-2xl font-bold tracking-tight">Buat akun baru</h1>
           <p className="text-sm text-balance text-muted-foreground">
-            Satu akun untuk mencari kos atau mengelola properti. Pilih peran Anda di bawah.
+            Pilih peran Anda di bawah ini.
           </p>
         </div>
       </div>
@@ -226,7 +226,7 @@ export function RegisterForm() {
             return (
               <label
                 key={option.value}
-                className={`flex cursor-pointer items-start gap-2.5 rounded-2xl border p-3 transition-colors ${
+                className={`flex cursor-pointer items-start gap-2.5 rounded-2xl border p-2.5 transition-colors ${
                   active
                     ? 'border-primary bg-accent/60'
                     : 'border-border bg-card/70 hover:border-primary/40'
@@ -260,7 +260,7 @@ export function RegisterForm() {
         </div>
       </fieldset>
 
-      <div className="grid gap-4">
+      <div className="grid gap-3.5">
         <AuthField
           id="fullName"
           name="fullName"
@@ -305,7 +305,7 @@ export function RegisterForm() {
         >
           {/* Titik penandanya menyala hijau begitu syaratnya terpenuhi, jadi
               pengunjung tahu sebelum menekan tombol, bukan setelah ditolak. */}
-          <ul className="mt-2.5 grid gap-1.5">
+          <ul className="mt-2 grid gap-1.5">
             {PASSWORD_RULES.map((rule) => {
               const met = rule.met(password)
 

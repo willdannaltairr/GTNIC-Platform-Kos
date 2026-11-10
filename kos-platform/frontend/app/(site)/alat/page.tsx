@@ -87,8 +87,8 @@ export default function AlatPage() {
 
       <Seksi>
         {/* Kartu terpisah dengan jarak, bukan satu kotak yang dibagi garis
-            celah: jumlah alatnya lima, sehingga grid tiga kolom menyisakan satu
-            sel kosong di kanan bawah, dan sel kosong itu ikut terwarnai abu-abu
+            celah: jumlah alatnya empat, sehingga grid tiga kolom menyisakan dua
+            sel kosong di baris kedua, dan sel kosong itu ikut terwarnai abu-abu
             sebagai sisa garis celahnya. */}
         <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {ALAT.map((alat) => {
@@ -123,7 +123,7 @@ export default function AlatPage() {
       </Seksi>
 
       {/* Pita gelap: satu bagian yang sengaja berhenti dari halaman yang
-          seluruhnya terang, dipakai untuk prinsip yang berlaku bagi kelima alat
+          seluruhnya terang, dipakai untuk prinsip yang berlaku bagi keempat alat
           di atas. */}
       <Seksi nada="gelap">
         <div className="max-w-3xl">
@@ -134,11 +134,10 @@ export default function AlatPage() {
           </h2>
 
           <p className="mt-4 text-[15px] leading-[1.8] text-primary-foreground/80">
-            KosMatch menampilkan bobot tiap faktornya, Simulasi Biaya memisahkan
-            komponen yang sudah dikonfirmasi pemilik dari yang masih perkiraan,
-            dan harga di seluruh platform datang dari data properti yang
-            dikelola pemiliknya sendiri. Kalau sebuah angka tidak bisa
-            dipertanggungjawabkan, angka itu tidak kami tampilkan.
+            Simulasi Biaya memisahkan komponen yang sudah dikonfirmasi pemilik
+            dari yang masih perkiraan, dan harga di seluruh platform datang dari
+            data properti yang dikelola pemiliknya sendiri. Kalau sebuah angka
+            tidak bisa dipertanggungjawabkan, angka itu tidak kami tampilkan.
           </p>
         </div>
       </Seksi>

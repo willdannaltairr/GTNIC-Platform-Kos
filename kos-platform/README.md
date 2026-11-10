@@ -21,12 +21,12 @@ dikonfirmasi pemilik dan mana yang masih perkiraan.
 ## Untuk siapa
 
 **Pencari kos**, mahasiswa, pekerja, atau siapa pun yang pindah ke kota baru. Mencari dan
-membandingkan kos bisa dilakukan tanpa akun. Akun sudah bisa dibuat, tetapi fitur yang
-memakainya, menyimpan kos favorit, mengajukan sewa, memantau status, belum aktif.
+membandingkan kos bisa dilakukan tanpa akun. Dengan akun, pencarian bisa disimpan supaya Anda
+diberi tahu saat ada kos baru yang cocok, sewa bisa diajukan, dan statusnya bisa dipantau.
 
 **Pemilik kos**, yang ingin propertinya dilihat calon penghuni dengan informasi yang jujur,
-sehingga percakapan saat survei tidak dimulai dari selisih angka. Akun pemilik juga sudah bisa
-dibuat; halaman pengelolaannya belum ada.
+sehingga percakapan saat survei tidak dimulai dari selisih angka. Halaman pengelolaannya sudah
+bisa dipakai: properti, kamar, foto, kunjungan, tagihan, dan pengeluaran.
 
 ## Yang bisa dilakukan di web ini
 
@@ -67,17 +67,20 @@ bisa langsung dibuka pencariannya, penjelasan alat-alat yang disiapkan, langkah 
 dari menyaring sampai menempati kamar, manfaat untuk kedua sisi, tanya jawab, dan contoh kos
 terbaru yang bisa langsung diklik.
 
-## Alat yang sedang disiapkan
+## Alat yang bisa dipakai
 
-Tiga alat ini sudah tampil di beranda dan sedang dikerjakan bertahap:
+Empat alat ini terkumpul di `/alat`, dan semuanya sudah berjalan:
 
-- **KosMatch**, skor kecocokan untuk tiap kos, dipecah menjadi empat faktor berbobot: anggaran
-  35%, lokasi 30%, fasilitas 20%, dan preferensi kamar 15%. Setiap skor disertai alasannya,
-  bukan angka misterius. *Belum aktif, belum bisa dipakai di halaman pencarian.*
-- **Rute & Sekitar**, jarak dan estimasi waktu tempuh ke kampus, kantor, stasiun, atau terminal,
-  plus tempat penting di sekitar kos. *Belum aktif, koordinat properti sudah disiapkan.*
-- **Room Passport**, dokumentasi kondisi kamar saat masuk dan keluar masa sewa, lengkap dengan
-  foto dan catatan, disetujui kedua pihak. *Belum aktif.*
+- **Simulasi biaya total**, menghitung sewa, deposit, listrik, air, internet, dan biaya lain,
+  lalu memisahkan yang sudah dikonfirmasi pemilik dari yang masih perkiraan.
+- **Bandingkan kos**, menaruh dua sampai empat kos berdampingan dalam satu tabel.
+- **Rute dan sekitar**, menampilkan kos dalam radius jarak yang masuk akal dari titik asal dan
+  titik tujuan.
+- **Catatan kondisi kamar**, mendokumentasikan keadaan kamar saat masuk dan saat keluar.
+
+Skor kecocokan **KosMatch** tersedia di `/kosmatch` dan endpointnya jalan, tetapi tidak
+didaftarkan sebagai alat di halaman itu: penyaring di halaman cari kos sudah mengerjakan
+pekerjaan yang sama.
 
 ## Prinsip yang dipegang
 
@@ -102,11 +105,13 @@ Tiga alat ini sudah tampil di beranda dan sedang dikerjakan bertahap:
 ## Status saat ini
 
 **Sudah bisa dicoba:** jelajah beranda, pencarian beserta seluruh filternya, halaman detail
-dengan rincian biaya, serta pendaftaran dan masuk akun.
+dengan rincian biaya, pendaftaran dan masuk akun, pencarian tersimpan, pengelolaan properti dan
+kamar bagi pemilik, pengajuan sewa sampai kontrak dan tagihan, dokumentasi kondisi kamar, serta
+ulasan penghuni.
 
-**Belum ada:** menyimpan kos favorit, skor KosMatch, peta jarak, halaman pengelolaan bagi
-pemilik kos, pemesanan dan pembayaran sewa, dokumentasi kamar (Room Passport), dan ulasan
-penghuni.
+**Belum ada:** peta jarak dan rute tempuh, pengiriman email sungguhan, dan pembayaran sungguhan.
+Ketiganya butuh kunci layanan yang belum diisi; tanpa itu tautan verifikasi dicatat di log fungsi
+dan pembayaran tidak bisa dijalankan.
 
 > **Datanya masih contoh.** Yang tampil sekarang adalah 6 kos demo di 6 kota, Bandung, Depok,
 > Jakarta Selatan, Malang, Sleman, dan Surabaya, beserta kamar, fasilitas, aturan, dan komponen
@@ -272,7 +277,7 @@ Variabel berawalan `SUPABASE_` disuntikkan platform sendiri dan tidak perlu diis
 | `/` | `(landing)` | Landing page: hero foto, marquee kawasan, manifesto, produk, solusi, lokasi, kos terbaru dari API, cara kerja, manfaat, angka, tentang, tanya jawab, ajakan akhir, dan kartu 3D rumah kos |
 | `/kos` | `(site)` | Pencarian kos dengan filter (kata kunci, kota, kecamatan, tipe, kamar mandi, rentang harga, fasilitas, urutan), seluruh filter ditulis ke URL sehingga hasil bisa dibagikan |
 | `/kos/[slug]` | `(site)` | Detail properti: kamar, fasilitas, aturan, komponen biaya, dan ringkasan TrueCost |
-| `/masuk` · `/daftar` | `(site)` | Form autentikasi yang terhubung API |
+| `/masuk` · `/daftar` | `(auth)` | Form autentikasi yang terhubung API |
 | `not-found` · `error` | akar app | Halaman 404 dan 500, lengkap dengan header/footer situs |
 
 Landing memakai chrome sendiri (header dan footer khusus, tipografi DM Sans + Space
@@ -355,8 +360,8 @@ Kelompok tabelnya: pengguna dan profil (`users`, `owner_profiles`, `tenant_profi
 (`maintenance_requests`, `room_condition_reports`, `visits`, `expenses`), dan admin
 (`reports`, `audit_logs`, `notifications`, `content_articles`).
 
-Hanya tabel pengguna, properti, kamar, fasilitas, aturan, dan komponen biaya yang sudah
-dipakai endpoint. Sisanya masih tabel kosong tanpa API.
+Sebagian besar tabel sudah dipakai endpoint. Yang belum tersambung masih tabel pendukung
+internal, misalnya `content_articles`, `reports`, dan `audit_logs`.
 
 ### Cara API menyambung ke database
 
@@ -424,10 +429,10 @@ detail dengan aturan yang dipegang ketat:
 | 1 | Foundation: monorepo, Next.js, Supabase Edge Function, TypeScript, PostgreSQL, skema SQL langsung, error handling, API versioning | Selesai |
 | 2 | Authentication & Authorization: register, login, logout, profil, verifikasi email, lupa sandi, RBAC | Selesai |
 | 3 | Property & Room Management: kelola properti dan kamar pemilik, foto kamar, moderasi admin | Selesai |
-| 4 | Search & Discovery (KosMatch, TrueCost Simulator) | Sebagian, filter pencarian dan TrueCost sudah jalan; skor KosMatch belum diimplementasikan |
+| 4 | Search & Discovery (KosMatch, TrueCost Simulator) | Selesai |
 | 5 | Booking & Contract: pengajuan sewa, keputusan pemilik, kontrak sewa | Selesai |
 | 6 | Payment & Billing: tagihan, pembayaran Midtrans, webhook | Selesai untuk alurnya; kunci Midtrans masih perlu diisi untuk pembayaran sungguhan |
-| 7 | Tenant & Owner Operations: favorit, kunjungan, perbaikan, verifikasi pemilik | Sebagian, API-nya selesai; halaman perbaikan di frontend belum dibuat |
+| 7 | Tenant & Owner Operations: kunjungan, perbaikan, verifikasi pemilik | Selesai |
 | 8 | Admin Management: moderasi properti, pengguna, verifikasi pemilik, audit | Selesai |
 | 9 | Map & Location | Sebagian, koordinat dan pencarian sekitar sudah jalan; rute tempuh belum |
 | 10 | Testing & Polishing | Belum ada test otomatis di repo |

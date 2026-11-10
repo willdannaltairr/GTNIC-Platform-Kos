@@ -3,9 +3,9 @@
  *
  * Disimpan di peramban, bukan di server: yang dibandingkan adalah pilihan
  * sesaat waktu memutuskan, bukan koleksi yang perlu dibuka lagi dari perangkat
- * lain seperti favorit. Menyimpannya di server berarti satu tabel, satu
- * endpoint, dan satu layar pengelolaan baru untuk data yang umurnya beberapa
- * menit.
+ * lain seperti pencarian tersimpan. Menyimpannya di server berarti satu tabel,
+ * satu endpoint, dan satu layar pengelolaan baru untuk data yang umurnya
+ * beberapa menit.
  *
  * Isinya slug, bukan id: halaman detail properti dibuka lewat slug, jadi
  * pilihan yang tersimpan tetap bisa dibuka langsung tanpa mencari id-nya dulu.

@@ -637,9 +637,8 @@ router.get('/dashboard/owner', async (ctx: Ctx) => {
 /**
  * Pencarian tersimpan beserta pemberitahuan kos barunya.
  *
- * Menuntut sesi seperti favorit, dan dengan alasan yang sama: pencarian
- * tersimpan adalah data pribadi seseorang, tidak ada tempat untuk menyimpannya
- * bagi tamu.
+ * Menuntut sesi: pencarian tersimpan adalah data pribadi seseorang, tidak ada
+ * tempat untuk menyimpannya bagi tamu.
  *
  * Penyaringnya diterima apa adanya sebagai objek, bukan sebagai deretan kunci
  * tetap. Itu membuat penyaring baru di halaman cari kos bisa ikut disimpan
