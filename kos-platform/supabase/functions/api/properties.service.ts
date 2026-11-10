@@ -202,6 +202,36 @@ const toListItem = (row: ListRow) => {
   }
 }
 
+/**
+ * Alasan satu kos muncul di daftar "kos serupa".
+ *
+ * Ditulis sebagai kalimat pendek yang bisa dibaca apa adanya di kartunya.
+ * Urutannya mengikuti urutan pengurutan di query: yang paling menentukan
+ * disebut lebih dulu. Kalau tidak ada satu pun yang cocok, daftarnya kosong dan
+ * kartunya tidak menampilkan baris alasan sama sekali, bukan menampilkan
+ * keterangan kosong yang membingungkan.
+ */
+const alasanSerupa = (row: {
+  kecamatan_sama: boolean
+  kota_sama: boolean
+  provinsi_sama: boolean
+  tipe_sama: boolean
+  gender_sama: boolean
+  ada_kamar: boolean
+}): string[] => {
+  const alasan: string[] = []
+
+  if (row.kecamatan_sama) alasan.push('Kecamatan yang sama')
+  else if (row.kota_sama) alasan.push('Kota yang sama')
+  else if (row.provinsi_sama) alasan.push('Provinsi yang sama')
+
+  if (row.tipe_sama) alasan.push('Jenis kos yang sama')
+  if (row.gender_sama) alasan.push('Penghuni yang diterima sama')
+  if (row.ada_kamar) alasan.push('Ada kamar tersedia')
+
+  return alasan
+}
+
 /** Bentuk baris properti untuk halaman pengelolaan pemilik. */
 type PropertiKelolaRow = {
   id: string
@@ -517,6 +547,123 @@ export const propertiesService = {
   async listPublicByIds(ids: string[]) {
     const rows = await fetchListRows(ids, undefined, undefined, true)
     return rows.map(toListItem)
+  },
+
+  /**
+   * Kos lain yang mirip dengan satu properti.
+   *
+   * Kemiripannya diukur dari hal yang bisa diperiksa, bukan dari skor yang
+   * dibuat-buat: kecamatan yang sama lebih dulu, lalu kota, provinsi, tipe kos,
+   * peraturan penghuni, ada tidaknya kamar tersedia, dan harga yang tidak jauh
+   * berbeda. Alasan setiap kos ikut dikirim supaya pembacanya bisa menilai
+   * sendiri mengapa kos itu muncul di daftar ini.
+   *
+   * Jangkauannya sampai provinsi, bukan hanya kecamatan atau kota: kos
+   * terverifikasi masih jarang, dan satu kecamatan sering hanya berisi satu
+   * properti. Penyaring yang terlalu ketat membuat bagian ini selalu kosong,
+   * dan bagian yang selalu kosong sama saja dengan tidak ada. Yang membedakan
+   * tetap ditulis di alasannya, jadi pembaca tahu seberapa dekat kemiripannya.
+   *
+   * Harga acuan dipakai hanya sebagai pengurut terakhir. Kalau harga dijadikan
+   * penyaring, kos yang sedikit lebih mahal tetapi persis di sebelah kos yang
+   * dibuka justru hilang dari daftar, dan itu pembanding yang paling dicari.
+   */
+  async similar(slug: string, limit: number) {
+    const acuan = await queryOne<{
+      id: string
+      city: string
+      district: string
+      province: string
+      property_type: string
+      gender_policy: string
+      harga_terendah: string | null
+    }>(
+      `SELECT
+         p.id, p.city, p.district, p.province, p.property_type, p.gender_policy,
+         rm.harga AS harga_terendah
+       FROM properties p
+       LEFT JOIN LATERAL (
+         SELECT min(monthly_price) AS harga FROM rooms WHERE property_id = p.id
+       ) rm ON true
+       WHERE p.slug = $1
+         AND p.deleted_at IS NULL
+         AND p.publication_status = 'PUBLISHED'
+         AND p.verification_status = 'VERIFIED'`,
+      [slug],
+    )
+
+    // Kos yang tidak terbit atau tidak terverifikasi dijawab 404, sama seperti
+    // halaman detailnya. Bagian rekomendasi bukan jalan pintas untuk melihat
+    // kos yang pemiliknya belum menerbitkannya.
+    if (!acuan) {
+      throw new HttpError(404, 'Properti tidak ditemukan')
+    }
+
+    const hargaAcuan = acuan.harga_terendah === null ? null : Number(acuan.harga_terendah)
+
+    // Seluruh nilai lewat parameter; jumlah parameternya tetap, tidak berubah
+    // menurut filter, sehingga penomorannya tidak pernah bergeser.
+    const rows = await query<{
+      id: string
+      kecamatan_sama: boolean
+      kota_sama: boolean
+      provinsi_sama: boolean
+      tipe_sama: boolean
+      gender_sama: boolean
+      ada_kamar: boolean
+    }>(
+      `SELECT
+         p.id,
+         (p.district = $2)      AS kecamatan_sama,
+         (p.city = $3)          AS kota_sama,
+         (p.province = $8)      AS provinsi_sama,
+         (p.property_type = $4) AS tipe_sama,
+         (p.gender_policy = $5) AS gender_sama,
+         (COALESCE(rm.tersedia, 0) > 0) AS ada_kamar
+       FROM properties p
+       LEFT JOIN LATERAL (
+         SELECT
+           min(monthly_price) AS harga,
+           count(*) FILTER (WHERE availability_status = 'AVAILABLE') AS tersedia
+         FROM rooms
+         WHERE property_id = p.id
+       ) rm ON true
+       WHERE p.id <> $1::uuid
+         AND p.deleted_at IS NULL
+         AND p.publication_status = 'PUBLISHED'
+         AND p.verification_status = 'VERIFIED'
+         AND (p.district = $2 OR p.city = $3 OR p.province = $8)
+       ORDER BY
+         (p.district = $2) DESC,
+         (p.city = $3) DESC,
+         (p.province = $8) DESC,
+         (p.property_type = $4) DESC,
+         (p.gender_policy = $5) DESC,
+         (COALESCE(rm.tersedia, 0) > 0) DESC,
+         CASE WHEN $6::numeric IS NULL THEN 0
+              ELSE abs(COALESCE(rm.harga, 0) - $6::numeric) END ASC,
+         p.created_at DESC
+       LIMIT $7`,
+      [
+        acuan.id,
+        acuan.district,
+        acuan.city,
+        acuan.property_type,
+        acuan.gender_policy,
+        hargaAcuan,
+        limit,
+        acuan.province,
+      ],
+    )
+
+    if (rows.length === 0) return []
+
+    // Bentuk kartunya diambil dari fungsi yang sama dengan daftar pencarian,
+    // jadi kartu di bagian ini tidak pernah berbeda isi dari kartu di /kos.
+    const items = await propertiesService.listPublicByIds(rows.map((row) => row.id))
+    const alasanById = new Map(rows.map((row) => [row.id, alasanSerupa(row)]))
+
+    return items.map((item) => ({ ...item, alasan: alasanById.get(item.id) ?? [] }))
   },
 
   /**
