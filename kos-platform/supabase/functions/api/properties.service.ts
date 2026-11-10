@@ -550,6 +550,20 @@ export const propertiesService = {
   },
 
   /**
+   * Beberapa properti sekaligus, dengan jaraknya diukur dari satu titik tetap.
+   *
+   * Dipakai halaman kampus: seluruh kos di sana diukur dari kampus yang sama,
+   * bukan dari lokasi pengunjung, sehingga urutannya tidak berubah-ubah
+   * tergantung siapa yang membuka halamannya. Titiknya masuk sebagai parameter
+   * biasa lewat `fetchListRows`, jadi tidak ada perhitungan jarak kedua di
+   * frontend yang bisa berbeda hasilnya.
+   */
+  async listPublicByIdsAround(ids: string[], titik: GeoPoint) {
+    const rows = await fetchListRows(ids, titik, undefined, true)
+    return rows.map(toListItem)
+  },
+
+  /**
    * Kos lain yang mirip dengan satu properti.
    *
    * Kemiripannya diukur dari hal yang bisa diperiksa, bukan dari skor yang

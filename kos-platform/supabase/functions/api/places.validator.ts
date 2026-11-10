@@ -58,5 +58,24 @@ export const listRegionsQuerySchema = z.object({
   limit: z.coerce.number().int().min(1).max(50).default(12),
 })
 
+/**
+ * Query satu kampus beserta kos di sekitarnya.
+ *
+ * `radiusKm` dibatasi 50 km dengan alasan yang sama seperti daftar kampus: di
+ * atas itu hampir seluruh kos di pulau yang sama ikut terhitung dan angkanya
+ * berhenti bermakna sebagai "kos di sekitar kampus ini". Batas atas `limit`
+ * lebih besar daripada radius karena halaman kampus memang tempat melihat
+ * pilihan sebanyak mungkin dalam satu kampus, bukan menjelajah antar-kampus.
+ */
+export const campusDetailQuerySchema = z.object({
+  radiusKm: z.coerce
+    .number()
+    .nonnegative('Radius tidak boleh negatif')
+    .max(50, 'Radius maksimal 50 km')
+    .default(DEFAULT_RADIUS_KM),
+  limit: z.coerce.number().int().min(1).max(24).default(9),
+})
+
 export type ListCampusesQuery = z.infer<typeof listCampusesQuerySchema>
 export type ListRegionsQuery = z.infer<typeof listRegionsQuerySchema>
+export type CampusDetailQuery = z.infer<typeof campusDetailQuerySchema>

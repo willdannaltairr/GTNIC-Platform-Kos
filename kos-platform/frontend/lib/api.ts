@@ -65,6 +65,27 @@ export interface CampusPlace {
   propertyCount: number
 }
 
+/**
+ * Satu kampus beserta kos di sekitarnya.
+ *
+ * `radiusKm` ikut dikirim balik karena pengunjung bisa mengubahnya di halaman
+ * kampus, dan yang tampil harus menyebut radius yang benar-benar dipakai -
+ * bukan angka yang diketik di alamat halaman.
+ */
+export interface CampusDetail {
+  campus: {
+    id: string
+    name: string
+    slug: string
+    abbreviation: string | null
+    city: string
+    province: string
+    latitude: number
+    longitude: number
+  }
+  radiusKm: number
+}
+
 /** Daerah acuan (kota atau kecamatan) beserta jumlah kosnya. */
 export interface RegionPlace {
   id: string
@@ -307,6 +328,43 @@ export async function fetchCampuses(
 
     const payload = (await response.json()) as { data: CampusPlace[] }
     return payload.data
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Satu kampus beserta kos terverifikasi di sekitarnya, terdekat lebih dulu.
+ *
+ * Jaraknya diukur dari kampus, bukan dari lokasi pembaca, sehingga urutannya
+ * sama untuk siapa pun yang membuka halaman ini dan angkanya bisa dibandingkan
+ * antar-kos. `null` berarti API tidak terjangkau; kampus yang memang tidak ada
+ * dijawab 404 dan juga menjadi `null` di sini, karena halaman kampus menampilkan
+ * pesan yang sama untuk keduanya: daftarnya tidak bisa dibuka.
+ */
+export async function fetchCampusDetail(
+  slug: string,
+  params: { radiusKm?: number; limit?: number } = {},
+): Promise<{ items: PropertyListItem[]; campus: CampusDetail['campus']; radiusKm: number } | null> {
+  const query = new URLSearchParams()
+
+  if (params.radiusKm !== undefined) query.set('radiusKm', String(params.radiusKm))
+  if (params.limit !== undefined) query.set('limit', String(params.limit))
+
+  try {
+    const response = await fetch(
+      `${API_BASE}/api/v1/places/campuses/${encodeURIComponent(slug)}?${query.toString()}`,
+      { cache: 'no-store' },
+    )
+
+    if (!response.ok) return null
+
+    const payload = (await response.json()) as {
+      data: PropertyListItem[]
+      meta: { campus: CampusDetail['campus']; radiusKm: number }
+    }
+
+    return { items: payload.data, campus: payload.meta.campus, radiusKm: payload.meta.radiusKm }
   } catch {
     return null
   }
