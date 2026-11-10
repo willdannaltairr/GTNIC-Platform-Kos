@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
-import { ArrowLeft, Camera, Check, Loader2, Plus, Send, Trash2, X } from 'lucide-react'
+import { ArrowLeft, Camera, Check, History, Loader2, Plus, Send, Trash2, X } from 'lucide-react'
 import { useSession } from '@/components/session/session-provider'
 import { EmptyRow, Panel, StatusBadge } from '@/components/dashboard/kit'
 import {
@@ -238,6 +238,17 @@ export default function KondisiKamarDetailPage() {
             {data.contractNumber ? ` · ${data.contractNumber}` : ''} ·{' '}
             {formatTanggal(data.reportDate ?? data.createdAt)}
           </p>
+
+          {/* Riwayat satu kamar, bukan satu pemeriksaan: yang ingin dibandingkan
+              pemilik maupun penghuni adalah keadaan kamar ini dari waktu ke
+              waktu, dan halaman ini titik masuk paling wajar ke situ. */}
+          <Link
+            href={`/kondisi-kamar/riwayat/${data.roomId}`}
+            className="mt-3 inline-flex h-9 items-center gap-1.5 rounded-xl border border-border px-3 text-sm font-medium transition-colors hover:bg-muted"
+          >
+            <History className="size-4" aria-hidden="true" />
+            Riwayat kamar ini
+          </Link>
         </div>
         <StatusBadge status={data.status} jenis="kondisi" />
       </header>
