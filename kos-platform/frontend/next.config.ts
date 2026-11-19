@@ -3,11 +3,11 @@ import type { NextConfig } from 'next'
 import { ALAMAT_FUNGSI } from './lib/api-alamat'
 
 /**
- * Alamat Edge Function yang melayani seluruh API.
+ * Alamat server API Express yang melayani seluruh endpoint.
  *
  * Berasal dari `lib/api-alamat.ts`, tempat yang sama yang dipakai sisi server
- * untuk memanggil fungsinya langsung. Satu sumber supaya penerusan di sini dan
- * pemanggilan langsung itu tidak pernah menunjuk ke proyek yang berbeda.
+ * untuk memanggilnya langsung. Satu sumber supaya penerusan di sini dan
+ * pemanggilan langsung itu tidak pernah menunjuk ke server yang berbeda.
  */
 const nextConfig: NextConfig = {
   poweredByHeader: false,
@@ -25,11 +25,11 @@ const nextConfig: NextConfig = {
     workerThreads: false,
   },
   /**
-   * Seluruh panggilan API diteruskan ke Edge Function.
+   * Seluruh panggilan API diteruskan ke server Express.
    *
-   * Bentuk alamatnya dipertahankan persis, termasuk awalan `/api/v1`, karena
-   * pemotongan awalan platform dilakukan di dalam fungsinya. Yang berubah hanya
-   * asal permintaannya, bukan jalurnya.
+   * Bentuk alamatnya dipertahankan persis, termasuk awalan `/api/v1`, supaya
+   * seluruh berkas klien API di frontend tidak perlu diubah selain alamat
+   * tujuannya. Yang berubah hanya asal permintaannya, bukan jalurnya.
    */
   async rewrites() {
     return [

@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+
+    "strict": true,
+    "noUncheckedIndexedAccess": false,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+
+    /*
+     * Impor ditulis dengan ekstensi `.ts` supaya berkas di src/api/ tetap bisa
+     * disandingkan baris per baris dengan aslinya di supabase/functions/api/.
+     * Tanpa `noEmit`, TypeScript menolak pilihan itu; server sendiri dijalankan
+     * `tsx`, jadi tidak ada hasil kompilasi yang perlu ditulis ke disk.
+     */
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+
+    "types": ["node"]
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules"]
+}
