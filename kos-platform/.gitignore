@@ -10,9 +10,12 @@ frontend/node_modules/
 next-env.d.ts
 .vercel/
 
-# Perkakas database (bukan server; server API ada di supabase/functions/api)
+# Perkakas database (bukan server; server API ada di backend/src)
 backend/dist/
 backend/node_modules/
+
+# Berkas unggahan server API (foto kamar, dokumen verifikasi, dll.)
+backend/uploads/
 
 # Cluster PostgreSQL dev lokal (bila dipakai)
 .pgdata/
