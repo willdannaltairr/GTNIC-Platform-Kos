@@ -2,28 +2,26 @@
  * Alamat dasar API, dibedakan menurut sisi tempat kodenya berjalan.
  *
  * Di PERAMBAN, permintaannya harus relatif ke situs sendiri (`''`), bukan ke
- * alamat fungsinya. Cookie sesi ber-`SameSite=Lax` tidak ikut terkirim pada
- * permintaan lintas situs, sehingga memanggil fungsinya langsung membuat
+ * alamat server API. Cookie sesi ber-`SameSite=Lax` tidak ikut terkirim pada
+ * permintaan lintas situs, sehingga memanggil server langsung membuat
  * pengunjung tampak selalu belum masuk walaupun loginnya berhasil. Permintaan
  * relatif diteruskan ke sana oleh `next.config.ts`, jadi seluruhnya sesama
  * asal dan cookienya first-party.
  *
  * Di SERVER (komponen server, dan prerender saat build), `fetch` bawaan Node
- * MENOLAK alamat relatif. Sebelum ini seluruh halaman yang datanya diambil di
- * server gagal diam-diam: klien datanya mengembalikan null lewat `catch`, dan
- * halaman detail kos berakhir 404 padahal API-nya menjawab 200. Karena itu sisi
- * server memakai alamat fungsinya langsung, yang sekaligus membuat halaman itu
- * bisa dirender saat build tanpa menunggu permintaan masuk lebih dulu.
+ * MENOLAK alamat relatif. Karena itu sisi server memakai alamat server API
+ * langsung, yang sekaligus membuat halaman itu bisa dirender saat build tanpa
+ * menunggu permintaan masuk lebih dulu.
  *
- * Nilainya bisa ditimpa lewat `API_FUNGSI_URL` supaya proyek Supabase lain bisa
- * dipakai tanpa menyunting berkas ini. `next.config.ts` mengimpor konstanta
- * yang sama, jadi penerusan di sana dan pemanggilan langsung di sini selalu
- * menunjuk ke proyek yang sama.
+ * Nilainya bisa ditimpa lewat `API_FUNGSI_URL` supaya backend yang berjalan di
+ * mesin atau host lain bisa dipakai tanpa menyunting berkas ini.
+ * `next.config.ts` mengimpor konstanta yang sama, jadi penerusan di sana dan
+ * pemanggilan langsung di sini selalu menunjuk ke server yang sama.
  */
 
-/** Alamat Edge Function yang melayani seluruh API. */
+/** Alamat server API Express yang melayani seluruh endpoint. */
 export const ALAMAT_FUNGSI: string =
-  process.env.API_FUNGSI_URL ?? 'https://ftunxbdpiokslgrzcmvd.supabase.co/functions/v1/api'
+  process.env.API_FUNGSI_URL ?? 'http://localhost:4000'
 
 /**
  * Alamat dasar untuk `fetch`.
